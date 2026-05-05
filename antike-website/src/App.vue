@@ -2,12 +2,12 @@
   <div class="bg-background h-screen w-full overflow-hidden flex flex-col items-center ">
     <div class="h-[8%] flex items-center justify-center bg-gray-100 w-[80%] rounded-2xl"> 
       <BaseButton @click="toggleIdList">
-        Test 
+        Show SVG Id List  
       </BaseButton>
     </div>
 
-    <svgMap class="h-[90%] max-w-[80%] w-auto" />
-    <IDListModal v-if="showIdList" @toggleID="toggleId" @toggleIdList="toggleIdList" :ids="ids"/>
+    <svgMap @click="svgClicked" @mouseover="svgMouseOver" @mouseout="svgMouseOut" class="h-[90%] max-w-[80%] w-auto" />
+    <IDListModal v-if="showIdList" @toggleId="toggleId" @toggleIdList="toggleIdList" :ids="ids"/>
   </div>
 </template>
 
@@ -27,6 +27,22 @@ const ids = reactive({}) //ensures reactivity of map
 for (const match of matches) {
   const id = match[1] //The plain id
   ids[id] = true //all ids are enabled by default
+}
+
+function getSvgElement(event) {
+  return event.target.closest('[id]')
+}
+
+function svgClicked(event) {
+  const element = getSvgElement(event)
+  if (!element) return
+  
+  //TODO: CHECKBOXES NOT PERSISTENT --> THIS DOESNT WORK
+  const id = element.id
+  if (ids[id] !== true) return
+
+  //insert open Riddle Creation or Handle Streets here
+  console.log(id)
 }
 
 function toggleId(id, checked) {
