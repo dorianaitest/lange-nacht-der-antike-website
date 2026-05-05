@@ -4,6 +4,7 @@
       <BaseButton @click="toggleIdList">
         Show SVG Id List  
       </BaseButton>
+      <p>Hovered Element: {{ hoveredElement }}</p>
     </div>
 
     <svgMap @click="svgClicked" @mouseover="svgMouseOver" @mouseout="svgMouseOut" class="h-[90%] max-w-[80%] w-auto" />
@@ -21,6 +22,8 @@ import { reactive, ref } from 'vue'
 
 const showIdList = ref(false)
 
+const hoveredElement = ref(null)
+
 const matches = svgRaw.matchAll(/\bid=["']([^"']+)["']/g) // Match all ids inside svg and only save the matched element
 const ids = reactive({}) //ensures reactivity of map
 
@@ -37,12 +40,32 @@ function svgClicked(event) {
   const element = getSvgElement(event)
   if (!element) return
   
-  //TODO: CHECKBOXES NOT PERSISTENT --> THIS DOESNT WORK
   const id = element.id
   if (ids[id] !== true) return
 
   //insert open Riddle Creation or Handle Streets here
   console.log(id)
+}
+
+function svgMouseOver(event) {
+  const element = getSvgElement(event)
+  if (!element) return
+
+  const id = element.id
+  if (ids[id] !== true) return
+
+  hoveredElement.value = id
+}
+
+function svgMouseOut(event) {
+  const element = getSvgElement(event)
+  if (!element) return
+
+  const id = element.id
+  
+  if (hoveredElement.value === id) {
+    hoveredElement.value = null
+  }
 }
 
 function toggleId(id, checked) {
