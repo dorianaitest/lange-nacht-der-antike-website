@@ -1,11 +1,31 @@
-<script setup></script>
-
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div class="bg-background h-screen w-full overflow-hidden flex flex-col items-center ">
+    <div class="h-[8%] flex items-center justify-center bg-gray-100 w-[80%] rounded-2xl"> 
+      <BaseButton @click="testModal">
+        Test 
+      </BaseButton>
+    </div>
+
+    <svgMap class="h-[90%] max-w-[80%] w-auto" />
+    <BaseModal v-if="modal">
+      <h1>Modal Test</h1>
+      <BaseButton @click="testModal">Test</BaseButton>
+    </BaseModal>
+  </div>
 </template>
+
+<script setup>
+import svgMap from './assets/background.svg?component'
+import BaseButton from './components/BaseButton.vue';
+import BaseModal from './components/BaseModal.vue'
+
+import { ref } from 'vue'
+
+const modal = ref(false)
+
+function testModal() {
+  modal.value = !modal.value
+}
+</script>
 
 <style scoped></style>
