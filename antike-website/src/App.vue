@@ -1,6 +1,6 @@
 <template>
   <div class="bg-background h-screen w-full overflow-hidden flex flex-col items-center ">
-    <div class="h-[8%] flex items-center justify-center bg-gray-100 w-[80%] rounded-2xl"> 
+    <div class="h-[8%] flex items-center justify-start gap-4 bg-gray-100 w-[80%] rounded-2xl"> 
       <BaseButton @click="toggleIdList">
         Show SVG Id List  
       </BaseButton>
@@ -9,6 +9,7 @@
 
     <svgMap @click="svgClicked" @mouseover="svgMouseOver" @mouseout="svgMouseOut" class="h-[90%] max-w-[80%] w-auto" />
     <IDListModal v-if="showIdList" @toggleId="toggleId" @toggleIdList="toggleIdList" :ids="ids"/>
+    <ClickedElementModal v-if="showClickedElementModal" @toggleClickedElementModal="toggleClickedElementModal"/>
   </div>
 </template>
 
@@ -16,11 +17,13 @@
 import svgMap from './assets/background.svg?component'
 import BaseButton from './components/BaseButton.vue';
 import IDListModal from './components/IDListModal.vue';
+import ClickedElementModal from './components/ClickedElementModal.vue';
 import svgRaw from '@/assets/background.svg?raw'
 
 import { reactive, ref } from 'vue'
 
 const showIdList = ref(false)
+const showClickedElementModal = ref(false)
 
 const hoveredElement = ref(null)
 
@@ -44,6 +47,7 @@ function svgClicked(event) {
   if (ids[id] !== true) return
 
   //insert open Riddle Creation or Handle Streets here
+  toggleClickedElementModal()
   console.log(id)
 }
 
@@ -74,6 +78,10 @@ ids[id] = checked
 
 function toggleIdList() {
   showIdList.value = !showIdList.value 
+}
+
+function toggleClickedElementModal() {
+  showClickedElementModal.value = !showClickedElementModal.value 
 }
 </script>
 
