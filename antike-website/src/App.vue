@@ -18,7 +18,7 @@
       @toggleRiddleCreation="toggleRiddleCreation"
       @togglePathCreation="togglePathCreation"
     />
-    <RiddleCreationModal v-if="currentWindow.riddleCreationModal" @cancel="closeAllModals"/>
+    <RiddleCreationModal v-if="currentWindow.riddleCreationModal" :id="clickedElement" @riddleSaved="addRiddleToList" @cancel="closeAllModals"/>
     <PathCreationModal v-if="currentWindow.pathCreationModal" @cancel="closeAllModals"/>
   </div>
 </template>
@@ -40,13 +40,11 @@ const currentWindow = reactive({
   riddleCreationModal: false,
   pathCreationModal: false,
 })
-/*
-const showIdList = ref(false)
-const currentWindow.clickedElementModal = ref(false)
-const currentWindow.riddleCreationModal = ref(false)
-const currentWindow.pathCreationModal = ref(false)
-*/
+
+const riddleList = ref([])
+
 const hoveredElement = ref(null)
+const clickedElement = ref(null)
 
 const matches = svgRaw.matchAll(/\bid=["']([^"']+)["']/g) // Match all ids inside svg and only save the matched element
 const ids = reactive({}) //ensures reactivity of map
@@ -67,7 +65,7 @@ function svgClicked(event) {
   const id = element.id
   if (ids[id] !== true) return
 
-  //insert open Riddle Creation or Handle Streets here
+  clickedElement.value = id
   toggleClickedElementModal()
 }
 
@@ -118,6 +116,14 @@ function closeAllModals() {
   for (const key in currentWindow) {
     currentWindow[key] = false
   }
+}
+
+function addRiddleToList(riddleObject) {
+  riddleList.value.push({
+    id: riddleObject.id,
+    riddle: riddleObject.riddle,
+    answer: riddleObject.answer,
+  })
 }
 
 </script>
