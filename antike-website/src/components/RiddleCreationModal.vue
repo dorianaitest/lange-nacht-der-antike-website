@@ -12,13 +12,7 @@
       />
       <h3 class="text-xl">Answer</h3>
       <input v-model="answer" type="text" placeholder="incorrectly" />
-      <BaseButton
-        @click="
-          emit('riddleSaved', { id: id, riddle: riddle, answer: answer });
-          cancel()
-        "
-        >Save</BaseButton
-      >
+      <BaseButton @click="riddleSaved">Save</BaseButton>
       <BaseButton @click="cancel">Cancel</BaseButton>
     </div>
   </BaseModal>
@@ -29,9 +23,6 @@ import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import { ref } from 'vue'
 
-const riddle = ref('')
-const answer = ref('')
-
 function cancel() {
   riddle.value = ''
   answer.value = ''
@@ -40,12 +31,27 @@ function cancel() {
 
 const emit = defineEmits(['riddleSaved', 'cancel'])
 
-defineProps({
+const props = defineProps({
   id: {
     type: String,
     required: true,
   },
+  riddleList: {
+    type: Object,
+    required: true,
+  },
 })
+
+function riddleSaved() {
+  emit('riddleSaved', { id: props.id, riddle: riddle.value, answer: answer.value })
+  cancel()
+}
+
+const existingRiddle = props.riddleList[props.id]
+
+const riddle = ref(existingRiddle?.riddle ?? '')
+
+const answer = ref(existingRiddle?.answer ?? '')
 </script>
 
 <style lang="scss" scoped></style>

@@ -11,15 +11,31 @@
       @mouseout="svgMouseOut"
       class="h-[90%] w-auto max-w-[80%]"
     />
-    <IDListModal v-if="currentWindow.idListModal" @toggleId="toggleId" @toggleIdList="toggleIdList" :ids="ids" />
+    <IDListModal
+      v-if="currentWindow.idListModal"
+      @toggleId="toggleId"
+      @toggleIdList="toggleIdList"
+      :ids="ids"
+    />
     <ClickedElementModal
       v-if="currentWindow.clickedElementModal"
       @cancel="closeAllModals"
       @toggleRiddleCreation="toggleRiddleCreation"
       @togglePathCreation="togglePathCreation"
     />
-    <RiddleCreationModal v-if="currentWindow.riddleCreationModal" :id="clickedElement" @riddleSaved="addRiddleToList" @cancel="closeAllModals"/>
-    <PathCreationModal v-if="currentWindow.pathCreationModal" @cancel="closeAllModals"/>
+    <RiddleCreationModal
+      v-if="currentWindow.riddleCreationModal"
+      :id="clickedElement"
+      :riddleList="riddleList"
+      @riddleSaved="addRiddleToList"
+      @cancel="closeAllModals"
+    />
+    <PathCreationModal
+      v-if="currentWindow.pathCreationModal"
+      :id="clickedElement"
+      :riddleList="riddleList"
+      @cancel="closeAllModals"
+    />
   </div>
 </template>
 
@@ -41,7 +57,7 @@ const currentWindow = reactive({
   pathCreationModal: false,
 })
 
-const riddleList = ref([])
+const riddleList = reactive({})
 
 const hoveredElement = ref(null)
 const clickedElement = ref(null)
@@ -119,13 +135,12 @@ function closeAllModals() {
 }
 
 function addRiddleToList(riddleObject) {
-  riddleList.value.push({
-    id: riddleObject.id,
+  riddleList[riddleObject.id] = {
     riddle: riddleObject.riddle,
     answer: riddleObject.answer,
-  })
+  }
+  console.log(riddleList)
 }
-
 </script>
 
 <style scoped></style>
