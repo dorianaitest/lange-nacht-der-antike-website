@@ -4,15 +4,20 @@
       <BaseButton @click="toggleIdList"> Show SVG Id List </BaseButton>
       <BaseButton @click="toggleClickableHighlighting">Highlight Clickable Elements</BaseButton>
       <BaseButton @click="createDefaultRiddleList">Insert Default</BaseButton>
-      <p>Hovered Element: {{ hoveredElement }}</p>
+      <BaseButton @click="changeNodeOrder">Change Node Order</BaseButton>
     </div>
 
     <svgMap
       @click="svgClicked"
       @mouseover="svgMouseOver"
       @mouseout="svgMouseOut"
-      class="h-[90%] w-auto max-w-[80%]"
+      class="h-[80%] w-auto max-w-[80%]"
     />
+
+    <div class="flex h-[8%] w-[80%] items-center justify-start gap-4 rounded-2xl bg-gray-100">
+      <p class="text-2xl">Hovered Element: {{ hoveredElement }}</p>
+    </div>
+
     <IDListModal
       v-if="currentWindow.idListModal"
       @toggleId="toggleId"
