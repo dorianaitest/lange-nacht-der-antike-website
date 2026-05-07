@@ -11,7 +11,7 @@
       @click="svgClicked"
       @mouseover="svgMouseOver"
       @mouseout="svgMouseOut"
-      class="h-[80%] w-auto max-w-[80%]"
+      class="max-h-[80%] w-auto max-w-[80%]"
     />
 
     <div class="flex h-[8%] w-[80%] items-center justify-start gap-4 rounded-2xl bg-gray-100">
@@ -231,6 +231,8 @@ function createDefaultRiddleList() {
   Object.assign(riddleList, defaultRiddles)
   console.log(riddleList)
 }
+
+function changeNodeOrder() {}
 </script>
 
 <style scoped></style>
