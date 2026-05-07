@@ -1,10 +1,20 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-background: #FFFFFF;
-  --color-primary: #1D4ED8;
+  --color-background: #ffffff;
+  --color-primary: #1d4ed8;
   --color-secondary: #059669;
-  --color-accent: #DC2626;
-  --color-muted: #6B7280;
+  --color-accent: #dc2626;
+  --color-muted: #6b7280;
   --color-text: #111827;
+}
+
+.hovered-svg-element {
+  stroke: red !important;
+  stroke-width: 1 !important;
+}
+
+.highlight-svg-element {
+  stroke: yellow;
+  stroke-width: 0.5;
 }
