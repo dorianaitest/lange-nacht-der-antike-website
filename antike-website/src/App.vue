@@ -3,6 +3,7 @@
     <div class="flex h-[8%] w-[80%] items-center justify-start gap-4 rounded-2xl bg-gray-100">
       <BaseButton @click="toggleIdList"> Show SVG Id List </BaseButton>
       <BaseButton @click="toggleClickableHighlighting">Highlight Clickable Elements</BaseButton>
+      <BaseButton @click="createDefaultRiddleList">Insert Default</BaseButton>
       <p>Hovered Element: {{ hoveredElement }}</p>
     </div>
 
@@ -76,6 +77,58 @@ for (const match of matches) {
 //HARDCODE REMOVE LATER!
 ids['Landkarte'] = false
 ids['Ebene_29'] = false
+
+const defaultRiddles = {
+  Genua: {
+    riddle: 'I guard the northern sea routes and thrive through trade. What city am I?',
+    answer: 'Genua',
+  },
+
+  Brundisium: {
+    riddle: 'Travelers crossing from Greece often arrive at my busy harbor. Which city am I?',
+    answer: 'Brundisium',
+  },
+
+  Cannae: {
+    riddle: 'I am remembered for a disastrous Roman defeat against Hannibal. What place am I?',
+    answer: 'Cannae',
+  },
+
+  Cumae: {
+    riddle: 'I am home to a famous oracle who spoke cryptic prophecies. Which city am I?',
+    answer: 'Cumae',
+  },
+
+  Syracusae: {
+    riddle: 'I am a wealthy Sicilian city where Archimedes once lived. What city am I?',
+    answer: 'Syracusae',
+  },
+
+  Roma: {
+    riddle: 'All roads are said to lead to me. Which city am I?',
+    answer: 'Roma',
+  },
+
+  Alpen: {
+    riddle: 'Crossing me with elephants made Hannibal legendary. What am I?',
+    answer: 'Alpen',
+  },
+
+  Rubico: {
+    riddle: 'Caesar crossed me and changed Roman history forever. What river am I?',
+    answer: 'Rubico',
+  },
+
+  Pompei: {
+    riddle: 'Mount Vesuvius buried me beneath ash in a single day. Which city am I?',
+    answer: 'Pompei',
+  },
+
+  Sardinia: {
+    riddle: 'I am the large Mediterranean island west of Italy. What am I?',
+    answer: 'Sardinia',
+  },
+}
 
 function getSvgElement(event) {
   return event.target.closest('[id]')
@@ -167,6 +220,11 @@ function toggleClickableHighlighting() {
       element.classList.remove('highlight-svg-element')
     }
   }
+}
+
+function createDefaultRiddleList() {
+  Object.assign(riddleList, defaultRiddles)
+  console.log(riddleList)
 }
 </script>
 
