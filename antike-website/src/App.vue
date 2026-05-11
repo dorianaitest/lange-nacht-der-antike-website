@@ -22,6 +22,7 @@
       @toggleElementStatus="toggleElementStatus"
       @toggleIdList="toggleIdList"
       @toggleMode="toggleCurrentMode"
+      @changeOrderForId="changeOrderForId"
       :ids="ids"
       :mode="currentMode"
       :maxElementOrder="calculateMaxElementStepNumber"
@@ -251,6 +252,11 @@ const calculateMaxElementStepNumber = computed(() => {
   }
   return currentMax + 1
 })
+
+function changeOrderForId(id, order) {
+  ids[id] = order
+  console.log(calculateMaxElementStepNumber.value)
+}
 </script>
 
 <style scoped></style>

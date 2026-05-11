@@ -25,6 +25,7 @@
           :key="id"
           :order="order"
           :maxElementOrder="maxElementOrder"
+          @changeOrder="emit('changeOrderForId', id, $event)"
           @toggleElementStatus="emit('toggleElementStatus', id, $event)"
         >
           {{ id }}
@@ -56,7 +57,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['toggleElementStatus', 'toggleIdList', 'toggleMode'])
+const emit = defineEmits(['toggleElementStatus', 'toggleIdList', 'toggleMode', 'changeOrderForId'])
 </script>
 
 <style lang="scss" scoped></style>

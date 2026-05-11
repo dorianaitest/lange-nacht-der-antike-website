@@ -12,10 +12,15 @@
       </p>
     </label>
     <div>
-      <select class="rounded-lg border border-gray-300 bg-white px-3 py-2">
+      <select
+        :disabled="order === 0"
+        :value="order"
+        @change="emit('changeOrder', Number($event.target.value))"
+        class="rounded-lg border border-gray-300 bg-white px-3 py-2"
+      >
         <option disabled value="">Select the Order of the Element</option>
-        <option v-for="elementOrder in maxElementOrder" :key="elementOrder" :value="order">
-          {{ elementOrder }} //NEEED TO PASS THE UPDATE TO PARENT SO MAXVAL IS RECOMPUTED
+        <option v-for="elementOrder in maxElementOrder" :key="elementOrder" :value="elementOrder">
+          {{ elementOrder }}
         </option>
       </select>
     </div>
@@ -34,7 +39,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['toggleElementStatus'])
+const emit = defineEmits(['toggleElementStatus', 'changeOrder'])
 </script>
 
 <style lang="scss" scoped></style>
