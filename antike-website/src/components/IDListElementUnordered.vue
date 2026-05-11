@@ -1,9 +1,9 @@
 <template>
-  <label class="flex items-center gap-2 cursor-pointer">
+  <label class="flex cursor-pointer items-center gap-2">
     <input
       type="checkbox"
-      :checked="checked"
-      @change="emit('toggle', $event.target.checked)"
+      :checked="checked !== 0"
+      @change="emit('toggleElementStatus', $event.target.checked)"
       class="h-4 w-4"
     />
     <p class="text-text">
@@ -15,12 +15,12 @@
 <script setup>
 defineProps({
   checked: {
-    type: Boolean,
+    type: Number,
     required: true,
-  }
+  },
 })
 
-const emit = defineEmits(['toggle'])
+const emit = defineEmits(['toggleElementStatus'])
 </script>
 
 <style lang="scss" scoped></style>

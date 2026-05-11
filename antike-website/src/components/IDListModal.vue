@@ -14,7 +14,7 @@
           v-for="(checked, id) in ids"
           :key="id"
           :checked="checked"
-          @toggle="emit('toggleId', id, $event)"
+          @toggleElementStatus="emit('toggleElementStatus', id, $event)"
         >
           {{ id }}
         </IDListElementUnordered>
@@ -24,7 +24,7 @@
           v-for="(checked, id) in ids"
           :key="id"
           :checked="checked"
-          @toggle="emit('toggleId', id, $event)"
+          @toggle="emit('toggleElementStatus', id, $event)"
         >
           {{ id }}
         </IDListElementOrdered>
@@ -51,7 +51,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['toggleId', 'toggleIdList', 'toggleMode'])
+const emit = defineEmits(['toggleElementStatus', 'toggleIdList', 'toggleMode'])
 </script>
 
 <style lang="scss" scoped></style>

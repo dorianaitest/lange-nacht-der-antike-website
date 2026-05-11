@@ -20,7 +20,7 @@
 
     <IDListModal
       v-if="currentWindow.idListModal"
-      @toggleId="toggleId"
+      @toggleElementStatus="toggleElementStatus"
       @toggleIdList="toggleIdList"
       @toggleMode="toggleCurrentMode"
       :ids="ids"
@@ -80,12 +80,12 @@ const ids = reactive({}) //ensures reactivity of map
 
 for (const match of matches) {
   const id = match[1] //The plain id
-  ids[id] = true //all ids are enabled by default
+  ids[id] = 1 //all ids are enabled by default
 }
 
 //HARDCODE REMOVE LATER!
-ids['Landkarte'] = false
-ids['Ebene_29'] = false
+ids['Landkarte'] = 0
+ids['Ebene_29'] = 0
 
 const defaultRiddles = {
   Genua: {
@@ -148,7 +148,7 @@ function svgClicked(event) {
   if (!element) return
 
   const id = element.id
-  if (ids[id] !== true) return
+  if (ids[id] === 0) return
 
   clickedElement.value = id
   toggleClickedElementModal()
@@ -159,7 +159,7 @@ function svgMouseOver(event) {
   if (!element) return
 
   const id = element.id
-  if (ids[id] !== true) return
+  if (ids[id] === 0) return
 
   hoveredElement.value = id
   element.classList.add('hovered-svg-element')
@@ -177,8 +177,8 @@ function svgMouseOut(event) {
   element.classList.remove('hovered-svg-element')
 }
 
-function toggleId(id, checked) {
-  ids[id] = checked
+function toggleElementStatus(id, checked) {
+  ids[id] = checked ? 1 : 0
 }
 
 function toggleIdList() {
