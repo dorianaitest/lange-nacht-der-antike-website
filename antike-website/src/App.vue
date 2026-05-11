@@ -22,7 +22,9 @@
       v-if="currentWindow.idListModal"
       @toggleId="toggleId"
       @toggleIdList="toggleIdList"
+      @toggleMode="toggleCurrentMode"
       :ids="ids"
+      :mode="currentMode"
     />
     <ClickedElementModal
       v-if="currentWindow.clickedElementModal"
@@ -63,6 +65,8 @@ const currentWindow = reactive({
   riddleCreationModal: false,
   pathCreationModal: false,
 })
+
+const currentMode = ref('unordered')
 
 const highlightingEnabled = ref(false)
 
@@ -233,6 +237,14 @@ function createDefaultRiddleList() {
 }
 
 function changeNodeOrder() {}
+
+function toggleCurrentMode() {
+  if (currentMode.value === 'unordered') {
+    currentMode.value = 'ordered'
+  } else if (currentMode.value === 'ordered') {
+    currentMode.value = 'unordered'
+  }
+}
 </script>
 
 <style scoped></style>
