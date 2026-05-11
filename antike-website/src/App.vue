@@ -4,7 +4,6 @@
       <BaseButton @click="toggleIdList"> Show SVG Id List </BaseButton>
       <BaseButton @click="toggleClickableHighlighting">Highlight Clickable Elements</BaseButton>
       <BaseButton @click="createDefaultRiddleList">Insert Default</BaseButton>
-      <BaseButton @click="changeNodeOrder">Change Node Order</BaseButton>
     </div>
 
     <svgMap
@@ -25,6 +24,7 @@
       @toggleMode="toggleCurrentMode"
       :ids="ids"
       :mode="currentMode"
+      :maxElementOrder="calculateMaxElementStepNumber"
     />
     <ClickedElementModal
       v-if="currentWindow.clickedElementModal"
@@ -57,7 +57,7 @@ import svgRaw from './assets/background.svg?raw'
 import RiddleCreationModal from './components/RiddleCreationModal.vue'
 import PathCreationModal from './components/PathCreationModal.vue'
 
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 
 const currentWindow = reactive({
   idListModal: false,
@@ -177,8 +177,8 @@ function svgMouseOut(event) {
   element.classList.remove('hovered-svg-element')
 }
 
-function toggleElementStatus(id, checked) {
-  ids[id] = checked ? 1 : 0
+function toggleElementStatus(id, order) {
+  ids[id] = order ? 1 : 0
 }
 
 function toggleIdList() {
@@ -236,8 +236,6 @@ function createDefaultRiddleList() {
   console.log(riddleList)
 }
 
-function changeNodeOrder() {}
-
 function toggleCurrentMode() {
   if (currentMode.value === 'unordered') {
     currentMode.value = 'ordered'
@@ -245,6 +243,14 @@ function toggleCurrentMode() {
     currentMode.value = 'unordered'
   }
 }
+
+const calculateMaxElementStepNumber = computed(() => {
+  let currentMax = 0
+  for (const id in ids) {
+    if (currentMax < ids[id]) currentMax = ids[id]
+  }
+  return currentMax + 1
+})
 </script>
 
 <style scoped></style>

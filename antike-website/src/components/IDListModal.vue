@@ -1,7 +1,7 @@
 <template>
   <BaseModal>
     <div
-      class="bg-background mx-4 flex max-h-[80%] min-h-[50%] w-full max-w-lg flex-col rounded-xl p-6 shadow-xl"
+      class="bg-background mx-4 flex max-h-[80%] min-h-[50%] w-full max-w-[80%] flex-col rounded-xl p-6 shadow-xl"
     >
       <h2 class="text-text text-xl">List of IDs for clickable Elements</h2>
       <p class="text-text">Check / Uncheck the boxes to make the elements clickable</p>
@@ -11,9 +11,9 @@
       </div>
       <div v-if="mode === 'unordered'" class="m-3 overflow-y-auto rounded-2xl bg-gray-200 p-3">
         <IDListElementUnordered
-          v-for="(checked, id) in ids"
+          v-for="(order, id) in ids"
           :key="id"
-          :checked="checked"
+          :order="order"
           @toggleElementStatus="emit('toggleElementStatus', id, $event)"
         >
           {{ id }}
@@ -21,10 +21,11 @@
       </div>
       <div v-if="mode === 'ordered'" class="m-3 overflow-y-auto rounded-2xl bg-gray-200 p-3">
         <IDListElementOrdered
-          v-for="(checked, id) in ids"
+          v-for="(order, id) in ids"
           :key="id"
-          :checked="checked"
-          @toggle="emit('toggleElementStatus', id, $event)"
+          :order="order"
+          :maxElementOrder="maxElementOrder"
+          @toggleElementStatus="emit('toggleElementStatus', id, $event)"
         >
           {{ id }}
         </IDListElementOrdered>
@@ -47,6 +48,10 @@ defineProps({
   },
   mode: {
     type: String,
+    required: true,
+  },
+  maxElementOrder: {
+    type: Number,
     required: true,
   },
 })
