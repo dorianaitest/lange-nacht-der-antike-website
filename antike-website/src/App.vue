@@ -4,6 +4,7 @@
       <BaseButton @click="toggleIdList"> Show SVG Id List </BaseButton>
       <BaseButton @click="toggleClickableHighlighting">Highlight Clickable Elements</BaseButton>
       <BaseButton @click="createDefaultRiddleList">Insert Default</BaseButton>
+      <BaseButton @click="togglePreview">Open Preview</BaseButton>
     </div>
 
     <svgMap
@@ -46,6 +47,13 @@
       :riddleList="riddleList"
       @cancel="closeAllModals"
     />
+    <PreviewModal
+      v-if="currentWindow.previewModal"
+      @cancel="closeAllModals"
+      :validElements="ids"
+      :riddleList="riddleList"
+      :mode="currentMode"
+    />
   </div>
 </template>
 
@@ -57,6 +65,7 @@ import ClickedElementModal from './components/ClickedElementModal.vue'
 import svgRaw from './assets/background.svg?raw'
 import RiddleCreationModal from './components/RiddleCreationModal.vue'
 import PathCreationModal from './components/PathCreationModal.vue'
+import PreviewModal from './components/PreviewModal.vue'
 
 import { reactive, ref, computed } from 'vue'
 
@@ -65,6 +74,7 @@ const currentWindow = reactive({
   clickedElementModal: false,
   riddleCreationModal: false,
   pathCreationModal: false,
+  previewModal: false,
 })
 
 const currentMode = ref('unordered')
@@ -256,6 +266,10 @@ const calculateMaxElementStepNumber = computed(() => {
 function changeOrderForId(id, order) {
   ids[id] = order
   console.log(calculateMaxElementStepNumber.value)
+}
+
+function togglePreview() {
+  currentWindow['previewModal'] = !currentWindow['previewModal']
 }
 </script>
 
