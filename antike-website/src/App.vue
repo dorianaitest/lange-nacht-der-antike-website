@@ -49,7 +49,8 @@
     />
     <PreviewModal
       v-if="currentWindow.previewModal"
-      @cancel="closeAllModals"
+      @cancelPreview="cancelPreview"
+      @riddleAnswered="riddleAnswered"
       :validElements="ids"
       :riddleList="riddleList"
       :mode="currentMode"
@@ -102,51 +103,61 @@ const defaultRiddles = {
   Genua: {
     riddle: 'I guard the northern sea routes and thrive through trade. What city am I?',
     answer: 'Genua',
+    completed: false,
   },
 
   Brundisium: {
     riddle: 'Travelers crossing from Greece often arrive at my busy harbor. Which city am I?',
     answer: 'Brundisium',
+    completed: false,
   },
 
   Cannae: {
     riddle: 'I am remembered for a disastrous Roman defeat against Hannibal. What place am I?',
     answer: 'Cannae',
+    completed: false,
   },
 
   Cumae: {
     riddle: 'I am home to a famous oracle who spoke cryptic prophecies. Which city am I?',
     answer: 'Cumae',
+    completed: false,
   },
 
   Syracusae: {
     riddle: 'I am a wealthy Sicilian city where Archimedes once lived. What city am I?',
     answer: 'Syracusae',
+    completed: false,
   },
 
   Roma: {
     riddle: 'All roads are said to lead to me. Which city am I?',
     answer: 'Roma',
+    completed: false,
   },
 
   Alpen: {
     riddle: 'Crossing me with elephants made Hannibal legendary. What am I?',
     answer: 'Alpen',
+    completed: false,
   },
 
   Rubico: {
     riddle: 'Caesar crossed me and changed Roman history forever. What river am I?',
     answer: 'Rubico',
+    completed: false,
   },
 
   Pompei: {
     riddle: 'Mount Vesuvius buried me beneath ash in a single day. Which city am I?',
     answer: 'Pompei',
+    completed: false,
   },
 
   Sardinia: {
     riddle: 'I am the large Mediterranean island west of Italy. What am I?',
     answer: 'Sardinia',
+    completed: false,
   },
 }
 
@@ -220,8 +231,8 @@ function addRiddleToList(riddleObject) {
   riddleList[riddleObject.id] = {
     riddle: riddleObject.riddle,
     answer: riddleObject.answer,
+    completed: false,
   }
-  console.log(riddleList)
 }
 
 function toggleClickableHighlighting() {
@@ -270,6 +281,17 @@ function changeOrderForId(id, order) {
 
 function togglePreview() {
   currentWindow['previewModal'] = !currentWindow['previewModal']
+}
+
+function riddleAnswered(id) {
+  riddleList[id].completed = true
+}
+
+function cancelPreview() {
+  for (const id in riddleList) {
+    riddleList[id].completed = false
+  }
+  closeAllModals()
 }
 </script>
 

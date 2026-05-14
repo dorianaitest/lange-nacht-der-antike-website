@@ -18,3 +18,17 @@
   stroke: yellow;
   stroke-width: 0.5;
 }
+
+.answered-svg-element {
+  opacity: 0.45 !important;
+  filter: grayscale(100%) !important;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.locked-svg-element {
+  opacity: 0.5 !important;
+  filter: blur(0.5px) grayscale(80%) !important;
+  cursor: not-allowed;
+  pointer-events: none;
+}
