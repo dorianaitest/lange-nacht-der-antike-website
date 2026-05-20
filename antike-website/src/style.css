@@ -12,6 +12,7 @@
 .hovered-svg-element {
   stroke: red !important;
   stroke-width: 1 !important;
+  cursor: pointer;
 }
 
 .highlight-svg-element {
@@ -21,14 +22,12 @@
 
 .answered-svg-element {
   opacity: 0.45 !important;
-  filter: grayscale(100%) !important;
+  stroke: yellow;
+  stroke-width: 1;
   cursor: not-allowed;
-  pointer-events: none;
 }
 
 .locked-svg-element {
-  opacity: 0.5 !important;
-  filter: blur(0.5px) grayscale(80%) !important;
+  filter: blur(2px) !important;
   cursor: not-allowed;
-  pointer-events: none;
 }
