@@ -23,11 +23,11 @@
       @toggleElementStatus="toggleElementStatus"
       @toggleIdList="toggleIdList"
       @toggleMode="toggleCurrentMode"
-      @changeOrderForId="changeOrderForId"
+      @changeUnlockIdForId="changeUnlockIdForId"
       :ids="ids"
       :mode="currentMode"
-      :maxElementOrder="calculateMaxElementStepNumber"
     />
+
     <ClickedElementModal
       v-if="currentWindow.clickedElementModal"
       @cancel="closeAllModals"
@@ -91,13 +91,13 @@ const matches = svgRaw.matchAll(/\bid=["']([^"']+)["']/g) // Match all ids insid
 const ids = reactive({}) //ensures reactivity of map
 
 for (const match of matches) {
-  const id = match[1] //The plain id
-  ids[id] = 1 //all ids are enabled by default
+  const id = match[1]
+  ids[id] = '' // empty string = enabled and starter node
 }
 
 //HARDCODE REMOVE LATER!
-ids['Landkarte'] = 0
-ids['Ebene_29'] = 0
+ids['Landkarte'] = null
+ids['Ebene_29'] = null
 
 const defaultRiddles = {
   Genua: {
@@ -170,7 +170,7 @@ function svgClicked(event) {
   if (!element) return
 
   const id = element.id
-  if (ids[id] === 0) return
+  if (ids[id] === null) return
 
   clickedElement.value = id
   toggleClickedElementModal()
@@ -181,7 +181,7 @@ function svgMouseOver(event) {
   if (!element) return
 
   const id = element.id
-  if (ids[id] === 0) return
+  if (ids[id] === null) return
 
   hoveredElement.value = id
   element.classList.add('hovered-svg-element')
@@ -199,8 +199,12 @@ function svgMouseOut(event) {
   element.classList.remove('hovered-svg-element')
 }
 
-function toggleElementStatus(id, order) {
-  ids[id] = order ? 1 : 0
+function toggleElementStatus(id, enabled) {
+  ids[id] = enabled ? '' : null
+}
+
+function changeUnlockIdForId(id, unlockAfterId) {
+  ids[id] = unlockAfterId
 }
 
 function toggleIdList() {
@@ -239,7 +243,7 @@ function toggleClickableHighlighting() {
   highlightingEnabled.value = !highlightingEnabled.value
   if (highlightingEnabled.value) {
     for (const id in ids) {
-      if (!ids[id]) continue
+      if (ids[id] === null) continue
       const element = document.getElementById(id)
 
       element.classList.add('highlight-svg-element')
