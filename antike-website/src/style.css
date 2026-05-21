@@ -24,7 +24,6 @@
   opacity: 0.45 !important;
   stroke: yellow;
   stroke-width: 1;
-  cursor: not-allowed;
 }
 
 .locked-svg-element {
