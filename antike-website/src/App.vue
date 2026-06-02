@@ -41,8 +41,8 @@
       @riddleSaved="addRiddleToList"
       @cancel="closeAllModals"
     />
-    <PathCreationModal
-      v-if="currentWindow.pathCreationModal"
+    <ConditionalRenderingModal
+      v-if="currentWindow.conditionalRenderingModal"
       :id="clickedElement"
       :riddleList="riddleList"
       @cancel="closeAllModals"
@@ -64,8 +64,8 @@ import BaseButton from './components/BaseButton.vue'
 import IDListModal from './components/IDListModal.vue'
 import ClickedElementModal from './components/ClickedElementModal.vue'
 import svgRaw from './assets/background.svg?raw'
-import RiddleCreationModal from './components/RiddleCreationModal.vue'
-import PathCreationModal from './components/PathCreationModal.vue'
+import RiddleCreationModal from './components/ConditionalRenderingModal.vue'
+import ConditionalRenderingModal from './components/ConditionalRenderingModal.vue'
 import PreviewModal from './components/PreviewModal.vue'
 
 import { reactive, ref, computed } from 'vue'
@@ -74,7 +74,7 @@ const currentWindow = reactive({
   idListModal: false,
   clickedElementModal: false,
   riddleCreationModal: false,
-  pathCreationModal: false,
+  conditionalRenderingModal: false,
   previewModal: false,
 })
 
@@ -90,9 +90,13 @@ const clickedElement = ref(null)
 const matches = svgRaw.matchAll(/\bid=["']([^"']+)["']/g) // Match all ids inside svg and only save the matched element
 const ids = reactive({}) //ensures reactivity of map
 
+// very ugly: will be refactored in v2
+const types = reactive({})
+
 for (const match of matches) {
   const id = match[1]
   ids[id] = '' // empty string = enabled and starter node
+  types[id] = 'riddle' //this is for different node types: REFACTOR INTO SINGLE OBJECT LATER
 }
 
 //HARDCODE REMOVE LATER!
@@ -222,7 +226,7 @@ function toggleRiddleCreation() {
 
 function togglePathCreation() {
   if (currentWindow.clickedElementModal) currentWindow.clickedElementModal = false
-  currentWindow.pathCreationModal = !currentWindow.pathCreationModal
+  currentWindow.conditionalRenderingModal = !currentWindow.conditionalRenderingModal
 }
 
 function closeAllModals() {
