@@ -7,7 +7,7 @@
         <!-- toolbar + map + hover -->
         <div class="flex h-full min-w-0 flex-1 flex-col">
           <div class="flex shrink-0 items-center gap-2 border-b border-gray-200 px-4 py-2">
-            <BaseButton>Aktion 1</BaseButton>
+            <BaseButton @click="setupModalOpen = true">Ebenen</BaseButton>
             <BaseButton>Aktion 2</BaseButton>
             <BaseButton>Aktion 3</BaseButton>
             <BaseButton>Aktion 4</BaseButton>
@@ -16,7 +16,7 @@
           <SvgMap class="min-w-0 flex-1" @hoverChange="hoveredElementId = $event" />
 
           <p class="shrink-0 border-t border-gray-200 px-4 py-2 text-sm text-gray-500">
-            hervorgehobenes Element:
+            Hervorgehobenes Element:
             <span class="font-mono text-gray-800">{{ hoveredElementId }}</span>
           </p>
         </div>

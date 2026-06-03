@@ -16,7 +16,7 @@
 
       <!-- STUMP: will be changed to Rätsel Creation or Dekoration Config -->
       <div class="flex flex-col gap-2 px-6 pt-6">
-        <span class="text-xs font-medium text-gray-500 uppercase">Type</span>
+        <span class="text-xs font-medium text-gray-500 uppercase">Typ</span>
         <div class="flex flex-col gap-2">
           <!-- conditional styling for diff: selected type and others -->
           <button
@@ -40,7 +40,7 @@
     <template v-else>
       <div class="flex flex-1 items-center justify-center px-6">
         <p class="text-center text-sm text-gray-400">
-          Clicke auf ein Element der Karte, um es zu konfigurieren
+          Klicke auf ein Element der Karte, um es zu konfigurieren
         </p>
       </div>
     </template>

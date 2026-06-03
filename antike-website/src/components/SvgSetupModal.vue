@@ -1,5 +1,5 @@
 <template>
-  <BaseModal title="Setup" width="90vw" height="90vh" @close="$emit('close')">
+  <BaseModal title="Ebenen" width="90vw" height="90vh" @close="$emit('close')">
     <div class="flex flex-1 overflow-hidden">
       <ul class="flex-1 divide-y divide-gray-100 overflow-y-auto">
         <li
