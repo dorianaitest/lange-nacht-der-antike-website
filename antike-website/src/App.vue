@@ -15,7 +15,11 @@
             <BaseButton>Aktion 4</BaseButton>
           </div>
 
-          <SvgMap class="min-w-0 flex-1" :highlightAll="highlightAllElements" @hoverChange="hoveredElementId = $event" />
+          <SvgMap
+            class="min-w-0 flex-1"
+            :highlightAll="highlightAllElements"
+            @hoverChange="hoveredElementId = $event"
+          />
 
           <p class="shrink-0 border-t border-gray-200 px-4 py-2 text-sm text-gray-500">
             Hervorgehobenes Element:
@@ -62,9 +66,13 @@ const highlightAllElements = ref(false)
 
 provide(PLAIN_SVG_TEXT, svgText)
 provide(ELEMENTS_DATA, elementsData)
-provide(EXTRACT_ELEMENTS, (ids) => {
+provide(EXTRACT_ELEMENTS, function (ids) {
   for (const id of ids) {
-    elementsData.value[id] = { elementArt: 'deaktiviert' }
+    // for now all elements get the riddle attribute CHANGE LATER
+    elementsData.value[id] = {
+      elementArt: 'deaktiviert',
+      riddle: { question: '', answer: '', successText: '', iconFile: null, iconPreview: null },
+    }
   }
 })
 provide(SELECTED_ELEMENT_ID, selectedElementId)
