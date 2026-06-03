@@ -4,7 +4,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, inject } from 'vue'
+import { ref, onMounted, nextTick, inject, watch, toRef } from 'vue'
 import {
   PLAIN_SVG_TEXT,
   ELEMENTS_DATA,
@@ -18,6 +18,14 @@ const extractElements = inject(EXTRACT_ELEMENTS, () => {})
 const setSelectedElement = inject(SET_SELECTED_ELEMENT, () => {})
 
 const emit = defineEmits(['hoverChange'])
+
+const props = defineProps({
+  highlightAll: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+})
 
 const container = ref(null)
 
@@ -37,29 +45,31 @@ function setupHoverListeners() {
   }
 }
 
-function addListenersToElement(id, svgElement) {
-  function getArt() {
-    return elementsData.value?.[id]?.elementArt
-  }
+function getArt(id) {
+  return elementsData.value?.[id]?.elementArt
+}
 
+function addListenersToElement(id, svgElement) {
   function onEnter() {
-    const art = getArt()
+    const art = getArt(id)
 
     if (art !== 'deaktiviert') {
-      svgElement.classList.add(HIGHLIGHT_CLASS[art])
+      applyHighlight(svgElement, art)
       emit('hoverChange', id)
     }
   }
 
   function onLeave() {
-    for (const cls in HIGHLIGHT_CLASS) {
-      svgElement.classList.remove(HIGHLIGHT_CLASS[cls])
+    //need to ensure we don't remove the highlighting if allHighlighting is enabled
+    if (!props.highlightAll) {
+      removeHighlight(svgElement)
     }
+
     emit('hoverChange', null)
   }
 
   function onClick() {
-    const art = getArt()
+    const art = getArt(id)
 
     if (art !== 'deaktiviert') {
       setSelectedElement(id)
@@ -96,10 +106,54 @@ function extractSvgElements() {
   return true
 }
 
+//these helpers are new: maybe need to update other parts of code
+function removeHighlight(svgElement) {
+  for (const cls in HIGHLIGHT_CLASS) {
+    svgElement.classList.remove(HIGHLIGHT_CLASS[cls])
+  }
+}
+
+function applyHighlight(svgElement, art) {
+  removeHighlight(svgElement)
+  svgElement.classList.add(HIGHLIGHT_CLASS[art])
+}
+
+function updateAllHighlights(highlightActive) {
+  const entries = Object.entries(elements.value)
+
+  for (const [id, svgElement] of entries) {
+    removeHighlight(svgElement)
+
+    if (highlightActive) {
+      const art = getArt(id)
+      applyHighlight(svgElement, art)
+    }
+  }
+}
+
+// need to make the boolean reactive; feels inefficient--> maybe debug later
+const highlightAllRef = toRef(props, 'highlightAll')
+
+watch(highlightAllRef, function (highlightAllIsActive) {
+  updateAllHighlights(highlightAllIsActive)
+})
+
+// fixed bug where updating elementType didnt update highlighting (deep because it's a nested obj)
+watch(
+  elementsData,
+  function () {
+    if (props.highlightAll) {
+      updateAllHighlights(true)
+    }
+  },
+  { deep: true },
+)
+
 //once the svg is shown for the first time extract the elements
 onMounted(async function () {
   await nextTick()
   extractSvgElements()
 })
+
 defineExpose({ elements }) // needed for SvgSetupModal to access svg DOM-Elements
 </script>

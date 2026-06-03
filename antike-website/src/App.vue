@@ -8,12 +8,14 @@
         <div class="flex h-full min-w-0 flex-1 flex-col">
           <div class="flex shrink-0 items-center gap-2 border-b border-gray-200 px-4 py-2">
             <BaseButton @click="setupModalOpen = true">Ebenen</BaseButton>
-            <BaseButton>Aktion 2</BaseButton>
+            <BaseButton @click="highlightAllElements = !highlightAllElements"
+              >Elemente hervorheben</BaseButton
+            >
             <BaseButton>Aktion 3</BaseButton>
             <BaseButton>Aktion 4</BaseButton>
           </div>
 
-          <SvgMap class="min-w-0 flex-1" @hoverChange="hoveredElementId = $event" />
+          <SvgMap class="min-w-0 flex-1" :highlightAll="highlightAllElements" @hoverChange="hoveredElementId = $event" />
 
           <p class="shrink-0 border-t border-gray-200 px-4 py-2 text-sm text-gray-500">
             Hervorgehobenes Element:
@@ -56,6 +58,7 @@ const elementsData = ref({})
 const selectedElementId = ref(null)
 const setupModalOpen = ref(false)
 const hoveredElementId = ref(null)
+const highlightAllElements = ref(false)
 
 provide(PLAIN_SVG_TEXT, svgText)
 provide(ELEMENTS_DATA, elementsData)
