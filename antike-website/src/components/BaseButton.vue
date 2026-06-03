@@ -1,13 +1,9 @@
 <template>
-    <button class="px-4 py-2 rounded-md font-medium text-text bg-primary hover:opacity-90">
-        <slot />
-    </button>
+  <button
+    class="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 active:bg-blue-800"
+  >
+    <slot />
+  </button>
 </template>
 
-<script setup>
-
-</script>
-
-<style lang="scss" scoped>
-
-</style>
+<script setup></script>

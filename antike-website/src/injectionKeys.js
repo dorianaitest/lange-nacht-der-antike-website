@@ -1,0 +1,5 @@
+export const PLAIN_SVG_TEXT = Symbol()
+export const ELEMENTS_DATA = Symbol()
+export const EXTRACT_ELEMENTS = Symbol()
+export const SELECTED_ELEMENT_ID = Symbol()
+export const SET_SELECTED_ELEMENT = Symbol()
