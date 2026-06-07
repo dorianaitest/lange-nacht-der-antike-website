@@ -11,8 +11,8 @@
             <BaseButton @click="highlightAllElements = !highlightAllElements"
               >Elemente hervorheben</BaseButton
             >
-            <BaseButton>Aktion 3</BaseButton>
-            <BaseButton>Aktion 4</BaseButton>
+            <BaseButton @click="orderingOpen = true">Reihenfolge</BaseButton>
+            <BaseButton @click="exportOpen = true">Exportieren</BaseButton>
           </div>
 
           <SvgMap
@@ -31,6 +31,10 @@
       </div>
 
       <SvgSetupModal v-if="setupModalOpen" @close="setupModalOpen = false" />
+
+      <OrderingModal v-if="orderingOpen" @close="orderingOpen = false" />
+
+      <ExportModal v-if="exportOpen" @close="exportOpen = false" />
     </template>
 
     <template v-else>
@@ -46,6 +50,8 @@ import { ref, provide } from 'vue'
 import SvgMap from './components/SvgMap.vue'
 import EditorSidebar from './components/EditorSidebar.vue'
 import SvgSetupModal from './components/SvgSetupModal.vue'
+import OrderingModal from './components/OrderingModal.vue'
+import ExportModal from './components/ExportModal.vue'
 import BaseButton from './components/BaseButton.vue'
 import {
   PLAIN_SVG_TEXT,
@@ -61,6 +67,8 @@ const svgText = ref(null)
 const elementsData = ref({})
 const selectedElementId = ref(null)
 const setupModalOpen = ref(false)
+const orderingOpen = ref(false)
+const exportOpen = ref(false)
 const hoveredElementId = ref(null)
 const highlightAllElements = ref(false)
 
@@ -71,7 +79,14 @@ provide(EXTRACT_ELEMENTS, function (ids) {
     // for now all elements get the riddle attribute CHANGE LATER
     elementsData.value[id] = {
       elementArt: 'deaktiviert',
-      riddle: { question: '', answer: '', successText: '', iconFile: null, iconPreview: null },
+      riddle: {
+        question: '',
+        answer: '',
+        successText: '',
+        iconFile: null,
+        iconPreview: null,
+        unlockAfterElement: null,
+      },
       deco: { linkedElement: null, stateBefore: 'hidden', stateAfter: 'none' },
     }
   }

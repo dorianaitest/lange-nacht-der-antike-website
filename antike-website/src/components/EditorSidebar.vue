@@ -118,6 +118,14 @@
         </template>
       </div>
     </template>
+    <template v-else>
+      <!-- Empty state -->
+      <div class="flex flex-1 items-center justify-center px-6">
+        <p class="text-center text-sm text-gray-400">
+          Klicke ein Element auf der Karte, um es zu konfigurieren
+        </p>
+      </div>
+    </template>
   </aside>
 </template>
 
