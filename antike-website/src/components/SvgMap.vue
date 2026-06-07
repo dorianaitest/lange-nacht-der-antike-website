@@ -12,8 +12,8 @@ import {
   SET_SELECTED_ELEMENT,
 } from '../injectionKeys.js'
 
-const svgText = inject(PLAIN_SVG_TEXT, ref(''))
-const elementsData = inject(ELEMENTS_DATA, ref({}))
+const svgText = inject(PLAIN_SVG_TEXT)
+const elementsData = inject(ELEMENTS_DATA)
 const extractElements = inject(EXTRACT_ELEMENTS, () => {})
 const setSelectedElement = inject(SET_SELECTED_ELEMENT, () => {})
 

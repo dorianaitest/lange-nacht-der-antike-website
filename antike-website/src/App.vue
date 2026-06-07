@@ -12,6 +12,7 @@
               >Elemente hervorheben</BaseButton
             >
             <BaseButton @click="orderingOpen = true">Reihenfolge</BaseButton>
+            <BaseButton @click="previewOpen = true">Vorschau</BaseButton>
             <BaseButton @click="exportOpen = true">Exportieren</BaseButton>
           </div>
 
@@ -35,6 +36,8 @@
       <OrderingModal v-if="orderingOpen" @close="orderingOpen = false" />
 
       <ExportModal v-if="exportOpen" @close="exportOpen = false" />
+
+      <PreviewModal v-if="previewOpen" @close="previewOpen = false" />
     </template>
 
     <template v-else>
@@ -52,6 +55,7 @@ import EditorSidebar from './components/EditorSidebar.vue'
 import SvgSetupModal from './components/SvgSetupModal.vue'
 import OrderingModal from './components/OrderingModal.vue'
 import ExportModal from './components/ExportModal.vue'
+import PreviewModal from './components/PreviewModal.vue'
 import BaseButton from './components/BaseButton.vue'
 import {
   PLAIN_SVG_TEXT,
@@ -69,6 +73,7 @@ const selectedElementId = ref(null)
 const setupModalOpen = ref(false)
 const orderingOpen = ref(false)
 const exportOpen = ref(false)
+const previewOpen = ref(false)
 const hoveredElementId = ref(null)
 const highlightAllElements = ref(false)
 

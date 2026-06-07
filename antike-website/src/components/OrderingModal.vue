@@ -22,7 +22,7 @@
               <span class="text-sm whitespace-nowrap text-gray-500"> Freischalten nach: </span>
 
               <select v-model="entry.riddle.unlockAfterId" :class="SELECT_CLASS">
-                <option :value="null">— Start —</option>
+                <option :value="null">Start</option>
 
                 <option
                   v-for="[otherId] in raetselEntries"
