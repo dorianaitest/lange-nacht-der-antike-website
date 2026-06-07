@@ -72,6 +72,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
     elementsData.value[id] = {
       elementArt: 'deaktiviert',
       riddle: { question: '', answer: '', successText: '', iconFile: null, iconPreview: null },
+      deco: { linkedElement: null, stateBefore: 'hidden', stateAfter: 'none' },
     }
   }
 })

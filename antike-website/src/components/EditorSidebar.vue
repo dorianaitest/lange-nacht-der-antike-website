@@ -86,18 +86,36 @@
           </div>
         </template>
 
-        <template v-else>
-          <p class="text-sm text-gray-400">NOTHING YET.</p>
-        </template>
-      </div>
-    </template>
+        <!-- Dekoration-Template -->
+        <template v-if="entry.elementArt === 'Dekoration'">
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+              <p class="text-sm text-gray-700">Freigeschaltet durch Rätsel:</p>
+              <select v-model="deco.linkedElement" :class="SELECT_CLASS">
+                <option :value="null">Keines</option>
+                <option v-for="id in raetselIds" :key="id" :value="id">{{ id }}</option>
+              </select>
+            </div>
 
-    <!-- When no Element selected -->
-    <template v-else>
-      <div class="flex flex-1 items-center justify-center px-6">
-        <p class="text-center text-sm text-gray-400">
-          Klicke auf ein Element der Karte, um es zu konfigurieren
-        </p>
+            <div class="flex flex-col gap-2">
+              <p class="text-sm text-gray-700">Dekoration vor Freischaltung:</p>
+              <select v-model="deco.stateBefore" :class="SELECT_CLASS">
+                <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
+                  {{ style.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <p class="text-sm text-gray-700">Dekoration nach Freischaltung:</p>
+              <select v-model="deco.stateAfter" :class="SELECT_CLASS">
+                <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
+                  {{ style.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </template>
       </div>
     </template>
   </aside>
@@ -115,6 +133,13 @@ const elementsData = inject(ELEMENTS_DATA)
 
 const iconInput = ref(null)
 
+const DECO_STYLES = [
+  { value: 'hidden', label: 'versteckt' },
+  { value: 'none', label: 'normal' },
+  { value: 'shrouded', label: 'verschleiert' },
+  { value: 'highlighted', label: 'hervorgehoben' },
+]
+
 const entry = computed(function () {
   if (!selectedId.value) return null
 
@@ -123,6 +148,20 @@ const entry = computed(function () {
 
 const riddle = computed(function () {
   return entry.value?.riddle
+})
+
+const deco = computed(function () {
+  return entry.value?.deco
+})
+
+const raetselIds = computed(function () {
+  const entries = Object.entries(elementsData.value)
+  const result = []
+
+  for (const [id, element] of entries) {
+    if (element.elementArt === 'Rätsel') result.push(id)
+  }
+  return result
 })
 
 function openIconDialogue() {
