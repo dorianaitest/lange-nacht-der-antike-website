@@ -1,3 +1,7 @@
+<template>
+  <div ref="container" class="h-full w-full" v-html="svgText" />
+</template>
+
 <script setup>
 import { ref, inject, watch, nextTick, onMounted } from 'vue'
 import { PLAIN_SVG_TEXT } from '../injectionKeys.js'
@@ -168,7 +172,3 @@ onMounted(async function () {
 
 watch(props.completedRiddles, updateVisuals)
 </script>
-
-<template>
-  <div ref="container" class="h-full w-full" v-html="svgText" />
-</template>
