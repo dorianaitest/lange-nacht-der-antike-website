@@ -37,18 +37,31 @@
           </div>
         </div>
       </section>
+
+      <section class="mt-6">
+        <p class="mb-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
+          Abschlussnachricht
+        </p>
+        <textarea
+          v-model="completionMessage"
+          rows="3"
+          class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+          placeholder="Du hast es geschaft! Nun hast du ..."
+        />
+      </section>
     </div>
   </BaseModal>
 </template>
 
 <script setup>
 import { computed, inject } from 'vue'
-import { ELEMENTS_DATA } from '../injectionKeys.js'
+import { ELEMENTS_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 
 const emit = defineEmits(['close'])
 
 const elementsData = inject(ELEMENTS_DATA)
+const completionMessage = inject(COMPLETION_MESSAGE)
 
 const raetselEntries = computed(function () {
   const result = []

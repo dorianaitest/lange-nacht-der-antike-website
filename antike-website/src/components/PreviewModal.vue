@@ -14,7 +14,7 @@
           <div>
             <h3 class="mb-1 text-lg font-semibold text-gray-900">Alle Rätsel gelöst!</h3>
             <p class="text-sm text-gray-500">
-              Du hast alle {{ raetselCount }} Rätsel dieser Vorschau abgeschlossen.
+              {{ config.completionMessage || 'Du hast alle ' + raetselCount + ' Rätsel dieser Vorschau abgeschlossen.' }}
             </p>
           </div>
           <div class="flex gap-2">
@@ -80,7 +80,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, inject } from 'vue'
-import { ELEMENTS_DATA } from '../injectionKeys.js'
+import { ELEMENTS_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import PreviewMap from './PreviewMap.vue'
@@ -89,10 +89,11 @@ import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
 const emit = defineEmits(['close', 'reset'])
 
 const elementsData = inject(ELEMENTS_DATA)
+const completionMessage = inject(COMPLETION_MESSAGE)
 
 // create the JSON file
 const config = computed(function () {
-  return buildRiddleConfig(elementsData.value)
+  return buildRiddleConfig(elementsData.value, completionMessage.value)
 })
 
 // probalby need to refactor this --> lowkey breaking my brain how to reset this
@@ -160,4 +161,5 @@ function closeDialog() {
   answerInput.value = ''
   answerState.value = 'idle'
 }
+
 </script>

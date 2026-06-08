@@ -14,7 +14,7 @@
 
 <script setup>
 import { computed, inject } from 'vue'
-import { ELEMENTS_DATA } from '../injectionKeys.js'
+import { ELEMENTS_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
@@ -22,11 +22,13 @@ import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
 const emit = defineEmits(['close'])
 
 const elementsData = inject(ELEMENTS_DATA)
+const completionMessage = inject(COMPLETION_MESSAGE)
 
-const config = computed(() => buildRiddleConfig(elementsData.value))
+const config = computed(() => buildRiddleConfig(elementsData.value, completionMessage.value))
 const jsonString = computed(() => JSON.stringify(config.value, null, 2))
 
 function copyToClipboard() {
   navigator.clipboard.writeText(jsonString.value)
 }
+
 </script>

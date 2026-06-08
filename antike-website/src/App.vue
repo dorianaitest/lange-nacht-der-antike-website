@@ -63,11 +63,13 @@ import {
   EXTRACT_ELEMENTS,
   SELECTED_ELEMENT_ID,
   SET_SELECTED_ELEMENT,
+  COMPLETION_MESSAGE,
 } from './injectionKeys.js'
 
 const fileInput = ref(null)
 // better than using the ?component from before multiple times
 const svgText = ref(null)
+const completionMessage = ref('')
 const elementsData = ref({})
 const selectedElementId = ref(null)
 const setupModalOpen = ref(false)
@@ -96,6 +98,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
     }
   }
 })
+provide(COMPLETION_MESSAGE, completionMessage)
 provide(SELECTED_ELEMENT_ID, selectedElementId)
 provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id

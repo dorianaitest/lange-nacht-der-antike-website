@@ -1,4 +1,4 @@
-export function buildRiddleConfig(elementsData) {
+export function buildRiddleConfig(elementsData, completionMessage) {
   const entries = Object.entries(elementsData)
   const nodes = {}
 
@@ -34,6 +34,7 @@ export function buildRiddleConfig(elementsData) {
   return {
     svgFile: 'background.svg',
     ordering: isOrdered ? 'ordered' : 'unordered',
+    completionMessage,
     nodes,
   }
 }
