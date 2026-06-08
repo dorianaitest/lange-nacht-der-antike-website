@@ -14,3 +14,31 @@
   stroke: gray;
   stroke-width: 2px;
 }
+
+.preview-raetsel-accessible {
+  stroke: orange;
+  stroke-width: 0.5px;
+  cursor: pointer;
+}
+
+.preview-raetsel-completed {
+  stroke: #22c55e;
+  stroke-width: 0.5px;
+  cursor: default;
+}
+
+.preview-raetsel-locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.preview-deco-hidden {
+  display: none;
+}
+.preview-deco-shrouded {
+  opacity: 0.2;
+}
+.preview-deco-highlighted {
+  stroke: gold;
+  stroke-width: 1px;
+}

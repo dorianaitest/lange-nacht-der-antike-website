@@ -55,7 +55,7 @@ function buildRiddleConfig(elementsData) {
     } else if (entry.elementArt === 'Dekoration') {
       nodes[id] = {
         type: 'dekoration',
-        linkedNodeId: entry.deco.linkedNodeId,
+        linkedElement: entry.deco.linkedElement,
         stateBefore: entry.deco.stateBefore,
         stateAfter: entry.deco.stateAfter,
       }

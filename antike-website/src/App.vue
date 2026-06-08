@@ -37,7 +37,7 @@
 
       <ExportModal v-if="exportOpen" @close="exportOpen = false" />
 
-      <PreviewModal v-if="previewOpen" @close="previewOpen = false" />
+      <PreviewModal v-if="previewOpen" @close="previewOpen = false" @reset="resetPreview" />
     </template>
 
     <template v-else>
@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, provide } from 'vue'
+import { ref, provide, nextTick } from 'vue'
 import SvgMap from './components/SvgMap.vue'
 import EditorSidebar from './components/EditorSidebar.vue'
 import SvgSetupModal from './components/SvgSetupModal.vue'
@@ -100,6 +100,13 @@ provide(SELECTED_ELEMENT_ID, selectedElementId)
 provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id
 })
+
+// need to refactor (if I can figure out how to reset a reactive component..)
+async function resetPreview() {
+  previewOpen.value = false
+  await nextTick()
+  previewOpen.value = true
+}
 
 function openFilePicker() {
   fileInput.value.click()
