@@ -1,6 +1,13 @@
 <template>
   <BaseModal title="Vorschau" width="90vw" height="90vh" @close="emit('close')">
     <div class="relative flex-1 overflow-hidden">
+      <div
+        v-if="!allComplete"
+        class="absolute top-3 right-3 z-10 rounded-lg bg-white/90 px-3 py-1 font-mono text-sm text-gray-700 shadow-sm"
+      >
+        {{ formatTime(elapsedSeconds) }}
+      </div>
+
       <PreviewMap
         :config="config"
         :completedRiddles="completedRiddles"
@@ -14,7 +21,13 @@
           <div>
             <h3 class="mb-1 text-lg font-semibold text-gray-900">Alle Rätsel gelöst!</h3>
             <p class="text-sm text-gray-500">
-              {{ config.completionMessage || 'Du hast alle ' + raetselCount + ' Rätsel dieser Vorschau abgeschlossen.' }}
+              {{
+                config.completionMessage ||
+                'Du hast alle ' + raetselCount + ' Rätsel dieser Vorschau abgeschlossen.'
+              }}
+            </p>
+            <p class="mt-2 font-mono text-2xl font-semibold text-gray-800">
+              {{ formatTime(elapsedSeconds) }}
             </p>
           </div>
           <div class="flex gap-2">
@@ -79,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, inject } from 'vue'
+import { ref, reactive, computed, watch, inject, onMounted, onUnmounted } from 'vue'
 import { ELEMENTS_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
@@ -122,8 +135,38 @@ const allComplete = computed(function () {
 })
 
 watch(allComplete, function (done) {
-  if (done) closeDialog()
+  if (done) {
+    stopTimer()
+    closeDialog()
+  }
 })
+
+const elapsedSeconds = ref(0)
+let intervalId = null
+
+function formatTime(s) {
+  const m = Math.floor(s / 60)
+    .toString()
+    .padStart(2, '0')
+  const sec = (s % 60).toString().padStart(2, '0')
+  return m + ':' + sec
+}
+
+function startTimer() {
+  clearInterval(intervalId)
+  elapsedSeconds.value = 0
+  intervalId = setInterval(function () {
+    elapsedSeconds.value++
+  }, 1000)
+}
+
+function stopTimer() {
+  clearInterval(intervalId)
+  intervalId = null
+}
+
+onMounted(startTimer)
+onUnmounted(stopTimer)
 
 const activeRiddle = ref(null)
 const answerInput = ref('')
@@ -161,5 +204,5 @@ function closeDialog() {
   answerInput.value = ''
   answerState.value = 'idle'
 }
-
 </script>
+
