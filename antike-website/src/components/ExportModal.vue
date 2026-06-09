@@ -1,6 +1,9 @@
 <template>
   <BaseModal title="Export: riddle-config.json" width="60vw" height="80vh" @close="emit('close')">
     <div class="flex shrink-0 items-center justify-end gap-2 border-b border-gray-100 px-5 py-2">
+      <BaseButton @click="downloadZip">
+        {{ 'Zip-Datei erstellen' }}
+      </BaseButton>
       <BaseButton @click="copyToClipboard">
         {{ 'Kopieren' }}
       </BaseButton>
@@ -14,13 +17,15 @@
 
 <script setup>
 import { computed, inject } from 'vue'
-import { ELEMENTS_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
+import { PLAIN_SVG_TEXT, ELEMENTS_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
+import { exportZip } from '../utils/exportZip.js'
 
 const emit = defineEmits(['close'])
 
+const plainSvgText = inject(PLAIN_SVG_TEXT)
 const elementsData = inject(ELEMENTS_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
 
@@ -31,4 +36,9 @@ function copyToClipboard() {
   navigator.clipboard.writeText(jsonString.value)
 }
 
+function downloadZip() {
+  exportZip(plainSvgText.value, elementsData.value, completionMessage.value)
+}
+
 </script>
+
