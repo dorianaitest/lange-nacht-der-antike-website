@@ -3,7 +3,7 @@
     <div class="relative flex-1 overflow-hidden">
       <div
         v-if="!allComplete"
-        class="absolute top-3 right-3 z-10 rounded-lg bg-white/90 px-3 py-1 font-mono text-sm text-gray-700 shadow-sm"
+        class="pointer-events-none absolute top-3 right-3 z-10 rounded-lg bg-white/90 px-3 py-1 font-mono text-sm text-gray-700 shadow-sm"
       >
         {{ formatTime(elapsedSeconds) }}
       </div>
@@ -75,6 +75,12 @@
           </div>
 
           <div v-else class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+            <img
+              v-if="activeRiddleIconPreview"
+              :src="activeRiddleIconPreview"
+              alt="Symbol"
+              class="mb-3 h-16 w-16 rounded-lg object-cover"
+            />
             <p class="text-sm text-green-800">
               {{ activeRiddle.riddle.successText }}
             </p>
@@ -172,6 +178,17 @@ const activeRiddle = ref(null)
 const answerInput = ref('')
 const answerState = ref('idle')
 
+const activeRiddleIconPreview = computed(function () {
+  if (!activeRiddle.value) return null
+
+  const entry = elementsData.value[activeRiddle.value.id]
+  if (!entry) return null
+
+  if (!entry.riddle) return null
+
+  return entry.riddle.iconPreview || null
+})
+
 function onRaetselClick(riddleElement) {
   activeRiddle.value = {
     id: riddleElement.id,
@@ -205,4 +222,3 @@ function closeDialog() {
   answerState.value = 'idle'
 }
 </script>
-
