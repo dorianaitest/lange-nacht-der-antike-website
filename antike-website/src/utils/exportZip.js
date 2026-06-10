@@ -1,8 +1,8 @@
 import { strToU8, zipSync } from 'fflate'
 import { buildRiddleConfig } from './buildRiddleConfig.js'
 
-export async function exportZip(plainSvgText, elementsData, completionMessage) {
-  const config = buildRiddleConfig(elementsData, completionMessage)
+export async function exportZip(plainSvgText, elementsData, completionMessage, mode) {
+  const config = buildRiddleConfig(elementsData, completionMessage, mode)
 
   // the zip file needs raw bytes so we need to convert the strings
   const files = {
@@ -14,7 +14,7 @@ export async function exportZip(plainSvgText, elementsData, completionMessage) {
   for (const [, entry] of Object.entries(elementsData)) {
     if (entry.elementArt === 'Rätsel' && entry.riddle.iconFile) {
       const file = entry.riddle.iconFile
-      const buffer = await file.arrayBuffer() // we need the icon's raw binary
+      const buffer = await file.arrayBuffer() // we need the icons raw binary
       files['icons/' + file.name] = new Uint8Array(buffer)
     }
   }

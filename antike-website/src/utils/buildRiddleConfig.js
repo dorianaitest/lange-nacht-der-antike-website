@@ -1,8 +1,6 @@
-export function buildRiddleConfig(elementsData, completionMessage) {
+export function buildRiddleConfig(elementsData, completionMessage, mode) {
   const entries = Object.entries(elementsData)
   const nodes = {}
-
-  const isOrdered = true
 
   for (const [id, entry] of entries) {
     if (entry.elementArt === 'Rätsel') {
@@ -33,7 +31,7 @@ export function buildRiddleConfig(elementsData, completionMessage) {
 
   return {
     svgFile: 'background.svg',
-    ordering: isOrdered ? 'ordered' : 'unordered',
+    mode,
     completionMessage,
     nodes,
   }

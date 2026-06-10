@@ -60,7 +60,7 @@
                 placeholder="Text nach richtiger Antwort..."
               />
             </div>
-            <div class="flex flex-col gap-2">
+            <div v-if="selectedMode !== 'Spezial'" class="flex flex-col gap-2">
               <label class="text-sm font-medium text-gray-700">Symbol</label>
 
               <input
@@ -132,12 +132,13 @@
 <script setup>
 //computed allows to recalculate easily once selectedId changes
 import { ref, computed, inject } from 'vue'
-import { SELECTED_ELEMENT_ID, SET_SELECTED_ELEMENT, ELEMENTS_DATA } from '../injectionKeys.js'
+import { SELECTED_ELEMENT_ID, SET_SELECTED_ELEMENT, ELEMENTS_DATA, SELECTED_MODE } from '../injectionKeys.js'
 import BaseButton from './BaseButton.vue'
 
 const selectedId = inject(SELECTED_ELEMENT_ID)
 const setSelectedElement = inject(SET_SELECTED_ELEMENT)
 const elementsData = inject(ELEMENTS_DATA)
+const selectedMode = inject(SELECTED_MODE)
 
 const iconInput = ref(null)
 

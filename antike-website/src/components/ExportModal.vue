@@ -17,7 +17,7 @@
 
 <script setup>
 import { computed, inject } from 'vue'
-import { PLAIN_SVG_TEXT, ELEMENTS_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
+import { PLAIN_SVG_TEXT, ELEMENTS_DATA, COMPLETION_MESSAGE, SELECTED_MODE } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
@@ -28,8 +28,9 @@ const emit = defineEmits(['close'])
 const plainSvgText = inject(PLAIN_SVG_TEXT)
 const elementsData = inject(ELEMENTS_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
+const selectedMode = inject(SELECTED_MODE)
 
-const config = computed(() => buildRiddleConfig(elementsData.value, completionMessage.value))
+const config = computed(() => buildRiddleConfig(elementsData.value, completionMessage.value, selectedMode.value))
 const jsonString = computed(() => JSON.stringify(config.value, null, 2))
 
 function copyToClipboard() {
@@ -37,8 +38,7 @@ function copyToClipboard() {
 }
 
 function downloadZip() {
-  exportZip(plainSvgText.value, elementsData.value, completionMessage.value)
+  exportZip(plainSvgText.value, elementsData.value, completionMessage.value, selectedMode.value)
 }
 
 </script>
-
