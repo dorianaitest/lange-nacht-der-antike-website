@@ -47,6 +47,15 @@ function isAccessible(id) {
     return true
   }
 
+  if (props.config.abschlussRaetselId && id === props.config.abschlussRaetselId) {
+    for (const [nodeId, node] of Object.entries(props.config.nodes)) {
+      if (nodeId !== id && node.type === 'rätsel' && !isCompleted(nodeId)) {
+        return false
+      }
+    }
+    return true
+  }
+
   if (!element.unlockAfterId) {
     return true
   }
