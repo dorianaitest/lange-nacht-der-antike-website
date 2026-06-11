@@ -99,7 +99,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, inject, onMounted, onUnmounted } from 'vue'
-import { ELEMENTS_DATA, COMPLETION_MESSAGE, SELECTED_MODE } from '../injectionKeys.js'
+import { ELEMENTS_DATA, COMPLETION_MESSAGE, SELECTED_MODE, SYMBOL_POOL } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import PreviewMap from './PreviewMap.vue'
@@ -110,10 +110,11 @@ const emit = defineEmits(['close', 'reset'])
 const elementsData = inject(ELEMENTS_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
 const selectedMode = inject(SELECTED_MODE)
+const symbolPool = inject(SYMBOL_POOL)
 
 // create the JSON file
 const config = computed(function () {
-  return buildRiddleConfig(elementsData.value, completionMessage.value, selectedMode.value)
+  return buildRiddleConfig(elementsData.value, completionMessage.value, selectedMode.value, symbolPool.value)
 })
 
 // probalby need to refactor this --> lowkey breaking my brain how to reset this

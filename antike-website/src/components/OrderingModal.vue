@@ -1,6 +1,19 @@
 <template>
   <BaseModal title="Reihenfolge" width="70vw" height="70vh" @close="emit('close')">
     <div class="flex-1 overflow-y-auto p-6">
+      <section v-if="selectedMode === 'Spezial' && raetselEntries.length > 0" class="mb-6">
+        <p class="mb-1 text-xs font-medium tracking-wider text-gray-500 uppercase">
+          Abschluss Rätsel
+        </p>
+        <p class="mb-3 text-sm text-gray-500">
+          Dieses Rätsel zeigt dem Spieler alle Symbole und fragt, welches er noch nicht gesehen hat.
+        </p>
+        <select v-model="abschlussRaetselId" :class="SELECT_CLASS">
+          <option :value="null">Keines</option>
+          <option v-for="[id] in raetselEntries" :key="id" :value="id">{{ id }}</option>
+        </select>
+      </section>
+
       <section>
         <p class="mb-3 text-xs font-medium tracking-wider text-gray-500 uppercase">Freischaltung</p>
 
@@ -12,7 +25,12 @@
           <div
             v-for="[id, entry] in raetselEntries"
             :key="id"
-            class="flex items-center gap-4 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3"
+            :class="[
+              'flex items-center gap-4 rounded-lg border px-4 py-3',
+              id === abschlussRaetselId
+                ? 'border-purple-200 bg-purple-50'
+                : 'border-gray-100 bg-gray-50',
+            ]"
           >
             <span class="min-w-0 flex-1 truncate font-mono text-sm text-gray-800" :title="id">
               {{ id }}
@@ -21,14 +39,21 @@
             <div class="flex shrink-0 items-center gap-2">
               <span class="text-sm whitespace-nowrap text-gray-500"> Freischalten nach: </span>
 
-              <select v-model="entry.riddle.unlockAfterId" :class="SELECT_CLASS">
+              <select
+                v-model="entry.riddle.unlockAfterId"
+                :class="SELECT_CLASS"
+                :disabled="id === abschlussRaetselId"
+              >
                 <option :value="null">Start</option>
+                <option v-if="id === abschlussRaetselId" :value="LAST_ELEMENT">
+                  Nach allen anderen
+                </option>
 
                 <option
                   v-for="[otherId] in raetselEntries"
                   :key="otherId"
                   :value="otherId"
-                  :disabled="otherId === id"
+                  :disabled="otherId === id || otherId === abschlussRaetselId"
                 >
                   {{ otherId }}
                 </option>
@@ -54,14 +79,37 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue'
-import { ELEMENTS_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
+import { computed, inject, watch } from 'vue'
+import {
+  ELEMENTS_DATA,
+  COMPLETION_MESSAGE,
+  SELECTED_MODE,
+  ABSCHLUSS_RAETSEL_ID,
+} from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 
 const emit = defineEmits(['close'])
 
 const elementsData = inject(ELEMENTS_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
+const selectedMode = inject(SELECTED_MODE)
+const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
+
+const LAST_ELEMENT = '[last]'
+
+watch(abschlussRaetselId, function (newId) {
+  if (!newId) return
+
+  if (elementsData.value[newId]) {
+    elementsData.value[newId].riddle.unlockAfterId = LAST_ELEMENT
+  }
+
+  for (const id in elementsData.value) {
+    if (id !== newId && elementsData.value[id].riddle.unlockAfterId === newId) {
+      elementsData.value[id].riddle.unlockAfterId = null
+    }
+  }
+})
 
 const raetselEntries = computed(function () {
   const result = []
@@ -78,5 +126,5 @@ const raetselEntries = computed(function () {
 })
 
 const SELECT_CLASS =
-  'rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 cursor-pointer'
+  'rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
 </script>

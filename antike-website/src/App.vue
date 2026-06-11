@@ -78,6 +78,7 @@ import {
   COMPLETION_MESSAGE,
   SELECTED_MODE,
   SYMBOL_POOL,
+  ABSCHLUSS_RAETSEL_ID,
 } from './injectionKeys.js'
 
 const fileInput = ref(null)
@@ -96,6 +97,7 @@ const previewOpen = ref(false)
 const hoveredElementId = ref(null)
 const highlightAllElements = ref(false)
 const symbolPool = ref([])
+const abschlussRaetselId = ref(null)
 
 provide(PLAIN_SVG_TEXT, svgText)
 provide(ELEMENTS_DATA, elementsData)
@@ -110,7 +112,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
         successText: '',
         iconFile: null,
         iconPreview: null,
-        unlockAfterElement: null,
+        unlockAfterId: null,
       },
       deco: { linkedElement: null, stateBefore: 'hidden', stateAfter: 'none' },
     }
@@ -119,6 +121,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
 provide(COMPLETION_MESSAGE, completionMessage)
 provide(SELECTED_MODE, selectedMode)
 provide(SYMBOL_POOL, symbolPool)
+provide(ABSCHLUSS_RAETSEL_ID, abschlussRaetselId)
 provide(SELECTED_ELEMENT_ID, selectedElementId)
 provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id
