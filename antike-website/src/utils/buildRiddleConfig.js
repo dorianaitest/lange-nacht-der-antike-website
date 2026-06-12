@@ -1,4 +1,4 @@
-export function buildRiddleConfig(elementsData, completionMessage, mode, symbolPool, abschlussRaetselId) {
+export function buildRiddleConfig(elementsData, completionMessage, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty) {
   const entries = Object.entries(elementsData)
   const nodes = {}
 
@@ -43,6 +43,7 @@ export function buildRiddleConfig(elementsData, completionMessage, mode, symbolP
     }
     config.symbolPool = poolFileNames
     config.abschlussRaetselId = abschlussRaetselId || null
+    config.abschlussRaetselPenalty = abschlussRaetselPenalty || 30
   }
 
   return config

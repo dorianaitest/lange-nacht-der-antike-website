@@ -1,8 +1,8 @@
 import { strToU8, zipSync } from 'fflate'
 import { buildRiddleConfig } from './buildRiddleConfig.js'
 
-export async function exportZip(plainSvgText, elementsData, completionMessage, mode, symbolPool) {
-  const config = buildRiddleConfig(elementsData, completionMessage, mode, symbolPool)
+export async function exportZip(plainSvgText, elementsData, completionMessage, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty) {
+  const config = buildRiddleConfig(elementsData, completionMessage, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty)
 
   // the zip file needs raw bytes so we need to convert the strings
   const files = {

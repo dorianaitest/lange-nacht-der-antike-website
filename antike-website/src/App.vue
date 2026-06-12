@@ -79,6 +79,7 @@ import {
   SELECTED_MODE,
   SYMBOL_POOL,
   ABSCHLUSS_RAETSEL_ID,
+  ABSCHLUSS_PENALTY,
 } from './injectionKeys.js'
 
 const fileInput = ref(null)
@@ -98,6 +99,7 @@ const hoveredElementId = ref(null)
 const highlightAllElements = ref(false)
 const symbolPool = ref([])
 const abschlussRaetselId = ref(null)
+const abschlussRaetselPenalty = ref(30)
 
 provide(PLAIN_SVG_TEXT, svgText)
 provide(ELEMENTS_DATA, elementsData)
@@ -122,6 +124,7 @@ provide(COMPLETION_MESSAGE, completionMessage)
 provide(SELECTED_MODE, selectedMode)
 provide(SYMBOL_POOL, symbolPool)
 provide(ABSCHLUSS_RAETSEL_ID, abschlussRaetselId)
+provide(ABSCHLUSS_PENALTY, abschlussRaetselPenalty)
 provide(SELECTED_ELEMENT_ID, selectedElementId)
 provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id

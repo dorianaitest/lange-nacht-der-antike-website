@@ -17,7 +17,7 @@
 
 <script setup>
 import { computed, inject } from 'vue'
-import { PLAIN_SVG_TEXT, ELEMENTS_DATA, COMPLETION_MESSAGE, SELECTED_MODE, SYMBOL_POOL, ABSCHLUSS_RAETSEL_ID } from '../injectionKeys.js'
+import { PLAIN_SVG_TEXT, ELEMENTS_DATA, COMPLETION_MESSAGE, SELECTED_MODE, SYMBOL_POOL, ABSCHLUSS_RAETSEL_ID, ABSCHLUSS_PENALTY } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
@@ -31,8 +31,9 @@ const completionMessage = inject(COMPLETION_MESSAGE)
 const selectedMode = inject(SELECTED_MODE)
 const symbolPool = inject(SYMBOL_POOL)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
+const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
 
-const config = computed(() => buildRiddleConfig(elementsData.value, completionMessage.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value))
+const config = computed(() => buildRiddleConfig(elementsData.value, completionMessage.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value))
 const jsonString = computed(() => JSON.stringify(config.value, null, 2))
 
 function copyToClipboard() {
@@ -40,7 +41,7 @@ function copyToClipboard() {
 }
 
 function downloadZip() {
-  exportZip(plainSvgText.value, elementsData.value, completionMessage.value, selectedMode.value, symbolPool.value)
+  exportZip(plainSvgText.value, elementsData.value, completionMessage.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value)
 }
 
 </script>

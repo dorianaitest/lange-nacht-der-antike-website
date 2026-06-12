@@ -12,6 +12,17 @@
           <option :value="null">Keines</option>
           <option v-for="[id] in raetselEntries" :key="id" :value="id">{{ id }}</option>
         </select>
+
+        <div class="mt-3 flex items-center gap-3">
+          <p class="text-sm text-gray-500">Zeitstrafe bei falscher Antwort:</p>
+          <select v-model="abschlussRaetselPenalty" :class="SELECT_CLASS">
+            <option :value="15">15s</option>
+            <option :value="30">30s</option>
+            <option :value="45">45s</option>
+            <option :value="60">60s</option>
+            <option :value="90">90s</option>
+          </select>
+        </div>
       </section>
 
       <section>
@@ -85,6 +96,7 @@ import {
   COMPLETION_MESSAGE,
   SELECTED_MODE,
   ABSCHLUSS_RAETSEL_ID,
+  ABSCHLUSS_PENALTY,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 
@@ -94,6 +106,7 @@ const elementsData = inject(ELEMENTS_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
 const selectedMode = inject(SELECTED_MODE)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
+const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
 
 const LAST_ELEMENT = '[last]'
 

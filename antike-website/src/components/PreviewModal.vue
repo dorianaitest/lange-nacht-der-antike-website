@@ -74,7 +74,7 @@
             <template v-else>
               <div class="flex flex-wrap gap-2">
                 <img
-                  v-for="entry in assignedSymbolEntries"
+                  v-for="entry in shuffledSymbolEntries"
                   :key="entry.riddleId"
                   :src="entry.preview"
                   alt="Symbol"
@@ -125,6 +125,7 @@ import {
   SELECTED_MODE,
   SYMBOL_POOL,
   ABSCHLUSS_RAETSEL_ID,
+  ABSCHLUSS_PENALTY,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
@@ -138,6 +139,7 @@ const completionMessage = inject(COMPLETION_MESSAGE)
 const selectedMode = inject(SELECTED_MODE)
 const symbolPool = inject(SYMBOL_POOL)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
+const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
 
 // create the JSON file
 const config = computed(function () {
@@ -147,6 +149,7 @@ const config = computed(function () {
     selectedMode.value,
     symbolPool.value,
     abschlussRaetselId.value,
+    abschlussRaetselPenalty.value,
   )
 })
 
@@ -235,14 +238,8 @@ const isAbschlussRaetsel = computed(function () {
   return activeRiddle.value.id === abschlussRaetselId.value
 })
 
-// simplifies v-for iteration
-const assignedSymbolEntries = computed(function () {
-  const entries = []
-  for (const riddleId in assignedSymbols) {
-    entries.push({ riddleId: riddleId, preview: assignedSymbols[riddleId] })
-  }
-  return entries
-})
+// holds the shuffled symbol entries for the AbschlussRätsel grid
+const shuffledSymbolEntries = ref([])
 
 function onRaetselClick(riddleElement) {
   activeRiddle.value = {
@@ -253,19 +250,30 @@ function onRaetselClick(riddleElement) {
   answerInput.value = ''
   answerState.value = 'idle'
 
-  // assigns last symbol to the abschlussRätsel immediately
-  if (
-    selectedMode.value === 'Spezial' &&
-    riddleElement.id === abschlussRaetselId.value &&
-    !assignedSymbols[riddleElement.id]
-  ) {
-    for (let i = 0; i < symbolPool.value.length; i++) {
-      if (!usedSymbolIndices[i]) {
-        usedSymbolIndices[i] = true
-        assignedSymbols[riddleElement.id] = symbolPool.value[i].preview
-        break
+  if (selectedMode.value === 'Spezial' && riddleElement.id === abschlussRaetselId.value) {
+    // assign final symbol to the abschlussRaetsel
+    if (!assignedSymbols[riddleElement.id]) {
+      for (let i = 0; i < symbolPool.value.length; i++) {
+        if (!usedSymbolIndices[i]) {
+          usedSymbolIndices[i] = true
+          assignedSymbols[riddleElement.id] = symbolPool.value[i].preview
+          break
+        }
       }
     }
+
+    // shuffle array entries for random symbol grid ordering
+    const entries = []
+    for (const riddleId in assignedSymbols) {
+      entries.push({ riddleId: riddleId, preview: assignedSymbols[riddleId] })
+    }
+    for (let i = entries.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const temp = entries[i]
+      entries[i] = entries[j]
+      entries[j] = temp
+    }
+    shuffledSymbolEntries.value = entries
   }
 }
 
