@@ -54,20 +54,35 @@
           </div>
 
           <div v-if="answerState !== 'correct'" class="flex flex-col gap-1">
-            <label for="previewAnswer" class="text-sm font-medium text-gray-700">
-              Deine Antwort
-            </label>
+            <template v-if="!isAbschlussRaetsel">
+              <label for="previewAnswer" class="text-sm font-medium text-gray-700">
+                Deine Antwort
+              </label>
 
-            <input
-              id="previewAnswer"
-              v-model="answerInput"
-              type="text"
-              autofocus
-              class="w-full rounded-lg border px-3 py-2 text-sm"
-              :class="answerState === 'wrong' ? 'border-red-400' : 'border-gray-300'"
-              placeholder="Antwort eingeben..."
-              @keydown.enter="submitAnswer"
-            />
+              <input
+                id="previewAnswer"
+                v-model="answerInput"
+                type="text"
+                autofocus
+                class="w-full rounded-lg border px-3 py-2 text-sm"
+                :class="answerState === 'wrong' ? 'border-red-400' : 'border-gray-300'"
+                placeholder="Antwort eingeben..."
+                @keydown.enter="submitAnswer"
+              />
+            </template>
+
+            <template v-else>
+              <div class="flex flex-wrap gap-2">
+                <img
+                  v-for="entry in assignedSymbolEntries"
+                  :key="entry.riddleId"
+                  :src="entry.preview"
+                  alt="Symbol"
+                  class="h-16 w-16 cursor-pointer rounded-lg border-2 border-transparent object-cover hover:border-blue-400"
+                  @click="onSymbolClick(entry.riddleId)"
+                />
+              </div>
+            </template>
 
             <p v-if="answerState === 'wrong'" class="mt-0.5 text-xs text-red-600">
               Falsche Antwort. Versuch es nochmal!
@@ -89,7 +104,12 @@
           <div class="flex justify-end gap-2">
             <BaseButton @click="closeDialog">Schließen</BaseButton>
 
-            <BaseButton v-if="answerState !== 'correct'" @click="submitAnswer"> Prüfen </BaseButton>
+            <BaseButton
+              v-if="answerState !== 'correct' && !isAbschlussRaetsel"
+              @click="submitAnswer"
+            >
+              Prüfen
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -200,12 +220,28 @@ const activeRiddleIconPreview = computed(function () {
 
   // show the randomly assigned symbol instead of the per-riddle icon
   if (selectedMode.value === 'Spezial') {
-    return assignedSymbols[activeRiddle.value.id] || null
+    return assignedSymbols[activeRiddle.value.id] || null //this safeguard can be deleted later
   }
 
   const entry = elementsData.value[activeRiddle.value.id]
   if (!entry || !entry.riddle) return null
   return entry.riddle.iconPreview || null
+})
+
+// true when AbschlussRätsel in Spezial mode: used for symbol grid
+const isAbschlussRaetsel = computed(function () {
+  if (!activeRiddle.value) return false
+  if (selectedMode.value !== 'Spezial') return false
+  return activeRiddle.value.id === abschlussRaetselId.value
+})
+
+// simplifies v-for iteration
+const assignedSymbolEntries = computed(function () {
+  const entries = []
+  for (const riddleId in assignedSymbols) {
+    entries.push({ riddleId: riddleId, preview: assignedSymbols[riddleId] })
+  }
+  return entries
 })
 
 function onRaetselClick(riddleElement) {
@@ -216,6 +252,21 @@ function onRaetselClick(riddleElement) {
 
   answerInput.value = ''
   answerState.value = 'idle'
+
+  // assigns last symbol to the abschlussRätsel immediately
+  if (
+    selectedMode.value === 'Spezial' &&
+    riddleElement.id === abschlussRaetselId.value &&
+    !assignedSymbols[riddleElement.id]
+  ) {
+    for (let i = 0; i < symbolPool.value.length; i++) {
+      if (!usedSymbolIndices[i]) {
+        usedSymbolIndices[i] = true
+        assignedSymbols[riddleElement.id] = symbolPool.value[i].preview
+        break
+      }
+    }
+  }
 }
 
 function submitAnswer() {
@@ -232,7 +283,12 @@ function submitAnswer() {
     completedRiddles[solvedRiddleId] = true
 
     // maybe I should block the preview if there aren't enough symbols (?)
-    if (selectedMode.value === 'Spezial' && symbolPool.value.length > 0) {
+    // AbschlussRätsel gets its symbol pre-assigned in onRaetselClick so we skip it here
+    if (
+      selectedMode.value === 'Spezial' &&
+      symbolPool.value.length > 0 &&
+      solvedRiddleId !== abschlussRaetselId.value
+    ) {
       // collect pool indices that haven't been drawn yet
       const available = []
       for (let i = 0; i < symbolPool.value.length; i++) {
@@ -245,6 +301,15 @@ function submitAnswer() {
         assignedSymbols[solvedRiddleId] = symbolPool.value[pick].preview
       }
     }
+  } else {
+    answerState.value = 'wrong'
+  }
+}
+
+function onSymbolClick(riddleId) {
+  if (riddleId === abschlussRaetselId.value) {
+    answerState.value = 'correct'
+    completedRiddles[activeRiddle.value.id] = true
   } else {
     answerState.value = 'wrong'
   }
