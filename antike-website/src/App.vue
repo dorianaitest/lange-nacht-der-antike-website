@@ -127,7 +127,7 @@ provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id
 })
 
-// need to refactor (if I can figure out how to reset a reactive component..)
+// need to refactor (if I can figure out how to reset a reactive component object..)
 async function resetPreview() {
   previewOpen.value = false
   await nextTick()

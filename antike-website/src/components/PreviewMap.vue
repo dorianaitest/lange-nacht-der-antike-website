@@ -1,3 +1,7 @@
+<template>
+  <div ref="container" class="h-full w-full" v-html="svgText" />
+</template>
+
 <script setup>
 import { ref, inject, watch, nextTick, onMounted } from 'vue'
 import { PLAIN_SVG_TEXT } from '../injectionKeys.js'
@@ -15,7 +19,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['raetsel-click'])
+const emit = defineEmits(['raetselClick'])
 
 const container = ref(null)
 
@@ -128,7 +132,7 @@ function setupListeners() {
     function onClick() {
       if (!isAccessible(id)) return
 
-      emit('raetsel-click', {
+      emit('raetselClick', {
         id,
         riddle: element.riddle,
       })
@@ -177,7 +181,3 @@ onMounted(async function () {
 
 watch(props.completedRiddles, updateVisuals)
 </script>
-
-<template>
-  <div ref="container" class="h-full w-full" v-html="svgText" />
-</template>

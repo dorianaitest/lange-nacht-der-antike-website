@@ -1,4 +1,4 @@
-export function buildRiddleConfig(elementsData, completionMessage, mode) {
+export function buildRiddleConfig(elementsData, completionMessage, mode, symbolPool, abschlussRaetselId) {
   const entries = Object.entries(elementsData)
   const nodes = {}
 
@@ -10,7 +10,7 @@ export function buildRiddleConfig(elementsData, completionMessage, mode) {
         successText: entry.riddle.successText,
       }
 
-      if (entry.riddle.iconFile) {
+      if (mode !== 'Spezial' && entry.riddle.iconFile) {
         riddle.icon = entry.riddle.iconFile.name
       }
 
@@ -29,10 +29,21 @@ export function buildRiddleConfig(elementsData, completionMessage, mode) {
     }
   }
 
-  return {
+  const config = {
     svgFile: 'background.svg',
     mode,
     completionMessage,
     nodes,
   }
+
+  if (mode === 'Spezial') {
+    const poolFileNames = []
+    for (const symbol of symbolPool) {
+      poolFileNames.push(symbol.file.name)
+    }
+    config.symbolPool = poolFileNames
+    config.abschlussRaetselId = abschlussRaetselId || null
+  }
+
+  return config
 }

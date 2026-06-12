@@ -11,7 +11,7 @@
       <PreviewMap
         :config="config"
         :completedRiddles="completedRiddles"
-        @raetsel-click="onRaetselClick"
+        @raetselClick="onRaetselClick"
       />
 
       <div v-if="allComplete" class="absolute inset-0 flex items-center justify-center bg-black/50">
@@ -99,7 +99,13 @@
 
 <script setup>
 import { ref, reactive, computed, watch, inject, onMounted, onUnmounted } from 'vue'
-import { ELEMENTS_DATA, COMPLETION_MESSAGE, SELECTED_MODE, SYMBOL_POOL } from '../injectionKeys.js'
+import {
+  ELEMENTS_DATA,
+  COMPLETION_MESSAGE,
+  SELECTED_MODE,
+  SYMBOL_POOL,
+  ABSCHLUSS_RAETSEL_ID,
+} from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import PreviewMap from './PreviewMap.vue'
@@ -111,14 +117,23 @@ const elementsData = inject(ELEMENTS_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
 const selectedMode = inject(SELECTED_MODE)
 const symbolPool = inject(SYMBOL_POOL)
+const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
 
 // create the JSON file
 const config = computed(function () {
-  return buildRiddleConfig(elementsData.value, completionMessage.value, selectedMode.value, symbolPool.value)
+  return buildRiddleConfig(
+    elementsData.value,
+    completionMessage.value,
+    selectedMode.value,
+    symbolPool.value,
+    abschlussRaetselId.value,
+  )
 })
 
 // probalby need to refactor this --> lowkey breaking my brain how to reset this
 const completedRiddles = reactive({})
+const assignedSymbols = reactive({})
+const usedSymbolIndices = {}
 
 // gotta be an easier way
 const raetselCount = computed(function () {
@@ -183,11 +198,13 @@ const answerState = ref('idle')
 const activeRiddleIconPreview = computed(function () {
   if (!activeRiddle.value) return null
 
+  // show the randomly assigned symbol instead of the per-riddle icon
+  if (selectedMode.value === 'Spezial') {
+    return assignedSymbols[activeRiddle.value.id] || null
+  }
+
   const entry = elementsData.value[activeRiddle.value.id]
-  if (!entry) return null
-
-  if (!entry.riddle) return null
-
+  if (!entry || !entry.riddle) return null
   return entry.riddle.iconPreview || null
 })
 
@@ -213,6 +230,21 @@ function submitAnswer() {
 
     const solvedRiddleId = activeRiddle.value.id
     completedRiddles[solvedRiddleId] = true
+
+    // maybe I should block the preview if there aren't enough symbols (?)
+    if (selectedMode.value === 'Spezial' && symbolPool.value.length > 0) {
+      // collect pool indices that haven't been drawn yet
+      const available = []
+      for (let i = 0; i < symbolPool.value.length; i++) {
+        if (!usedSymbolIndices[i]) available.push(i)
+      }
+      if (available.length > 0) {
+        // pick one at random and mark it as used so it won't appear again
+        const pick = available[Math.floor(Math.random() * available.length)]
+        usedSymbolIndices[pick] = true
+        assignedSymbols[solvedRiddleId] = symbolPool.value[pick].preview
+      }
+    }
   } else {
     answerState.value = 'wrong'
   }
