@@ -5,7 +5,7 @@
     @click.self="emit('close')"
   >
     <!-- :style handles the transform from string to css value -->
-    <div class="flex flex-col rounded-xl bg-white" :style="{ width, height }">
+    <div class="flex flex-col rounded-xl bg-white" :style="{ width, height, maxHeight }">
       <div class="flex shrink-0 items-center justify-between border-b border-gray-200 px-5 py-4">
         <h2 class="text-base font-bold text-gray-800">{{ title }}</h2>
         <BaseButton @click="emit('close')">✕</BaseButton>
@@ -30,6 +30,10 @@ defineProps({
   height: {
     type: String,
     default: '50vh',
+  },
+  maxHeight: {
+    type: String,
+    default: undefined,
   },
 })
 

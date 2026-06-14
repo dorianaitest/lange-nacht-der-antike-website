@@ -49,10 +49,12 @@
 
       <SymboleModal v-if="symboleOpen" @close="symboleOpen = false" />
 
-      <ErrorMessageModal
-        v-if="errorModalOpen"
-        :errors="errorMessages"
-        @close="errorModalOpen = false"
+      <ValidationModal
+        v-if="validationModalOpen"
+        :errors="validationErrors"
+        :warnings="validationWarnings"
+        @close="validationModalOpen = false"
+        @proceed="onValidationProceed"
       />
     </template>
 
@@ -67,7 +69,7 @@
 <script setup>
 import { ref, provide, nextTick } from 'vue'
 import { validateConfig } from './utils/validateConfig.js'
-import ErrorMessageModal from './components/ErrorMessageModal.vue'
+import ValidationModal from './components/ValidationModal.vue'
 import SvgMap from './components/SvgMap.vue'
 import EditorSidebar from './components/EditorSidebar.vue'
 import SvgSetupModal from './components/SvgSetupModal.vue'
@@ -103,8 +105,10 @@ const setupModalOpen = ref(false)
 const orderingOpen = ref(false)
 const exportOpen = ref(false)
 const previewOpen = ref(false)
-const errorModalOpen = ref(false)
-const errorMessages = ref([])
+const validationModalOpen = ref(false)
+const validationErrors = ref([])
+const validationWarnings = ref([])
+const pendingModalOpen = ref(null)
 const hoveredElementId = ref(null)
 const highlightAllElements = ref(false)
 const symbolPool = ref([])
@@ -140,24 +144,38 @@ provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id
 })
 
-function openPreview() {
-  const errors = validateConfig(elementsData.value, selectedMode.value, abschlussRaetselId.value, symbolPool.value)
-  if (errors.length > 0) {
-    errorMessages.value = errors
-    errorModalOpen.value = true
+function openWithValidation(requestedModal) {
+  const result = validateConfig(elementsData.value, selectedMode.value, abschlussRaetselId.value, symbolPool.value, completionMessage.value)
+  if (result.errors.length > 0 || result.warnings.length > 0) {
+    validationErrors.value = result.errors
+    validationWarnings.value = result.warnings
+    pendingModalOpen.value = requestedModal
+    validationModalOpen.value = true
   } else {
-    previewOpen.value = true
+    openModalAfterValidation(requestedModal)
   }
 }
 
-function openExport() {
-  const errors = validateConfig(elementsData.value, selectedMode.value, abschlussRaetselId.value, symbolPool.value)
-  if (errors.length > 0) {
-    errorMessages.value = errors
-    errorModalOpen.value = true
-  } else {
+function openModalAfterValidation(requestedModal) {
+  if (requestedModal === 'preview') {
+    previewOpen.value = true
+  } else if (requestedModal === 'export') {
     exportOpen.value = true
   }
+}
+
+function onValidationProceed() {
+  validationModalOpen.value = false
+  openModalAfterValidation(pendingModalOpen.value)
+  pendingModalOpen.value = null
+}
+
+function openPreview() {
+  openWithValidation('preview')
+}
+
+function openExport() {
+  openWithValidation('export')
 }
 
 // need to refactor (if I can figure out how to reset a reactive component object..)

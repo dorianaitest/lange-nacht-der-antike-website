@@ -1,8 +1,17 @@
-export function validateConfig(elementsData, mode, abschlussRaetselId, symbolPool) {
+export function validateConfig(
+  elementsData,
+  mode,
+  abschlussRaetselId,
+  symbolPool,
+  completionMessage,
+) {
   const errors = []
+  const warnings = []
 
   let hasStartRaetsel = false
   let raetselCount = 0
+  const incompleteIds = []
+  const unlinkedDecoIds = []
   for (const id in elementsData) {
     const entry = elementsData[id]
     if (entry.elementArt === 'Rätsel') {
@@ -10,7 +19,34 @@ export function validateConfig(elementsData, mode, abschlussRaetselId, symbolPoo
       if (!entry.riddle.unlockAfterId) {
         hasStartRaetsel = true
       }
+      if (!entry.riddle.question || !entry.riddle.answer || !entry.riddle.successText) {
+        incompleteIds.push(id)
+      }
+    } else if (entry.elementArt === 'Dekoration' && !entry.deco.linkedElement) {
+      unlinkedDecoIds.push(id)
     }
+  }
+
+  if (incompleteIds.length > 0) {
+    warnings.push(
+      incompleteIds.length +
+        ' Rätsel haben leere Felder (Frage, Antwort oder Erfolgstext): ' +
+        incompleteIds.join(', ') +
+        '.',
+    )
+  }
+
+  if (unlinkedDecoIds.length > 0) {
+    warnings.push(
+      unlinkedDecoIds.length +
+        ' Dekoration(en) haben kein Rätsel nach dem sie freigeschaltet werden: ' +
+        unlinkedDecoIds.join(', ') +
+        '.',
+    )
+  }
+
+  if (!completionMessage) {
+    warnings.push('Es wurde keine Abschluss-Nachricht konfiguriert.')
   }
 
   if (!hasStartRaetsel) {
@@ -25,7 +61,7 @@ export function validateConfig(elementsData, mode, abschlussRaetselId, symbolPoo
 
   if (mode === 'Spezial' && symbolPool.length !== raetselCount) {
     errors.push(
-      'Die Symbolanzahl muss genau der Rätselanzahl entsprechen (Momentan:' +
+      'Die Symbolanzahl muss genau der Rätselanzahl entsprechen (Momentan: ' +
         symbolPool.length +
         ' Symbole, ' +
         raetselCount +
@@ -33,5 +69,5 @@ export function validateConfig(elementsData, mode, abschlussRaetselId, symbolPoo
     )
   }
 
-  return errors
+  return { errors, warnings }
 }
