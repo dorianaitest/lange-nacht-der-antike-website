@@ -141,7 +141,7 @@ provide(SET_SELECTED_ELEMENT, (id) => {
 })
 
 function openPreview() {
-  const errors = validateConfig(elementsData.value, selectedMode.value)
+  const errors = validateConfig(elementsData.value, selectedMode.value, abschlussRaetselId.value, symbolPool.value)
   if (errors.length > 0) {
     errorMessages.value = errors
     errorModalOpen.value = true
@@ -151,7 +151,7 @@ function openPreview() {
 }
 
 function openExport() {
-  const errors = validateConfig(elementsData.value, selectedMode.value)
+  const errors = validateConfig(elementsData.value, selectedMode.value, abschlussRaetselId.value, symbolPool.value)
   if (errors.length > 0) {
     errorMessages.value = errors
     errorModalOpen.value = true
