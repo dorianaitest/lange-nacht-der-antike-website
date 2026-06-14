@@ -17,8 +17,8 @@
             <span class="text-sm text-gray-600">Modus: {{ selectedMode }}</span>
 
             <div class="flex items-center gap-2">
-              <BaseButton @click="previewOpen = true">Vorschau</BaseButton>
-              <BaseButton @click="exportOpen = true">Exportieren</BaseButton>
+              <BaseButton @click="openPreview">Vorschau</BaseButton>
+              <BaseButton @click="openExport">Exportieren</BaseButton>
             </div>
           </div>
 
@@ -48,6 +48,12 @@
       <PreviewModal v-if="previewOpen" @close="previewOpen = false" @reset="resetPreview" />
 
       <SymboleModal v-if="symboleOpen" @close="symboleOpen = false" />
+
+      <ErrorMessageModal
+        v-if="errorModalOpen"
+        :errors="errorMessages"
+        @close="errorModalOpen = false"
+      />
     </template>
 
     <template v-else>
@@ -60,6 +66,8 @@
 
 <script setup>
 import { ref, provide, nextTick } from 'vue'
+import { validateConfig } from './utils/validateConfig.js'
+import ErrorMessageModal from './components/ErrorMessageModal.vue'
 import SvgMap from './components/SvgMap.vue'
 import EditorSidebar from './components/EditorSidebar.vue'
 import SvgSetupModal from './components/SvgSetupModal.vue'
@@ -95,6 +103,8 @@ const setupModalOpen = ref(false)
 const orderingOpen = ref(false)
 const exportOpen = ref(false)
 const previewOpen = ref(false)
+const errorModalOpen = ref(false)
+const errorMessages = ref([])
 const hoveredElementId = ref(null)
 const highlightAllElements = ref(false)
 const symbolPool = ref([])
@@ -129,6 +139,26 @@ provide(SELECTED_ELEMENT_ID, selectedElementId)
 provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id
 })
+
+function openPreview() {
+  const errors = validateConfig(elementsData.value, selectedMode.value)
+  if (errors.length > 0) {
+    errorMessages.value = errors
+    errorModalOpen.value = true
+  } else {
+    previewOpen.value = true
+  }
+}
+
+function openExport() {
+  const errors = validateConfig(elementsData.value, selectedMode.value)
+  if (errors.length > 0) {
+    errorMessages.value = errors
+    errorModalOpen.value = true
+  } else {
+    exportOpen.value = true
+  }
+}
 
 // need to refactor (if I can figure out how to reset a reactive component object..)
 async function resetPreview() {

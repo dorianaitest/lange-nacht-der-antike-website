@@ -16,9 +16,9 @@
 
       <div v-if="allComplete" class="absolute inset-0 flex items-center justify-center bg-black/50">
         <div
-          class="flex w-96 flex-col items-center gap-5 rounded-xl bg-white p-8 text-center shadow-2xl"
+          class="flex w-96 max-h-[80vh] flex-col items-center rounded-xl bg-white p-8 text-center shadow-2xl"
         >
-          <div>
+          <div class="min-h-0 flex-1 overflow-y-auto">
             <h3 class="mb-1 text-lg font-semibold text-gray-900">Alle Rätsel gelöst!</h3>
             <p class="text-sm text-gray-500">
               {{
@@ -30,10 +30,25 @@
               {{ formatTime(elapsedSeconds) }}
             </p>
           </div>
-          <div class="flex gap-2">
+          <div class="mt-5 flex gap-2">
             <BaseButton @click="emit('close')">Vorschau schließen</BaseButton>
             <BaseButton @click="emit('reset')">Neu starten</BaseButton>
           </div>
+        </div>
+      </div>
+
+      <div
+        v-if="penaltyActive"
+        class="absolute inset-0 flex items-center justify-center bg-black/40"
+      >
+        <div
+          class="flex w-96 flex-col items-center gap-4 rounded-xl bg-white p-8 text-center shadow-2xl"
+        >
+          <p class="text-base font-semibold text-red-600">Falsche Auswahl!</p>
+          <p class="text-sm text-gray-500">Du kannst es erneut versuchen in:</p>
+          <p class="font-mono text-4xl font-semibold text-gray-800">
+            {{ formatTime(penaltySecondsLeft) }}
+          </p>
         </div>
       </div>
 
@@ -42,66 +57,68 @@
         class="absolute inset-0 flex items-center justify-center bg-black/40"
         @click.self="closeDialog"
       >
-        <div class="flex w-96 flex-col gap-5 rounded-xl bg-white p-6 shadow-2xl">
-          <div>
-            <p class="mb-1 font-mono text-xs text-gray-400">
-              {{ activeRiddle.id }}
-            </p>
+        <div class="flex w-96 max-h-[80vh] flex-col rounded-xl bg-white p-6 shadow-2xl">
+          <div class="min-h-0 flex-1 overflow-y-auto">
+            <div class="mb-5">
+              <p class="mb-1 font-mono text-xs text-gray-400">
+                {{ activeRiddle.id }}
+              </p>
 
-            <h3 class="text-base font-semibold text-gray-900">
-              {{ activeRiddle.riddle.question }}
-            </h3>
-          </div>
+              <h3 class="text-base font-semibold text-gray-900">
+                {{ activeRiddle.riddle.question }}
+              </h3>
+            </div>
 
-          <div v-if="answerState !== 'correct'" class="flex flex-col gap-1">
-            <template v-if="!isAbschlussRaetsel">
-              <label for="previewAnswer" class="text-sm font-medium text-gray-700">
-                Deine Antwort
-              </label>
+            <div v-if="answerState !== 'correct'" class="flex flex-col gap-1">
+              <template v-if="!isAbschlussRaetsel">
+                <label for="previewAnswer" class="text-sm font-medium text-gray-700">
+                  Deine Antwort
+                </label>
 
-              <input
-                id="previewAnswer"
-                v-model="answerInput"
-                type="text"
-                autofocus
-                class="w-full rounded-lg border px-3 py-2 text-sm"
-                :class="answerState === 'wrong' ? 'border-red-400' : 'border-gray-300'"
-                placeholder="Antwort eingeben..."
-                @keydown.enter="submitAnswer"
-              />
-            </template>
-
-            <template v-else>
-              <div class="flex flex-wrap gap-2">
-                <img
-                  v-for="entry in shuffledSymbolEntries"
-                  :key="entry.riddleId"
-                  :src="entry.preview"
-                  alt="Symbol"
-                  class="h-16 w-16 cursor-pointer rounded-lg border-2 border-transparent object-cover hover:border-blue-400"
-                  @click="onSymbolClick(entry.riddleId)"
+                <input
+                  id="previewAnswer"
+                  v-model="answerInput"
+                  type="text"
+                  autofocus
+                  class="w-full rounded-lg border px-3 py-2 text-sm"
+                  :class="answerState === 'wrong' ? 'border-red-400' : 'border-gray-300'"
+                  placeholder="Antwort eingeben..."
+                  @keydown.enter="submitAnswer"
                 />
-              </div>
-            </template>
+              </template>
 
-            <p v-if="answerState === 'wrong'" class="mt-0.5 text-xs text-red-600">
-              Falsche Antwort. Versuch es nochmal!
-            </p>
+              <template v-else>
+                <div class="flex flex-wrap gap-2">
+                  <img
+                    v-for="entry in shuffledSymbolEntries"
+                    :key="entry.riddleId"
+                    :src="entry.preview"
+                    alt="Symbol"
+                    class="h-16 w-16 cursor-pointer rounded-lg border-2 border-transparent object-cover hover:border-blue-400"
+                    @click="onSymbolClick(entry.riddleId)"
+                  />
+                </div>
+              </template>
+
+              <p v-if="answerState === 'wrong'" class="mt-0.5 text-xs text-red-600">
+                Falsche Antwort. Versuch es nochmal!
+              </p>
+            </div>
+
+            <div v-else class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+              <img
+                v-if="activeRiddleIconPreview"
+                :src="activeRiddleIconPreview"
+                alt="Symbol"
+                class="mb-3 h-16 w-16 rounded-lg object-cover"
+              />
+              <p class="text-sm text-green-800">
+                {{ activeRiddle.riddle.successText }}
+              </p>
+            </div>
           </div>
 
-          <div v-else class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-            <img
-              v-if="activeRiddleIconPreview"
-              :src="activeRiddleIconPreview"
-              alt="Symbol"
-              class="mb-3 h-16 w-16 rounded-lg object-cover"
-            />
-            <p class="text-sm text-green-800">
-              {{ activeRiddle.riddle.successText }}
-            </p>
-          </div>
-
-          <div class="flex justify-end gap-2">
+          <div class="mt-5 flex justify-end gap-2">
             <BaseButton @click="closeDialog">Schließen</BaseButton>
 
             <BaseButton
@@ -211,8 +228,38 @@ function stopTimer() {
   intervalId = null
 }
 
+const penaltyActive = ref(false)
+const penaltySecondsLeft = ref(0)
+let penaltyIntervalId = null
+
+function startPenalty() {
+  closeDialog()
+  penaltySecondsLeft.value = abschlussRaetselPenalty.value
+  penaltyActive.value = true
+
+  penaltyIntervalId = setInterval(function () {
+    penaltySecondsLeft.value--
+
+    if (penaltySecondsLeft.value <= 0) {
+      clearInterval(penaltyIntervalId)
+      penaltyIntervalId = null
+      penaltyActive.value = false
+
+      // reopen the AbschlussRätsel dialog automatically since that's all that's left
+      // maybe ask if we should allow players to revisit riddles to see their rewards (?)
+      onRaetselClick({
+        id: abschlussRaetselId.value,
+        riddle: config.value.nodes[abschlussRaetselId.value].riddle,
+      })
+    }
+  }, 1000)
+}
+
 onMounted(startTimer)
-onUnmounted(stopTimer)
+onUnmounted(function () {
+  stopTimer()
+  clearInterval(penaltyIntervalId)
+})
 
 const activeRiddle = ref(null)
 const answerInput = ref('')
@@ -319,7 +366,7 @@ function onSymbolClick(riddleId) {
     answerState.value = 'correct'
     completedRiddles[activeRiddle.value.id] = true
   } else {
-    answerState.value = 'wrong'
+    startPenalty()
   }
 }
 
