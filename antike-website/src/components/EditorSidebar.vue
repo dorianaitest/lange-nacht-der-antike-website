@@ -83,6 +83,37 @@
                 {{ riddle.iconPreview ? 'Symbol ersetzen' : 'Symbol hochladen' }}
               </BaseButton>
             </div>
+
+            <div class="flex flex-col gap-3 border-t border-gray-200 pt-4">
+              <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Erscheinung</p>
+
+              <div class="flex flex-col gap-2">
+                <p class="text-sm text-gray-700">Gesperrt:</p>
+                <select v-model="riddle.style.gesperrt" :class="SELECT_CLASS">
+                  <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
+                    {{ style.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <p class="text-sm text-gray-700">Zugänglich:</p>
+                <select v-model="riddle.style.zugaenglich" :class="SELECT_CLASS">
+                  <option v-for="style in RAETSEL_STYLES_ZUGAENGLICH" :key="style.value" :value="style.value">
+                    {{ style.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <p class="text-sm text-gray-700">Gelöst:</p>
+                <select v-model="riddle.style.geloest" :class="SELECT_CLASS">
+                  <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
+                    {{ style.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
           </div>
         </template>
 
@@ -144,6 +175,12 @@ const iconInput = ref(null)
 
 const DECO_STYLES = [
   { value: 'hidden', label: 'versteckt' },
+  { value: 'none', label: 'normal' },
+  { value: 'shrouded', label: 'verschleiert' },
+  { value: 'highlighted', label: 'hervorgehoben' },
+]
+
+const RAETSEL_STYLES_ZUGAENGLICH = [
   { value: 'none', label: 'normal' },
   { value: 'shrouded', label: 'verschleiert' },
   { value: 'highlighted', label: 'hervorgehoben' },

@@ -129,6 +129,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
         iconFile: null,
         iconPreview: null,
         unlockAfterId: null,
+        style: { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' },
       },
       deco: { linkedElement: null, stateBefore: 'hidden', stateAfter: 'none' },
     }

@@ -73,18 +73,30 @@ function removePreviewClasses(svgElement) {
   }
 }
 
+function applyVisualClass(svgElement, value) {
+  if (value === 'hidden') svgElement.classList.add('preview-deco-hidden')
+  else if (value === 'shrouded') svgElement.classList.add('preview-deco-shrouded')
+  else if (value === 'highlighted') svgElement.classList.add('preview-deco-highlighted')
+}
+
 function updateRiddleVisual(id, svgElement) {
+  const element = props.config.nodes[id]
+  const style = element.style || { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' }
+
   if (isCompleted(id)) {
     svgElement.classList.add('preview-raetsel-completed')
+    applyVisualClass(svgElement, style.geloest)
     return
   }
 
   if (isAccessible(id)) {
     svgElement.classList.add('preview-raetsel-accessible')
+    applyVisualClass(svgElement, style.zugaenglich)
     return
   }
 
   svgElement.classList.add('preview-raetsel-locked')
+  applyVisualClass(svgElement, style.gesperrt)
 }
 
 function updateDecorationVisual(element, svgElement) {

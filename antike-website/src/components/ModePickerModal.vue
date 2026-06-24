@@ -1,5 +1,5 @@
 <template>
-  <BaseModal title="Modus wählen" @close="emit('close')">
+  <BaseModal title="Modus wählen" :closeable="false">
     <div class="flex items-center justify-center gap-4 p-8">
       <BaseButton @click="emit('pick', 'Einfach')">Einfach</BaseButton>
       <BaseButton @click="emit('pick', 'Spezial')">Spezial</BaseButton>

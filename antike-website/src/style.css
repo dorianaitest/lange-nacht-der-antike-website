@@ -16,19 +16,14 @@
 }
 
 .preview-raetsel-accessible {
-  stroke: orange;
-  stroke-width: 0.5px;
   cursor: pointer;
 }
 
 .preview-raetsel-completed {
-  stroke: #22c55e;
-  stroke-width: 0.5px;
   cursor: default;
 }
 
 .preview-raetsel-locked {
-  opacity: 0.35;
   cursor: not-allowed;
 }
 

@@ -17,6 +17,7 @@ export function buildRiddleConfig(elementsData, completionMessage, mode, symbolP
       nodes[id] = {
         type: 'rätsel',
         unlockAfterId: entry.riddle.unlockAfterId,
+        style: entry.riddle.style || { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' },
         riddle,
       }
     } else if (entry.elementArt === 'Dekoration') {
