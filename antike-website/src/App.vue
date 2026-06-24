@@ -85,16 +85,18 @@ import {
   EXTRACT_ELEMENTS,
   SELECTED_ELEMENT_ID,
   SET_SELECTED_ELEMENT,
-  COMPLETION_MESSAGE,
   SELECTED_MODE,
   SYMBOL_POOL,
   ABSCHLUSS_RAETSEL_ID,
   ABSCHLUSS_PENALTY,
+  SYMBOL_PICKER_DATA,
+  COMPLETION_MESSAGE,
 } from './injectionKeys.js'
 
 const fileInput = ref(null)
 // better than using the ?component from before multiple times
 const svgText = ref(null)
+const symbolPickerData = ref({ prompt: '', successText: '' })
 const completionMessage = ref('')
 const elementsData = ref({})
 const selectedElementId = ref(null)
@@ -135,6 +137,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
     }
   }
 })
+provide(SYMBOL_PICKER_DATA, symbolPickerData)
 provide(COMPLETION_MESSAGE, completionMessage)
 provide(SELECTED_MODE, selectedMode)
 provide(SYMBOL_POOL, symbolPool)
@@ -146,7 +149,7 @@ provide(SET_SELECTED_ELEMENT, (id) => {
 })
 
 function openWithValidation(requestedModal) {
-  const result = validateConfig(elementsData.value, selectedMode.value, abschlussRaetselId.value, symbolPool.value, completionMessage.value)
+  const result = validateConfig(elementsData.value, selectedMode.value, abschlussRaetselId.value, symbolPool.value)
   if (result.errors.length > 0 || result.warnings.length > 0) {
     validationErrors.value = result.errors
     validationWarnings.value = result.warnings

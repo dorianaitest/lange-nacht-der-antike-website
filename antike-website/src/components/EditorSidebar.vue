@@ -84,6 +84,39 @@
               </BaseButton>
             </div>
 
+            <div
+              v-if="selectedMode === 'Spezial' && selectedId === abschlussRaetselId"
+              class="flex flex-col gap-3 border-t border-gray-200 pt-4"
+            >
+              <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Symbolauswahl</p>
+
+              <div class="flex flex-col gap-2">
+                <label for="symbolPickerPrompt" class="text-sm font-medium text-gray-700">
+                  Hinweistext
+                </label>
+                <textarea
+                  id="symbolPickerPrompt"
+                  v-model="symbolPickerData.prompt"
+                  rows="3"
+                  class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  placeholder="Hinweistext über den Symbolen..."
+                />
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <label for="symbolPickerSuccess" class="text-sm font-medium text-gray-700">
+                  Erfolgstext
+                </label>
+                <textarea
+                  id="symbolPickerSuccess"
+                  v-model="symbolPickerData.successText"
+                  rows="3"
+                  class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  placeholder="Text nach richtiger Symbolauswahl..."
+                />
+              </div>
+            </div>
+
             <div class="flex flex-col gap-3 border-t border-gray-200 pt-4">
               <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Erscheinung</p>
 
@@ -163,13 +196,15 @@
 <script setup>
 //computed allows to recalculate easily once selectedId changes
 import { ref, computed, inject } from 'vue'
-import { SELECTED_ELEMENT_ID, SET_SELECTED_ELEMENT, ELEMENTS_DATA, SELECTED_MODE } from '../injectionKeys.js'
+import { SELECTED_ELEMENT_ID, SET_SELECTED_ELEMENT, ELEMENTS_DATA, SELECTED_MODE, ABSCHLUSS_RAETSEL_ID, SYMBOL_PICKER_DATA } from '../injectionKeys.js'
 import BaseButton from './BaseButton.vue'
 
 const selectedId = inject(SELECTED_ELEMENT_ID)
 const setSelectedElement = inject(SET_SELECTED_ELEMENT)
 const elementsData = inject(ELEMENTS_DATA)
 const selectedMode = inject(SELECTED_MODE)
+const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
+const symbolPickerData = inject(SYMBOL_PICKER_DATA)
 
 const iconInput = ref(null)
 

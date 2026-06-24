@@ -14,18 +14,13 @@
         @raetselClick="onRaetselClick"
       />
 
-      <div v-if="allComplete" class="absolute inset-0 flex items-center justify-center bg-black/50">
+      <div v-if="allComplete && !activeRiddle" class="absolute inset-0 flex items-center justify-center bg-black/50">
         <div
           class="flex w-96 max-h-[80vh] flex-col items-center rounded-xl bg-white p-8 text-center shadow-2xl"
         >
           <div class="min-h-0 flex-1 overflow-y-auto">
             <h3 class="mb-1 text-lg font-semibold text-gray-900">Alle Rätsel gelöst!</h3>
-            <p class="text-sm text-gray-500">
-              {{
-                config.completionMessage ||
-                'Du hast alle ' + raetselCount + ' Rätsel dieser Vorschau abgeschlossen.'
-              }}
-            </p>
+            <p v-if="completionMessage" class="mt-1 text-sm text-gray-500">{{ completionMessage }}</p>
             <p class="mt-2 font-mono text-2xl font-semibold text-gray-800">
               {{ formatTime(elapsedSeconds) }}
             </p>
@@ -64,13 +59,39 @@
                 {{ activeRiddle.id }}
               </p>
 
-              <h3 class="text-base font-semibold text-gray-900">
+              <h3
+                v-if="!(isAbschlussRaetsel && riddlePhase === 'symbol')"
+                class="text-base font-semibold text-gray-900"
+              >
                 {{ activeRiddle.riddle.question }}
               </h3>
             </div>
 
-            <div v-if="answerState !== 'correct'" class="flex flex-col gap-1">
-              <template v-if="!isAbschlussRaetsel">
+            <!-- Phase 1: Symbol selection (AbschlussRätsel only) -->
+            <template v-if="isAbschlussRaetsel && riddlePhase === 'symbol'">
+              <div v-if="answerState !== 'symbolCorrect'" class="flex flex-col gap-2">
+                <p v-if="symbolPickerData.prompt" class="text-sm text-gray-700">
+                  {{ symbolPickerData.prompt }}
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  <img
+                    v-for="entry in shuffledSymbolEntries"
+                    :key="entry.riddleId"
+                    :src="entry.preview"
+                    alt="Symbol"
+                    class="h-16 w-16 cursor-pointer rounded-lg border-2 border-transparent object-cover hover:border-blue-400"
+                    @click="onSymbolClick(entry.riddleId)"
+                  />
+                </div>
+              </div>
+              <div v-else class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+                <p class="text-sm text-green-800">{{ symbolPickerData.successText }}</p>
+              </div>
+            </template>
+
+            <!-- Phase 2 or regular riddle -->
+            <template v-else>
+              <div v-if="answerState !== 'correct'" class="flex flex-col gap-1">
                 <label for="previewAnswer" class="text-sm font-medium text-gray-700">
                   Deine Antwort
                 </label>
@@ -85,48 +106,47 @@
                   placeholder="Antwort eingeben..."
                   @keydown.enter="submitAnswer"
                 />
-              </template>
 
-              <template v-else>
-                <div class="flex flex-wrap gap-2">
-                  <img
-                    v-for="entry in shuffledSymbolEntries"
-                    :key="entry.riddleId"
-                    :src="entry.preview"
-                    alt="Symbol"
-                    class="h-16 w-16 cursor-pointer rounded-lg border-2 border-transparent object-cover hover:border-blue-400"
-                    @click="onSymbolClick(entry.riddleId)"
-                  />
-                </div>
-              </template>
+                <p v-if="answerState === 'wrong'" class="mt-0.5 text-xs text-red-600">
+                  Falsche Antwort. Versuch es nochmal!
+                </p>
+              </div>
 
-              <p v-if="answerState === 'wrong'" class="mt-0.5 text-xs text-red-600">
-                Falsche Antwort. Versuch es nochmal!
-              </p>
-            </div>
-
-            <div v-else class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-              <img
-                v-if="activeRiddleIconPreview"
-                :src="activeRiddleIconPreview"
-                alt="Symbol"
-                class="mb-3 h-16 w-16 rounded-lg object-cover"
-              />
-              <p class="text-sm text-green-800">
-                {{ activeRiddle.riddle.successText }}
-              </p>
-            </div>
+              <div v-else class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+                <img
+                  v-if="activeRiddleIconPreview"
+                  :src="activeRiddleIconPreview"
+                  alt="Symbol"
+                  class="mb-3 h-16 w-16 rounded-lg object-cover"
+                />
+                <p class="text-sm text-green-800">
+                  {{ activeRiddle.riddle.successText }}
+                </p>
+              </div>
+            </template>
           </div>
 
           <div class="mt-5 flex justify-end gap-2">
-            <BaseButton @click="closeDialog">Schließen</BaseButton>
+            <!-- Phase 1 footer -->
+            <template v-if="isAbschlussRaetsel && riddlePhase === 'symbol'">
+              <BaseButton @click="closeDialog">Schließen</BaseButton>
+              <BaseButton v-if="answerState === 'symbolCorrect'" @click="proceedToRiddle">
+                Weiter
+              </BaseButton>
+            </template>
 
-            <BaseButton
-              v-if="answerState !== 'correct' && !isAbschlussRaetsel"
-              @click="submitAnswer"
-            >
-              Prüfen
-            </BaseButton>
+            <!-- Phase 2 / regular riddle footer -->
+            <template v-else>
+              <BaseButton v-if="!(allComplete && answerState === 'correct')" @click="closeDialog">
+                Schließen
+              </BaseButton>
+              <BaseButton v-if="allComplete && answerState === 'correct'" @click="closeDialog">
+                Fertig!
+              </BaseButton>
+              <BaseButton v-if="answerState !== 'correct'" @click="submitAnswer">
+                Prüfen
+              </BaseButton>
+            </template>
           </div>
         </div>
       </div>
@@ -138,11 +158,12 @@
 import { ref, reactive, computed, watch, inject, onMounted, onUnmounted } from 'vue'
 import {
   ELEMENTS_DATA,
-  COMPLETION_MESSAGE,
   SELECTED_MODE,
   SYMBOL_POOL,
   ABSCHLUSS_RAETSEL_ID,
   ABSCHLUSS_PENALTY,
+  SYMBOL_PICKER_DATA,
+  COMPLETION_MESSAGE,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
@@ -152,8 +173,9 @@ import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
 const emit = defineEmits(['close', 'reset'])
 
 const elementsData = inject(ELEMENTS_DATA)
-const completionMessage = inject(COMPLETION_MESSAGE)
 const selectedMode = inject(SELECTED_MODE)
+const symbolPickerData = inject(SYMBOL_PICKER_DATA)
+const completionMessage = inject(COMPLETION_MESSAGE)
 const symbolPool = inject(SYMBOL_POOL)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
 const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
@@ -162,11 +184,12 @@ const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
 const config = computed(function () {
   return buildRiddleConfig(
     elementsData.value,
-    completionMessage.value,
     selectedMode.value,
     symbolPool.value,
     abschlussRaetselId.value,
     abschlussRaetselPenalty.value,
+    symbolPickerData.value,
+    completionMessage.value,
   )
 })
 
@@ -174,6 +197,7 @@ const config = computed(function () {
 const completedRiddles = reactive({})
 const assignedSymbols = reactive({})
 const usedSymbolIndices = {}
+const symbolSelectionPassed = reactive({})
 
 // gotta be an easier way
 const raetselCount = computed(function () {
@@ -200,7 +224,6 @@ const allComplete = computed(function () {
 watch(allComplete, function (done) {
   if (done) {
     stopTimer()
-    closeDialog()
   }
 })
 
@@ -264,13 +287,15 @@ onUnmounted(function () {
 const activeRiddle = ref(null)
 const answerInput = ref('')
 const answerState = ref('idle')
+const riddlePhase = ref('riddle')
 
 const activeRiddleIconPreview = computed(function () {
   if (!activeRiddle.value) return null
 
-  // show the randomly assigned symbol instead of the per-riddle icon
   if (selectedMode.value === 'Spezial') {
-    return assignedSymbols[activeRiddle.value.id] || null //this safeguard can be deleted later
+    // AbschlussRätsel Phase 2 has no symbol reward
+    if (isAbschlussRaetsel.value) return null
+    return assignedSymbols[activeRiddle.value.id] || null
   }
 
   const entry = elementsData.value[activeRiddle.value.id]
@@ -298,7 +323,14 @@ function onRaetselClick(riddleElement) {
   answerState.value = 'idle'
 
   if (selectedMode.value === 'Spezial' && riddleElement.id === abschlussRaetselId.value) {
-    // assign final symbol to the abschlussRaetsel
+    if (symbolSelectionPassed[riddleElement.id]) {
+      riddlePhase.value = 'riddle'
+      return
+    }
+
+    riddlePhase.value = 'symbol'
+
+    // assign symbol to AbschlussRätsel if not yet done (it's the correct answer in the grid)
     if (!assignedSymbols[riddleElement.id]) {
       for (let i = 0; i < symbolPool.value.length; i++) {
         if (!usedSymbolIndices[i]) {
@@ -309,7 +341,7 @@ function onRaetselClick(riddleElement) {
       }
     }
 
-    // shuffle array entries for random symbol grid ordering
+    // shuffle all assigned symbols (including AbschlussRätsel's) into the grid
     const entries = []
     for (const riddleId in assignedSymbols) {
       entries.push({ riddleId: riddleId, preview: assignedSymbols[riddleId] })
@@ -363,16 +395,22 @@ function submitAnswer() {
 
 function onSymbolClick(riddleId) {
   if (riddleId === abschlussRaetselId.value) {
-    answerState.value = 'correct'
-    completedRiddles[activeRiddle.value.id] = true
+    answerState.value = 'symbolCorrect'
+    symbolSelectionPassed[activeRiddle.value.id] = true
   } else {
     startPenalty()
   }
+}
+
+function proceedToRiddle() {
+  riddlePhase.value = 'riddle'
+  answerState.value = 'idle'
 }
 
 function closeDialog() {
   activeRiddle.value = null
   answerInput.value = ''
   answerState.value = 'idle'
+  riddlePhase.value = 'riddle'
 }
 </script>

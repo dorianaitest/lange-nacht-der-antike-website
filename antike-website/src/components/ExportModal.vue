@@ -17,7 +17,7 @@
 
 <script setup>
 import { computed, inject } from 'vue'
-import { PLAIN_SVG_TEXT, ELEMENTS_DATA, COMPLETION_MESSAGE, SELECTED_MODE, SYMBOL_POOL, ABSCHLUSS_RAETSEL_ID, ABSCHLUSS_PENALTY } from '../injectionKeys.js'
+import { PLAIN_SVG_TEXT, ELEMENTS_DATA, SELECTED_MODE, SYMBOL_POOL, ABSCHLUSS_RAETSEL_ID, ABSCHLUSS_PENALTY, SYMBOL_PICKER_DATA, COMPLETION_MESSAGE } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
@@ -27,13 +27,15 @@ const emit = defineEmits(['close'])
 
 const plainSvgText = inject(PLAIN_SVG_TEXT)
 const elementsData = inject(ELEMENTS_DATA)
-const completionMessage = inject(COMPLETION_MESSAGE)
 const selectedMode = inject(SELECTED_MODE)
 const symbolPool = inject(SYMBOL_POOL)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
 const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
 
-const config = computed(() => buildRiddleConfig(elementsData.value, completionMessage.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value))
+const symbolPickerData = inject(SYMBOL_PICKER_DATA)
+const completionMessage = inject(COMPLETION_MESSAGE)
+
+const config = computed(() => buildRiddleConfig(elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value))
 const jsonString = computed(() => JSON.stringify(config.value, null, 2))
 
 function copyToClipboard() {
@@ -41,7 +43,7 @@ function copyToClipboard() {
 }
 
 function downloadZip() {
-  exportZip(plainSvgText.value, elementsData.value, completionMessage.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value)
+  exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value)
 }
 
 </script>

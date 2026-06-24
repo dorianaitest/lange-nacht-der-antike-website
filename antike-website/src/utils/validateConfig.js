@@ -3,7 +3,6 @@ export function validateConfig(
   mode,
   abschlussRaetselId,
   symbolPool,
-  completionMessage,
 ) {
   const errors = []
   const warnings = []
@@ -43,10 +42,6 @@ export function validateConfig(
         unlinkedDecoIds.join(', ') +
         '.',
     )
-  }
-
-  if (!completionMessage) {
-    warnings.push('Es wurde keine Abschluss-Nachricht konfiguriert.')
   }
 
   if (!hasStartRaetsel) {

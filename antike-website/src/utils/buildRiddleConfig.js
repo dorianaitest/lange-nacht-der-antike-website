@@ -1,4 +1,4 @@
-export function buildRiddleConfig(elementsData, completionMessage, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty) {
+export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty, symbolPickerData, completionMessage) {
   const entries = Object.entries(elementsData)
   const nodes = {}
 
@@ -19,6 +19,13 @@ export function buildRiddleConfig(elementsData, completionMessage, mode, symbolP
         unlockAfterId: entry.riddle.unlockAfterId,
         style: entry.riddle.style || { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' },
         riddle,
+      }
+
+      if (mode === 'Spezial' && id === abschlussRaetselId) {
+        nodes[id].symbolPicker = {
+          prompt: symbolPickerData.prompt,
+          successText: symbolPickerData.successText,
+        }
       }
     } else if (entry.elementArt === 'Dekoration') {
       nodes[id] = {

@@ -82,7 +82,7 @@
           v-model="completionMessage"
           rows="3"
           class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
-          placeholder="Du hast es geschaft! Nun hast du ..."
+          placeholder="Du hast es geschafft! Nun hast du ..."
         />
       </section>
     </div>
@@ -93,18 +93,18 @@
 import { computed, inject, watch } from 'vue'
 import {
   ELEMENTS_DATA,
-  COMPLETION_MESSAGE,
   SELECTED_MODE,
   ABSCHLUSS_RAETSEL_ID,
   ABSCHLUSS_PENALTY,
+  COMPLETION_MESSAGE,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 
 const emit = defineEmits(['close'])
 
 const elementsData = inject(ELEMENTS_DATA)
-const completionMessage = inject(COMPLETION_MESSAGE)
 const selectedMode = inject(SELECTED_MODE)
+const completionMessage = inject(COMPLETION_MESSAGE)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
 const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
 
