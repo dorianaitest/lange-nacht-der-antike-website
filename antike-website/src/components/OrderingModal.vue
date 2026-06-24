@@ -76,6 +76,26 @@
 
       <section class="mt-6">
         <p class="mb-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
+          Startbildschirm
+        </p>
+        <div class="flex flex-col gap-2">
+          <input
+            v-model="startScreenData.titel"
+            type="text"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            placeholder="Titel des Rätsels..."
+          />
+          <textarea
+            v-model="startScreenData.beschreibung"
+            rows="3"
+            class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+            placeholder="Einleitungstext / Anweisungen..."
+          />
+        </div>
+      </section>
+
+      <section class="mt-6">
+        <p class="mb-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
           Abschlussnachricht
         </p>
         <textarea
@@ -97,6 +117,7 @@ import {
   ABSCHLUSS_RAETSEL_ID,
   ABSCHLUSS_PENALTY,
   COMPLETION_MESSAGE,
+  START_SCREEN_DATA,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 
@@ -105,6 +126,7 @@ const emit = defineEmits(['close'])
 const elementsData = inject(ELEMENTS_DATA)
 const selectedMode = inject(SELECTED_MODE)
 const completionMessage = inject(COMPLETION_MESSAGE)
+const startScreenData = inject(START_SCREEN_DATA)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
 const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
 

@@ -2,7 +2,7 @@
   <BaseModal title="Vorschau" width="90vw" height="90vh" @close="emit('close')">
     <div class="relative flex-1 overflow-hidden">
       <div
-        v-if="!allComplete"
+        v-if="gameStarted && !allComplete"
         class="pointer-events-none absolute top-3 right-3 z-10 rounded-lg bg-white/90 px-3 py-1 font-mono text-sm text-gray-700 shadow-sm"
       >
         {{ formatTime(elapsedSeconds) }}
@@ -13,6 +13,20 @@
         :completedRiddles="completedRiddles"
         @raetselClick="onRaetselClick"
       />
+
+      <div v-if="!gameStarted" class="absolute inset-0 flex items-center justify-center bg-black/50">
+        <div class="flex w-96 max-h-[80vh] flex-col items-center rounded-xl bg-white p-8 text-center shadow-2xl">
+          <div class="min-h-0 flex-1 overflow-y-auto">
+            <h3 class="mb-3 text-lg font-semibold text-gray-900">{{ startScreenData.titel }}</h3>
+            <p v-if="startScreenData.beschreibung" class="text-sm text-gray-600">
+              {{ startScreenData.beschreibung }}
+            </p>
+          </div>
+          <div class="mt-5">
+            <BaseButton @click="startGame">Spiel starten</BaseButton>
+          </div>
+        </div>
+      </div>
 
       <div v-if="allComplete && !activeRiddle" class="absolute inset-0 flex items-center justify-center bg-black/50">
         <div
@@ -155,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, inject, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, inject, onUnmounted } from 'vue'
 import {
   ELEMENTS_DATA,
   SELECTED_MODE,
@@ -164,6 +178,7 @@ import {
   ABSCHLUSS_PENALTY,
   SYMBOL_PICKER_DATA,
   COMPLETION_MESSAGE,
+  START_SCREEN_DATA,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
@@ -176,6 +191,7 @@ const elementsData = inject(ELEMENTS_DATA)
 const selectedMode = inject(SELECTED_MODE)
 const symbolPickerData = inject(SYMBOL_PICKER_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
+const startScreenData = inject(START_SCREEN_DATA)
 const symbolPool = inject(SYMBOL_POOL)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
 const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
@@ -190,6 +206,7 @@ const config = computed(function () {
     abschlussRaetselPenalty.value,
     symbolPickerData.value,
     completionMessage.value,
+    startScreenData.value,
   )
 })
 
@@ -278,7 +295,13 @@ function startPenalty() {
   }, 1000)
 }
 
-onMounted(startTimer)
+const gameStarted = ref(false)
+
+function startGame() {
+  gameStarted.value = true
+  startTimer()
+}
+
 onUnmounted(function () {
   stopTimer()
   clearInterval(penaltyIntervalId)
@@ -314,6 +337,8 @@ const isAbschlussRaetsel = computed(function () {
 const shuffledSymbolEntries = ref([])
 
 function onRaetselClick(riddleElement) {
+  if (!gameStarted.value) return
+
   activeRiddle.value = {
     id: riddleElement.id,
     riddle: riddleElement.riddle,

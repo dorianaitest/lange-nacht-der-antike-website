@@ -91,6 +91,7 @@ import {
   ABSCHLUSS_PENALTY,
   SYMBOL_PICKER_DATA,
   COMPLETION_MESSAGE,
+  START_SCREEN_DATA,
 } from './injectionKeys.js'
 
 const fileInput = ref(null)
@@ -98,6 +99,7 @@ const fileInput = ref(null)
 const svgText = ref(null)
 const symbolPickerData = ref({ prompt: '', successText: '' })
 const completionMessage = ref('')
+const startScreenData = ref({ titel: '', beschreibung: '' })
 const elementsData = ref({})
 const selectedElementId = ref(null)
 const modePickerOpen = ref(false)
@@ -139,6 +141,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
 })
 provide(SYMBOL_PICKER_DATA, symbolPickerData)
 provide(COMPLETION_MESSAGE, completionMessage)
+provide(START_SCREEN_DATA, startScreenData)
 provide(SELECTED_MODE, selectedMode)
 provide(SYMBOL_POOL, symbolPool)
 provide(ABSCHLUSS_RAETSEL_ID, abschlussRaetselId)

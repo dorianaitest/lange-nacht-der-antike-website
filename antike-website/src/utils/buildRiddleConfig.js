@@ -1,4 +1,4 @@
-export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty, symbolPickerData, completionMessage) {
+export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty, symbolPickerData, completionMessage, startScreenData) {
   const entries = Object.entries(elementsData)
   const nodes = {}
 
@@ -40,6 +40,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
   const config = {
     svgFile: 'background.svg',
     mode,
+    startScreen: { titel: startScreenData.titel, beschreibung: startScreenData.beschreibung },
     completionMessage,
     nodes,
   }
