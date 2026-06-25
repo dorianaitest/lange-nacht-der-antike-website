@@ -6,12 +6,22 @@
       <div class="flex h-full w-full">
         <!-- toolbar + map + hover -->
         <div class="flex h-full min-w-0 flex-1 flex-col">
-          <div class="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-2">
+          <div
+            class="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-2"
+          >
             <div class="flex items-center gap-2">
               <BaseButton @click="setupModalOpen = true">Ebenen</BaseButton>
-              <BaseButton @click="highlightAllElements = !highlightAllElements">Elemente hervorheben</BaseButton>
-              <BaseButton @click="orderingOpen = true">Reihenfolge</BaseButton>
-              <BaseButton v-if="selectedMode === 'Spezial'" @click="symboleOpen = true">Symbole</BaseButton>
+              <BaseButton @click="highlightAllElements = !highlightAllElements"
+                >Elemente hervorheben</BaseButton
+              >
+              <BaseButton
+                :class="orderingOpen ? 'bg-blue-800 hover:bg-blue-800' : ''"
+                @click="orderingOpen = !orderingOpen"
+                >Reihenfolge</BaseButton
+              >
+              <BaseButton v-if="selectedMode === 'Spezial'" @click="symboleOpen = true"
+                >Symbole</BaseButton
+              >
             </div>
 
             <span class="text-sm text-gray-600">Modus: {{ selectedMode }}</span>
@@ -34,14 +44,13 @@
           </p>
         </div>
 
-        <EditorSidebar />
+        <OrderingSidebar v-if="orderingOpen" @close="orderingOpen = false" />
+        <EditorSidebar v-else />
       </div>
 
       <ModePickerModal v-if="modePickerOpen" @pick="onModePicked" @close="modePickerOpen = false" />
 
       <SvgSetupModal v-if="setupModalOpen" @close="setupModalOpen = false" />
-
-      <OrderingModal v-if="orderingOpen" @close="orderingOpen = false" />
 
       <ExportModal v-if="exportOpen" @close="exportOpen = false" />
 
@@ -73,7 +82,7 @@ import ValidationModal from './components/ValidationModal.vue'
 import SvgMap from './components/SvgMap.vue'
 import EditorSidebar from './components/EditorSidebar.vue'
 import SvgSetupModal from './components/SvgSetupModal.vue'
-import OrderingModal from './components/OrderingModal.vue'
+import OrderingSidebar from './components/OrderingSidebar.vue'
 import ExportModal from './components/ExportModal.vue'
 import PreviewModal from './components/PreviewModal.vue'
 import ModePickerModal from './components/ModePickerModal.vue'
@@ -152,7 +161,12 @@ provide(SET_SELECTED_ELEMENT, (id) => {
 })
 
 function openWithValidation(requestedModal) {
-  const result = validateConfig(elementsData.value, selectedMode.value, abschlussRaetselId.value, symbolPool.value)
+  const result = validateConfig(
+    elementsData.value,
+    selectedMode.value,
+    abschlussRaetselId.value,
+    symbolPool.value,
+  )
   if (result.errors.length > 0 || result.warnings.length > 0) {
     validationErrors.value = result.errors
     validationWarnings.value = result.warnings
