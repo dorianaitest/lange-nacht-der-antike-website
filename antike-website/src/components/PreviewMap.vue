@@ -60,11 +60,14 @@ function isAccessible(id) {
     return true
   }
 
-  if (!element.unlockAfterId) {
+  if (!element.unlockAfterIds || element.unlockAfterIds.length === 0) {
     return true
   }
 
-  return isCompleted(element.unlockAfterId)
+  for (const parentId of element.unlockAfterIds) {
+    if (isCompleted(parentId)) return true
+  }
+  return false
 }
 
 function removePreviewClasses(svgElement) {
@@ -102,8 +105,12 @@ function updateRiddleVisual(id, svgElement) {
 function updateDecorationVisual(element, svgElement) {
   let style = element.stateBefore
 
-  if (element.linkedElement && isCompleted(element.linkedElement)) {
-    style = element.stateAfter
+  const linked = element.linkedElements || []
+  for (const linkedId of linked) {
+    if (isCompleted(linkedId)) {
+      style = element.stateAfter
+      break
+    }
   }
 
   if (style === 'hidden') {

@@ -44,40 +44,39 @@
         </p>
 
         <div v-else class="flex flex-col gap-2">
-          <div
-            v-for="[id, entry] in raetselEntries"
-            :key="id"
-            :class="[
-              'flex flex-col gap-2 rounded-lg border px-4 py-3',
-              id === abschlussRaetselId
-                ? 'border-purple-200 bg-purple-50'
-                : 'border-gray-100 bg-gray-50',
-            ]"
-          >
-            <span class="truncate font-mono text-sm text-gray-800" :title="id">{{ id }}</span>
+          <template v-for="[id, entry] in raetselEntries" :key="id">
+            <div
+              v-if="id !== abschlussRaetselId"
+              class="flex flex-col gap-2 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3"
+            >
+              <span class="truncate font-mono text-sm text-gray-800" :title="id">
+                {{ id }}
+                <span v-if="entry.riddle.unlockAfterIds.length === 0" class="font-sans text-xs font-normal text-green-600">(START)</span>
+              </span>
 
-            <div class="flex items-center gap-2">
-              <span class="shrink-0 text-sm text-gray-500">Nach:</span>
-              <select
-                v-model="entry.riddle.unlockAfterId"
-                :class="SELECT_CLASS"
-                :disabled="id === abschlussRaetselId"
-              >
-                <option :value="null">Start</option>
-                <option v-if="id === abschlussRaetselId" :value="LAST_ELEMENT">
-                  Nach allen anderen
-                </option>
-                <option
-                  v-for="[otherId] in raetselEntries"
+              <p class="text-xs text-gray-500">Freigeschaltet durch:</p>
+
+              <p v-if="otherRaetsel(id).length === 0" class="text-xs text-gray-400 italic">
+                Kein anderes Rätsel verfügbar. Ab Start zugänglich
+              </p>
+
+              <div v-else class="flex flex-col gap-1">
+                <label
+                  v-for="[otherId] in otherRaetsel(id)"
                   :key="otherId"
-                  :value="otherId"
-                  :disabled="otherId === id || otherId === abschlussRaetselId"
+                  class="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
                 >
-                  {{ otherId }}
-                </option>
-              </select>
+                  <input
+                    type="checkbox"
+                    :value="otherId"
+                    v-model="entry.riddle.unlockAfterIds"
+                    class="cursor-pointer"
+                  />
+                  <span class="truncate font-mono" :title="otherId">{{ otherId }}</span>
+                </label>
+              </div>
             </div>
-          </div>
+          </template>
         </div>
       </section>
 
@@ -142,15 +141,36 @@ watch(abschlussRaetselId, function (newId) {
   if (!newId) return
 
   if (elementsData.value[newId]) {
-    elementsData.value[newId].riddle.unlockAfterId = LAST_ELEMENT
+    elementsData.value[newId].riddle.unlockAfterIds = [LAST_ELEMENT]
   }
 
   for (const id in elementsData.value) {
-    if (id !== newId && elementsData.value[id].riddle.unlockAfterId === newId) {
-      elementsData.value[id].riddle.unlockAfterId = null
+    if (id === newId) continue
+
+    const current = elementsData.value[id].riddle.unlockAfterIds
+    const filtered = []
+
+    for (const parentId of current) {
+      if (parentId !== newId) {
+        filtered.push(parentId)
+      }
     }
+
+    elementsData.value[id].riddle.unlockAfterIds = filtered
   }
 })
+
+function otherRaetsel(currentId) {
+  const result = []
+
+  for (const [id, entry] of raetselEntries.value) {
+    if (id !== currentId && id !== abschlussRaetselId.value) {
+      result.push([id, entry])
+    }
+  }
+
+  return result
+}
 
 const raetselEntries = computed(function () {
   const result = []

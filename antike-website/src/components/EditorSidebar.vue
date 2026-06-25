@@ -154,11 +154,27 @@
         <template v-if="entry.elementArt === 'Dekoration'">
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
-              <p class="text-sm text-gray-700">Freigeschaltet durch Rätsel:</p>
-              <select v-model="deco.linkedElement" :class="SELECT_CLASS">
-                <option :value="null">Keines</option>
-                <option v-for="id in raetselIds" :key="id" :value="id">{{ id }}</option>
-              </select>
+              <p class="text-sm text-gray-700">Freigeschaltet durch Rätsel (eines davon reicht):</p>
+
+              <p v-if="raetselIds.length === 0" class="text-xs text-gray-400 italic">
+                Noch keine Rätsel vorhanden.
+              </p>
+
+              <div v-else class="flex flex-col gap-1">
+                <label
+                  v-for="id in raetselIds"
+                  :key="id"
+                  class="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
+                >
+                  <input
+                    type="checkbox"
+                    :value="id"
+                    v-model="deco.linkedElements"
+                    class="cursor-pointer"
+                  />
+                  <span class="truncate font-mono" :title="id">{{ id }}</span>
+                </label>
+              </div>
             </div>
 
             <div class="flex flex-col gap-2">

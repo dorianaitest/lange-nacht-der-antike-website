@@ -15,13 +15,13 @@ export function validateConfig(
     const entry = elementsData[id]
     if (entry.elementArt === 'Rätsel') {
       raetselCount++
-      if (!entry.riddle.unlockAfterId) {
+      if (entry.riddle.unlockAfterIds.length === 0) {
         hasStartRaetsel = true
       }
       if (!entry.riddle.question || !entry.riddle.answer || !entry.riddle.successText) {
         incompleteIds.push(id)
       }
-    } else if (entry.elementArt === 'Dekoration' && !entry.deco.linkedElement) {
+    } else if (entry.elementArt === 'Dekoration' && entry.deco.linkedElements.length === 0) {
       unlinkedDecoIds.push(id)
     }
   }

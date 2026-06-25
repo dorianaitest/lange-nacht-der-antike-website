@@ -16,7 +16,7 @@
               >
               <BaseButton
                 :class="orderingOpen ? 'bg-blue-800 hover:bg-blue-800' : ''"
-                @click="orderingOpen = !orderingOpen"
+                @click="toggleOrdering"
                 >Reihenfolge</BaseButton
               >
               <BaseButton v-if="selectedMode === 'Spezial'" @click="symboleOpen = true"
@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref, provide, nextTick } from 'vue'
+import { ref, provide, watch, nextTick } from 'vue'
 import { validateConfig } from './utils/validateConfig.js'
 import ValidationModal from './components/ValidationModal.vue'
 import SvgMap from './components/SvgMap.vue'
@@ -141,10 +141,10 @@ provide(EXTRACT_ELEMENTS, function (ids) {
         successText: '',
         iconFile: null,
         iconPreview: null,
-        unlockAfterId: null,
+        unlockAfterIds: [],
         style: { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' },
       },
-      deco: { linkedElement: null, stateBefore: 'hidden', stateAfter: 'none' },
+      deco: { linkedElements: [], stateBefore: 'hidden', stateAfter: 'none' },
     }
   }
 })
@@ -158,6 +158,22 @@ provide(ABSCHLUSS_PENALTY, abschlussRaetselPenalty)
 provide(SELECTED_ELEMENT_ID, selectedElementId)
 provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id
+})
+
+function toggleOrdering() {
+  orderingOpen.value = !orderingOpen.value
+  if (orderingOpen.value) {
+    selectedElementId.value = null
+  }
+}
+
+watch(selectedElementId, function (id) {
+  if (!id || !orderingOpen.value) return
+
+  const entry = elementsData.value[id]
+  if (entry && (entry.elementArt === 'Rätsel' || entry.elementArt === 'Dekoration')) {
+    orderingOpen.value = false
+  }
 })
 
 function openWithValidation(requestedModal) {

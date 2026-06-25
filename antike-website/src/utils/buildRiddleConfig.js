@@ -16,7 +16,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
 
       nodes[id] = {
         type: 'rätsel',
-        unlockAfterId: entry.riddle.unlockAfterId,
+        unlockAfterIds: entry.riddle.unlockAfterIds,
         style: entry.riddle.style || { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' },
         riddle,
       }
@@ -30,7 +30,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
     } else if (entry.elementArt === 'Dekoration') {
       nodes[id] = {
         type: 'dekoration',
-        linkedElement: entry.deco.linkedElement,
+        linkedElements: entry.deco.linkedElements,
         stateBefore: entry.deco.stateBefore,
         stateAfter: entry.deco.stateAfter,
       }
