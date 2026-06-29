@@ -2,6 +2,7 @@
   <aside class="flex h-full w-80 shrink-0 flex-col border-l border-gray-200 bg-white">
     <div class="flex shrink-0 items-center justify-between px-6 pt-6 pb-0">
       <h2 class="text-lg font-semibold text-gray-900">Reihenfolge</h2>
+      <p class="mt-1 text-xs text-gray-400">Bestimme, welche Rätsel zu Beginn zugänglich sind und welche erst nach anderen freigeschaltet werden.</p>
       <button
         class="cursor-pointer text-xl text-gray-400 hover:text-gray-600"
         aria-label="Schließen"

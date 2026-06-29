@@ -151,7 +151,7 @@
         </template>
 
         <!-- Dekoration-Template -->
-        <template v-if="entry.elementArt === 'Dekoration'">
+        <template v-if="entry.elementArt === 'dynamische Dekoration'">
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
               <p class="text-sm text-gray-700">Freigeschaltet durch Rätsel (eines davon reicht):</p>
@@ -202,7 +202,8 @@
       <!-- Empty state -->
       <div class="flex flex-1 items-center justify-center px-6">
         <p class="text-center text-sm text-gray-400">
-          Klicke ein Element auf der Karte, um es zu konfigurieren
+          Klicke ein Rätsel oder eine dynamische Dekoration auf der Karte, um es zu konfigurieren.
+          Elemente werden zuerst im Ebenen-Panel einer Rolle zugewiesen.
         </p>
       </div>
     </template>

@@ -21,7 +21,7 @@ export function validateConfig(
       if (!entry.riddle.question || !entry.riddle.answer || !entry.riddle.successText) {
         incompleteIds.push(id)
       }
-    } else if (entry.elementArt === 'Dekoration' && entry.deco.linkedElements.length === 0) {
+    } else if (entry.elementArt === 'dynamische Dekoration' && entry.deco.linkedElements.length === 0) {
       unlinkedDecoIds.push(id)
     }
   }
@@ -38,7 +38,7 @@ export function validateConfig(
   if (unlinkedDecoIds.length > 0) {
     warnings.push(
       unlinkedDecoIds.length +
-        ' Dekoration(en) haben kein Rätsel nach dem sie freigeschaltet werden: ' +
+        ' dynamische Dekoration(en) haben kein Rätsel nach dem sie freigeschaltet werden: ' +
         unlinkedDecoIds.join(', ') +
         '.',
     )

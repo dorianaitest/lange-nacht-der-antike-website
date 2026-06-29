@@ -134,7 +134,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
   for (const id of ids) {
     // for now all elements get the riddle attribute CHANGE LATER
     elementsData.value[id] = {
-      elementArt: 'deaktiviert',
+      elementArt: 'Inaktiv',
       riddle: {
         question: '',
         answer: '',
@@ -171,7 +171,7 @@ watch(selectedElementId, function (id) {
   if (!id || !orderingOpen.value) return
 
   const entry = elementsData.value[id]
-  if (entry && (entry.elementArt === 'Rätsel' || entry.elementArt === 'Dekoration')) {
+  if (entry && (entry.elementArt === 'Rätsel' || entry.elementArt === 'dynamische Dekoration')) {
     orderingOpen.value = false
   }
 })

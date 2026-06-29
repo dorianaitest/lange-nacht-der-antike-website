@@ -34,7 +34,7 @@ const elements = ref({})
 
 const HIGHLIGHT_CLASS = {
   Rätsel: 'highlight-raetsel',
-  Dekoration: 'highlight-dekoration',
+  'dynamische Dekoration': 'highlight-dekoration',
 }
 
 function setupHoverListeners() {
@@ -53,7 +53,7 @@ function addListenersToElement(id, svgElement) {
   function onEnter() {
     const art = getArt(id)
 
-    if (art !== 'deaktiviert') {
+    if (art !== 'Inaktiv') {
       svgElement.style.cursor = 'pointer'
       applyHighlight(svgElement, art)
       emit('hoverChange', id)
@@ -75,7 +75,7 @@ function addListenersToElement(id, svgElement) {
   function onClick() {
     const art = getArt(id)
 
-    if (art !== 'deaktiviert') {
+    if (art !== 'Inaktiv') {
       setSelectedElement(id)
     }
   }

@@ -1,5 +1,8 @@
 <template>
   <BaseModal title="Export: riddle-config.json" width="60vw" height="80vh" @close="emit('close')">
+    <p class="shrink-0 border-b border-gray-100 px-5 py-3 text-sm text-gray-500">
+      Exportiere die vollständige Konfiguration als ZIP-Datei für den Spielserver.
+    </p>
     <div class="flex shrink-0 items-center justify-end gap-2 border-b border-gray-100 px-5 py-2">
       <BaseButton @click="downloadZip">
         {{ 'Zip-Datei erstellen' }}

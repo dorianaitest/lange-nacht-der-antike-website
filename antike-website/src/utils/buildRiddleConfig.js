@@ -27,7 +27,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
           successText: symbolPickerData.successText,
         }
       }
-    } else if (entry.elementArt === 'Dekoration') {
+    } else if (entry.elementArt === 'dynamische Dekoration') {
       nodes[id] = {
         type: 'dekoration',
         linkedElements: entry.deco.linkedElements,

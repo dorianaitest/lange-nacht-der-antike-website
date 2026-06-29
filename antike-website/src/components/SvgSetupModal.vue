@@ -2,6 +2,11 @@
   <BaseModal title="Ebenen" width="90vw" height="90vh" @close="$emit('close')">
     <div class="flex flex-1 overflow-hidden">
       <ul class="flex-1 divide-y divide-gray-100 overflow-y-auto">
+        <li class="px-5 py-3 text-sm text-gray-500">
+          Weise jedem Element eine Rolle zu: <span class="font-medium text-gray-700">Rätsel</span> (spielbar),
+          <span class="font-medium text-gray-700">dynamische Dekoration</span> (reagiert auf gelöste Rätsel) oder
+          <span class="font-medium text-gray-700">Inaktiv</span> (wird ignoriert).
+        </li>
         <li
           v-for="(entry, id) in elementsData"
           :key="id"
@@ -49,12 +54,12 @@ defineEmits(['close'])
 const elementsData = inject(ELEMENTS_DATA)
 provide(EXTRACT_ELEMENTS, () => {}) // prevent EXTRACT_ELEMENT from resetting elementsData; cleanup later
 
-const options = ['deaktiviert', 'Rätsel', 'Dekoration']
+const options = ['Inaktiv', 'Rätsel', 'dynamische Dekoration']
 
 const HIGHLIGHT_CLASS = {
   Rätsel: 'highlight-raetsel',
-  Dekoration: 'highlight-dekoration',
-  deaktiviert: 'highlight-deaktiviert',
+  'dynamische Dekoration': 'highlight-dekoration',
+  Inaktiv: 'highlight-deaktiviert',
 }
 
 const svgMap = ref(null)
