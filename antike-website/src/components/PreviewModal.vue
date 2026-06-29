@@ -315,7 +315,7 @@ const riddlePhase = ref('riddle')
 const activeRiddleIconPreview = computed(function () {
   if (!activeRiddle.value) return null
 
-  if (selectedMode.value === 'Spezial') {
+  if (selectedMode.value === 'Symbolraetsel') {
     // AbschlussRätsel Phase 2 has no symbol reward
     if (isAbschlussRaetsel.value) return null
     return assignedSymbols[activeRiddle.value.id] || null
@@ -329,7 +329,7 @@ const activeRiddleIconPreview = computed(function () {
 // true when AbschlussRätsel in Spezial mode: used for symbol grid
 const isAbschlussRaetsel = computed(function () {
   if (!activeRiddle.value) return false
-  if (selectedMode.value !== 'Spezial') return false
+  if (selectedMode.value !== 'Symbolraetsel') return false
   return activeRiddle.value.id === abschlussRaetselId.value
 })
 
@@ -347,7 +347,7 @@ function onRaetselClick(riddleElement) {
   answerInput.value = ''
   answerState.value = 'idle'
 
-  if (selectedMode.value === 'Spezial' && riddleElement.id === abschlussRaetselId.value) {
+  if (selectedMode.value === 'Symbolraetsel' && riddleElement.id === abschlussRaetselId.value) {
     if (symbolSelectionPassed[riddleElement.id]) {
       riddlePhase.value = 'riddle'
       return
@@ -397,7 +397,7 @@ function submitAnswer() {
     // maybe I should block the preview if there aren't enough symbols (?)
     // AbschlussRätsel gets its symbol pre-assigned in onRaetselClick so we skip it here
     if (
-      selectedMode.value === 'Spezial' &&
+      selectedMode.value === 'Symbolraetsel' &&
       symbolPool.value.length > 0 &&
       solvedRiddleId !== abschlussRaetselId.value
     ) {

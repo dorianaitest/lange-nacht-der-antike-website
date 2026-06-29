@@ -11,15 +11,15 @@
           >
             <div class="flex items-center gap-2">
               <BaseButton @click="setupModalOpen = true">Ebenen</BaseButton>
-              <BaseButton @click="highlightAllElements = !highlightAllElements"
+              <BaseButton
+                :active="highlightAllElements"
+                @click="highlightAllElements = !highlightAllElements"
                 >Elemente hervorheben</BaseButton
               >
-              <BaseButton
-                :class="orderingOpen ? 'bg-blue-800 hover:bg-blue-800' : ''"
-                @click="toggleOrdering"
+              <BaseButton :active="orderingOpen" @click="toggleOrdering"
                 >Reihenfolge</BaseButton
               >
-              <BaseButton v-if="selectedMode === 'Spezial'" @click="symboleOpen = true"
+              <BaseButton v-if="selectedMode === 'Symbolraetsel'" @click="symboleOpen = true"
                 >Symbole</BaseButton
               >
             </div>

@@ -50,11 +50,11 @@ export function validateConfig(
     )
   }
 
-  if (mode === 'Spezial' && !abschlussRaetselId) {
+  if (mode === 'Symbolraetsel' && !abschlussRaetselId) {
     errors.push('Es wurde kein Abschluss-Rätsel festgelegt.')
   }
 
-  if (mode === 'Spezial' && symbolPool.length !== raetselCount) {
+  if (mode === 'Symbolraetsel' && symbolPool.length !== raetselCount) {
     errors.push(
       'Die Symbolanzahl muss genau der Rätselanzahl entsprechen (Momentan: ' +
         symbolPool.length +

@@ -10,7 +10,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
         successText: entry.riddle.successText,
       }
 
-      if (mode !== 'Spezial' && entry.riddle.iconFile) {
+      if (mode !== 'Symbolraetsel' && entry.riddle.iconFile) {
         riddle.icon = entry.riddle.iconFile.name
       }
 
@@ -21,7 +21,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
         riddle,
       }
 
-      if (mode === 'Spezial' && id === abschlussRaetselId) {
+      if (mode === 'Symbolraetsel' && id === abschlussRaetselId) {
         nodes[id].symbolPicker = {
           prompt: symbolPickerData.prompt,
           successText: symbolPickerData.successText,
@@ -45,7 +45,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
     nodes,
   }
 
-  if (mode === 'Spezial') {
+  if (mode === 'Symbolraetsel') {
     const poolFileNames = []
     for (const symbol of symbolPool) {
       poolFileNames.push(symbol.file.name)

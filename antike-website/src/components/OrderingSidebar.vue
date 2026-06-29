@@ -12,7 +12,7 @@
     </div>
 
     <div class="flex-1 overflow-y-auto px-6 pb-6">
-      <section v-if="selectedMode === 'Spezial' && raetselEntries.length > 0" class="mt-6">
+      <section v-if="selectedMode === 'Symbolraetsel' && raetselEntries.length > 0" class="mt-6">
         <p class="mb-1 text-xs font-medium tracking-wider text-gray-500 uppercase">
           Abschluss Rätsel
         </p>

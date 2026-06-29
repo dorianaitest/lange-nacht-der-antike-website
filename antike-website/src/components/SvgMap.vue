@@ -54,12 +54,16 @@ function addListenersToElement(id, svgElement) {
     const art = getArt(id)
 
     if (art !== 'deaktiviert') {
+      svgElement.style.cursor = 'pointer'
       applyHighlight(svgElement, art)
       emit('hoverChange', id)
+    } else {
+      svgElement.style.cursor = 'default'
     }
   }
 
   function onLeave() {
+    svgElement.style.cursor = ''
     //need to ensure we don't remove the highlighting if allHighlighting is enabled
     if (!props.highlightAll) {
       removeHighlight(svgElement)
@@ -79,8 +83,6 @@ function addListenersToElement(id, svgElement) {
   svgElement.addEventListener('mouseenter', onEnter)
   svgElement.addEventListener('mouseleave', onLeave)
   svgElement.addEventListener('click', onClick)
-
-  svgElement.style.cursor = 'pointer'
 }
 
 function extractSvgElements() {

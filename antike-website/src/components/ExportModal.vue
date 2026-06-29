@@ -5,7 +5,7 @@
         {{ 'Zip-Datei erstellen' }}
       </BaseButton>
       <BaseButton @click="copyToClipboard">
-        {{ 'Kopieren' }}
+        {{ copyLabel }}
       </BaseButton>
     </div>
 
@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { PLAIN_SVG_TEXT, ELEMENTS_DATA, SELECTED_MODE, SYMBOL_POOL, ABSCHLUSS_RAETSEL_ID, ABSCHLUSS_PENALTY, SYMBOL_PICKER_DATA, COMPLETION_MESSAGE, START_SCREEN_DATA } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
@@ -36,11 +36,35 @@ const symbolPickerData = inject(SYMBOL_PICKER_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
 const startScreenData = inject(START_SCREEN_DATA)
 
+const copyState = ref(null)
+
+const copyLabel = computed(function () {
+  if (copyState.value === 'success') return 'Kopiert! ✓'
+  if (copyState.value === 'error') return 'Fehler!'
+  return 'Kopieren'
+})
+
 const config = computed(() => buildRiddleConfig(elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value))
 const jsonString = computed(() => JSON.stringify(config.value, null, 2))
 
+function resetCopyState() {
+  copyState.value = null
+}
+
+function onCopySuccess() {
+  copyState.value = 'success'
+  setTimeout(resetCopyState, 2000)
+}
+
+function onCopyError() {
+  copyState.value = 'error'
+  setTimeout(resetCopyState, 2000)
+}
+
 function copyToClipboard() {
   navigator.clipboard.writeText(jsonString.value)
+    .then(onCopySuccess)
+    .catch(onCopyError)
 }
 
 function downloadZip() {

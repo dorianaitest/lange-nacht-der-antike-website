@@ -60,7 +60,7 @@
                 placeholder="Text nach richtiger Antwort..."
               />
             </div>
-            <div v-if="selectedMode !== 'Spezial'" class="flex flex-col gap-2">
+            <div v-if="selectedMode !== 'Symbolraetsel'" class="flex flex-col gap-2">
               <label class="text-sm font-medium text-gray-700">Symbol</label>
 
               <input
@@ -85,7 +85,7 @@
             </div>
 
             <div
-              v-if="selectedMode === 'Spezial' && selectedId === abschlussRaetselId"
+              v-if="selectedMode === 'Symbolraetsel' && selectedId === abschlussRaetselId"
               class="flex flex-col gap-3 border-t border-gray-200 pt-4"
             >
               <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Symbolauswahl</p>

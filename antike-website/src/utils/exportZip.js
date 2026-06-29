@@ -10,7 +10,7 @@ export async function exportZip(plainSvgText, elementsData, mode, symbolPool, ab
     'riddle-config.json': strToU8(JSON.stringify(config, null, 2)),
   }
 
-  if (mode === 'Spezial') {
+  if (mode === 'Symbolraetsel') {
     for (const symbol of symbolPool) {
       const file = symbol.file
       const buffer = await file.arrayBuffer()
