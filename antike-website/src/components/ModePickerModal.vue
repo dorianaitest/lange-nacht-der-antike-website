@@ -22,6 +22,14 @@
         </p>
       </button>
     </div>
+    <div class="pb-6 text-center">
+      <button
+        class="cursor-pointer text-sm text-gray-400 hover:text-gray-600"
+        @click="emit('close')"
+      >
+        Andere Datei wählen
+      </button>
+    </div>
   </BaseModal>
 </template>
 

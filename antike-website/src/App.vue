@@ -17,7 +17,7 @@
                 >Elemente hervorheben</BaseButton
               >
               <BaseButton :active="orderingOpen" @click="toggleOrdering"
-                >Reihenfolge</BaseButton
+                >Spielkonfiguration</BaseButton
               >
               <BaseButton v-if="selectedMode === 'Symbolraetsel'" @click="symboleOpen = true"
                 >Symbole</BaseButton
@@ -48,7 +48,7 @@
         <EditorSidebar v-else />
       </div>
 
-      <ModePickerModal v-if="modePickerOpen" @pick="onModePicked" @close="modePickerOpen = false" />
+      <ModePickerModal v-if="modePickerOpen" @pick="onModePicked" @close="onModePickerClose" />
 
       <SvgSetupModal v-if="setupModalOpen" @close="setupModalOpen = false" />
 
@@ -224,6 +224,20 @@ async function resetPreview() {
 
 function openFilePicker() {
   fileInput.value.click()
+}
+
+function onModePickerClose() {
+  modePickerOpen.value = false
+  svgText.value = null
+  selectedMode.value = null
+  elementsData.value = {}
+  selectedElementId.value = null
+  symbolPool.value = []
+  abschlussRaetselId.value = null
+  abschlussRaetselPenalty.value = 30
+  startScreenData.value = { titel: '', beschreibung: '' }
+  completionMessage.value = ''
+  symbolPickerData.value = { prompt: '', successText: '' }
 }
 
 function onModePicked(mode) {

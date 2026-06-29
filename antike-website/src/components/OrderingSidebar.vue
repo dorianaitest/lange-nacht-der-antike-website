@@ -1,8 +1,7 @@
 <template>
   <aside class="flex h-full w-80 shrink-0 flex-col border-l border-gray-200 bg-white">
     <div class="flex shrink-0 items-center justify-between px-6 pt-6 pb-0">
-      <h2 class="text-lg font-semibold text-gray-900">Reihenfolge</h2>
-      <p class="mt-1 text-xs text-gray-400">Bestimme, welche Rätsel zu Beginn zugänglich sind und welche erst nach anderen freigeschaltet werden.</p>
+      <h2 class="text-lg font-semibold text-gray-900">Spielkonfiguration</h2>
       <button
         class="cursor-pointer text-xl text-gray-400 hover:text-gray-600"
         aria-label="Schließen"
@@ -38,7 +37,8 @@
       </section>
 
       <section class="mt-6">
-        <p class="mb-3 text-xs font-medium tracking-wider text-gray-500 uppercase">Freischaltung</p>
+        <p class="mb-1 text-xs font-medium tracking-wider text-gray-500 uppercase">Freischaltung</p>
+        <p class="mb-3 text-xs text-gray-400">Bestimme, welche Rätsel zu Beginn zugänglich sind und welche erst nach anderen freigeschaltet werden.</p>
 
         <p v-if="raetselEntries.length === 0" class="text-sm text-gray-400">
           Noch keine Rätsel-Elemente vorhanden.

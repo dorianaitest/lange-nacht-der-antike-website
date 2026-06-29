@@ -101,6 +101,7 @@ function onSymbolsSelected(event) {
 }
 
 function removeSymbol(index) {
+  if (!confirm('Symbol entfernen?')) return
   symbolPool.value.splice(index, 1)
 }
 </script>
