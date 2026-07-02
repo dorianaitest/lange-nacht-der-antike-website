@@ -7,27 +7,29 @@
         <!-- toolbar + map + hover -->
         <div class="flex h-full min-w-0 flex-1 flex-col">
           <div
-            class="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-2"
+            class="flex shrink-0 items-center justify-between border-b border-border-subtle px-4 py-2"
           >
             <div class="flex items-center gap-2">
-              <BaseButton @click="setupModalOpen = true">Ebenen</BaseButton>
+              <BaseButton variant="secondary" @click="setupModalOpen = true">Ebenen</BaseButton>
               <BaseButton
+                variant="secondary"
                 :active="highlightAllElements"
                 @click="highlightAllElements = !highlightAllElements"
                 >Elemente hervorheben</BaseButton
               >
-              <BaseButton :active="orderingOpen" @click="toggleOrdering"
+              <BaseButton variant="secondary" :active="orderingOpen" @click="toggleOrdering"
                 >Spielkonfiguration</BaseButton
               >
-              <BaseButton v-if="selectedMode === 'Symbolraetsel'" @click="symboleOpen = true"
+              <BaseButton variant="secondary" v-if="selectedMode === 'Symbolraetsel'" @click="symboleOpen = true"
                 >Symbole</BaseButton
               >
+              <BaseButton variant="secondary" @click="darstellungOpen = true">Darstellung</BaseButton>
             </div>
 
-            <span class="text-sm text-gray-600">Modus: {{ selectedMode }}</span>
+            <span class="text-sm text-ink-secondary">Modus: {{ selectedMode }}</span>
 
             <div class="flex items-center gap-2">
-              <BaseButton @click="openPreview">Vorschau</BaseButton>
+              <BaseButton variant="secondary" @click="openPreview">Vorschau</BaseButton>
               <BaseButton @click="openExport">Exportieren</BaseButton>
             </div>
           </div>
@@ -38,9 +40,9 @@
             @hoverChange="hoveredElementId = $event"
           />
 
-          <p class="shrink-0 border-t border-gray-200 px-4 py-2 text-sm text-gray-500">
+          <p class="shrink-0 border-t border-border-subtle px-4 py-2 text-sm text-ink-muted">
             Hervorgehobenes Element:
-            <span class="font-mono text-gray-800">{{ hoveredElementId }}</span>
+            <span class="font-mono text-ink">{{ hoveredElementId }}</span>
           </p>
         </div>
 
@@ -57,6 +59,7 @@
       <PreviewModal v-if="previewOpen" @close="previewOpen = false" @reset="resetPreview" />
 
       <SymboleModal v-if="symboleOpen" @close="symboleOpen = false" />
+      <DarstellungModal v-if="darstellungOpen" @close="darstellungOpen = false" />
 
       <ValidationModal
         v-if="validationModalOpen"
@@ -68,7 +71,7 @@
     </template>
 
     <template v-else>
-      <div class="flex h-full w-full items-center justify-center bg-gray-50">
+      <div class="flex h-full w-full items-center justify-center bg-canvas">
         <BaseButton @click="openFilePicker">Wähle eine SVG Datei</BaseButton>
       </div>
     </template>
@@ -76,7 +79,7 @@
 </template>
 
 <script setup>
-import { ref, provide, watch, nextTick } from 'vue'
+import { ref, reactive, provide, watch, nextTick } from 'vue'
 import { validateConfig } from './utils/validateConfig.js'
 import ValidationModal from './components/ValidationModal.vue'
 import SvgMap from './components/SvgMap.vue'
@@ -87,6 +90,7 @@ import ExportModal from './components/ExportModal.vue'
 import PreviewModal from './components/PreviewModal.vue'
 import ModePickerModal from './components/ModePickerModal.vue'
 import SymboleModal from './components/SymboleModal.vue'
+import DarstellungModal from './components/DarstellungModal.vue'
 import BaseButton from './components/BaseButton.vue'
 import {
   PLAIN_SVG_TEXT,
@@ -101,6 +105,7 @@ import {
   SYMBOL_PICKER_DATA,
   COMPLETION_MESSAGE,
   START_SCREEN_DATA,
+  STYLING_CONFIG,
 } from './injectionKeys.js'
 
 const fileInput = ref(null)
@@ -113,6 +118,7 @@ const elementsData = ref({})
 const selectedElementId = ref(null)
 const modePickerOpen = ref(false)
 const symboleOpen = ref(false)
+const darstellungOpen = ref(false)
 const selectedMode = ref(null)
 const setupModalOpen = ref(false)
 const orderingOpen = ref(false)
@@ -125,6 +131,7 @@ const pendingModalOpen = ref(null)
 const hoveredElementId = ref(null)
 const highlightAllElements = ref(false)
 const symbolPool = ref([])
+const stylingConfig = reactive({ highlightColor: '#8c7b3e', highlightStrokeWidth: 1, shroudedOpacity: 0.2 })
 const abschlussRaetselId = ref(null)
 const abschlussRaetselPenalty = ref(30)
 
@@ -155,6 +162,7 @@ provide(SELECTED_MODE, selectedMode)
 provide(SYMBOL_POOL, symbolPool)
 provide(ABSCHLUSS_RAETSEL_ID, abschlussRaetselId)
 provide(ABSCHLUSS_PENALTY, abschlussRaetselPenalty)
+provide(STYLING_CONFIG, stylingConfig)
 provide(SELECTED_ELEMENT_ID, selectedElementId)
 provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id

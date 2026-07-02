@@ -1,11 +1,11 @@
 <template>
   <BaseModal title="Ebenen" width="90vw" height="90vh" @close="$emit('close')">
     <div class="flex flex-1 overflow-hidden">
-      <ul class="flex-1 divide-y divide-gray-100 overflow-y-auto">
-        <li class="px-5 py-3 text-sm text-gray-500">
-          Weise jedem Element eine Rolle zu: <span class="font-medium text-gray-700">Rätsel</span> (spielbar),
-          <span class="font-medium text-gray-700">dynamische Dekoration</span> (reagiert auf gelöste Rätsel) oder
-          <span class="font-medium text-gray-700">Inaktiv</span> (wird ignoriert).
+      <ul class="flex-1 divide-y divide-border-subtle overflow-y-auto">
+        <li class="px-5 py-3 text-sm text-ink-muted">
+          Weise jedem Element eine Rolle zu: <span class="font-medium text-ink-secondary">Rätsel</span> (spielbar),
+          <span class="font-medium text-ink-secondary">dynamische Dekoration</span> (reagiert auf gelöste Rätsel) oder
+          <span class="font-medium text-ink-secondary">Inaktiv</span> (wird ignoriert).
         </li>
         <li
           v-for="(entry, id) in elementsData"
@@ -14,14 +14,14 @@
           @mouseenter="onListEnter(id, entry)"
           @mouseleave="onListLeave(id)"
         >
-          <span class="w-40 shrink-0 truncate font-mono text-sm text-gray-700" :title="id">{{
+          <span class="w-40 shrink-0 truncate font-mono text-sm text-ink-secondary" :title="id">{{
             id
           }}</span>
           <div class="flex gap-4">
             <label
               v-for="option in options"
               :key="option"
-              class="flex cursor-pointer items-center gap-1.5 text-sm text-gray-600"
+              class="flex cursor-pointer items-center gap-1.5 text-sm text-ink-secondary"
             >
               <input
                 type="radio"
@@ -36,7 +36,7 @@
         </li>
       </ul>
 
-      <div class="flex-1 overflow-hidden border-l border-gray-200">
+      <div class="flex-1 overflow-hidden border-l border-border-subtle">
         <SvgMap ref="svgMap" class="h-full w-full" />
       </div>
     </div>

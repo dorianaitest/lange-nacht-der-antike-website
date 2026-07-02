@@ -1,16 +1,16 @@
 <template>
   <BaseModal title="Symbole" width="70vw" height="70vh" @close="emit('close')">
     <div class="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
-      <p class="text-sm leading-relaxed text-gray-500">
+      <p class="text-sm leading-relaxed text-ink-muted">
         Lade für jedes Rätsel-Element ein Symbol hoch.
       </p>
 
       <div
-        class="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium"
+        class="status-badge"
         :class="{
-          'bg-green-50 text-green-700': countStatus === 'ok',
-          'bg-amber-50 text-amber-700': countStatus === 'warning',
-          'bg-gray-50 text-gray-500': countStatus === 'none',
+          'status-ok': countStatus === 'ok',
+          'status-warning': countStatus === 'warning',
+          'status-none': countStatus === 'none',
         }"
       >
         <span v-if="riddleCount === 0">Noch keine Rätsel-Elemente definiert.</span>
@@ -23,10 +23,10 @@
             :src="symbol.preview"
             :alt="symbol.file.name"
             :title="symbol.file.name"
-            class="h-20 w-20 rounded-lg border border-gray-200 object-cover"
+            class="h-20 w-20 rounded-lg border border-border-subtle object-cover"
           />
           <button
-            class="absolute top-0 right-0 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-red-500 text-xs text-white"
+            class="absolute top-0 right-0 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-danger-600 text-xs text-white"
             @click="removeSymbol(index)"
           >
             ✕
@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <p v-else class="text-sm text-gray-400">Noch keine Symbole hochgeladen.</p>
+      <p v-else class="text-sm text-ink-subtle">Noch keine Symbole hochgeladen.</p>
 
       <div>
         <input

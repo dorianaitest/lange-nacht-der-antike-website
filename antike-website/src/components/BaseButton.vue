@@ -1,17 +1,12 @@
 <template>
-  <button
-    class="cursor-pointer rounded-lg px-4 py-2 text-white"
-    :class="active ? 'bg-blue-800 hover:bg-blue-800' : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'"
-  >
+  <button :class="['btn-' + variant, { 'btn-active': active && variant === 'primary', 'btn-secondary-active': active && variant === 'secondary' }]">
     <slot />
   </button>
 </template>
 
 <script setup>
 defineProps({
-  active: {
-    type: Boolean,
-    default: false,
-  },
+  active:   { type: Boolean, default: false },
+  variant:  { type: String,  default: 'primary' },
 })
 </script>

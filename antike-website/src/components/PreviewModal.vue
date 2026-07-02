@@ -3,7 +3,7 @@
     <div class="relative flex-1 overflow-hidden">
       <div
         v-if="gameStarted && !allComplete"
-        class="pointer-events-none absolute top-3 right-3 z-10 rounded-lg bg-white/90 px-3 py-1 font-mono text-sm text-gray-700 shadow-sm"
+        class="pointer-events-none absolute top-3 right-3 z-10 rounded-lg bg-white/90 px-3 py-1 font-mono text-sm text-ink-secondary shadow-sm"
       >
         {{ formatTime(elapsedSeconds) }}
       </div>
@@ -14,11 +14,11 @@
         @raetselClick="onRaetselClick"
       />
 
-      <div v-if="!gameStarted" class="absolute inset-0 flex items-center justify-center bg-black/50">
-        <div class="flex w-96 max-h-[80vh] flex-col items-center rounded-xl bg-white p-8 text-center shadow-2xl">
-          <div class="min-h-0 flex-1 overflow-y-auto">
-            <h3 class="mb-3 text-lg font-semibold text-gray-900">{{ startScreenData.titel }}</h3>
-            <p v-if="startScreenData.beschreibung" class="text-sm text-gray-600">
+      <div v-if="!gameStarted" class="modal-overlay">
+        <div class="modal-card">
+          <div class="scroll-body">
+            <h3 class="mb-3 text-lg font-semibold text-ink">{{ startScreenData.titel }}</h3>
+            <p v-if="startScreenData.beschreibung" class="text-sm text-ink-secondary">
               {{ startScreenData.beschreibung }}
             </p>
           </div>
@@ -28,34 +28,34 @@
         </div>
       </div>
 
-      <div v-if="allComplete && !activeRiddle" class="absolute inset-0 flex items-center justify-center bg-black/50">
+      <div v-if="allComplete && !activeRiddle" class="modal-overlay">
         <div
-          class="flex w-96 max-h-[80vh] flex-col items-center rounded-xl bg-white p-8 text-center shadow-2xl"
+          class="modal-card"
         >
-          <div class="min-h-0 flex-1 overflow-y-auto">
-            <h3 class="mb-1 text-lg font-semibold text-gray-900">Alle Rätsel gelöst!</h3>
-            <p v-if="completionMessage" class="mt-1 text-sm text-gray-500">{{ completionMessage }}</p>
-            <p class="mt-2 font-mono text-2xl font-semibold text-gray-800">
+          <div class="scroll-body">
+            <h3 class="mb-1 text-lg font-semibold text-ink">Alle Rätsel gelöst!</h3>
+            <p v-if="completionMessage" class="mt-1 text-sm text-ink-muted">{{ completionMessage }}</p>
+            <p class="mt-2 font-mono text-2xl font-semibold text-ink">
               {{ formatTime(elapsedSeconds) }}
             </p>
           </div>
           <div class="mt-5 flex gap-2">
-            <BaseButton @click="emit('close')">Vorschau schließen</BaseButton>
-            <BaseButton @click="emit('reset')">Neu starten</BaseButton>
+            <BaseButton variant="secondary" @click="emit('close')">Vorschau schließen</BaseButton>
+            <BaseButton variant="secondary" @click="emit('reset')">Neu starten</BaseButton>
           </div>
         </div>
       </div>
 
       <div
         v-if="penaltyActive"
-        class="absolute inset-0 flex items-center justify-center bg-black/40"
+        class="modal-overlay"
       >
         <div
           class="flex w-96 flex-col items-center gap-4 rounded-xl bg-white p-8 text-center shadow-2xl"
         >
-          <p class="text-base font-semibold text-red-600">Falsche Auswahl!</p>
-          <p class="text-sm text-gray-500">Du kannst es erneut versuchen in:</p>
-          <p class="font-mono text-4xl font-semibold text-gray-800">
+          <p class="text-base font-semibold text-danger-600">Falsche Auswahl!</p>
+          <p class="text-sm text-ink-muted">Du kannst es erneut versuchen in:</p>
+          <p class="font-mono text-4xl font-semibold text-ink">
             {{ formatTime(penaltySecondsLeft) }}
           </p>
         </div>
@@ -63,19 +63,19 @@
 
       <div
         v-if="activeRiddle"
-        class="absolute inset-0 flex items-center justify-center bg-black/40"
+        class="modal-overlay"
         @click.self="closeDialog"
       >
         <div class="flex w-96 max-h-[80vh] flex-col rounded-xl bg-white p-6 shadow-2xl">
-          <div class="min-h-0 flex-1 overflow-y-auto">
+          <div class="scroll-body">
             <div class="mb-5">
-              <p class="mb-1 font-mono text-xs text-gray-400">
+              <p class="mb-1 font-mono text-xs text-ink-subtle">
                 {{ activeRiddle.id }}
               </p>
 
               <h3
                 v-if="!(isAbschlussRaetsel && riddlePhase === 'symbol')"
-                class="text-base font-semibold text-gray-900"
+                class="dialog-title"
               >
                 {{ activeRiddle.riddle.question }}
               </h3>
@@ -83,8 +83,8 @@
 
             <!-- Phase 1: Symbol selection (AbschlussRätsel only) -->
             <template v-if="isAbschlussRaetsel && riddlePhase === 'symbol'">
-              <div v-if="answerState !== 'symbolCorrect'" class="flex flex-col gap-2">
-                <p v-if="symbolPickerData.prompt" class="text-sm text-gray-700">
+              <div v-if="answerState !== 'symbolCorrect'" class="form-group">
+                <p v-if="symbolPickerData.prompt" class="text-sm text-ink-secondary">
                   {{ symbolPickerData.prompt }}
                 </p>
                 <div class="flex flex-wrap gap-2">
@@ -93,20 +93,20 @@
                     :key="entry.riddleId"
                     :src="entry.preview"
                     alt="Symbol"
-                    class="h-16 w-16 cursor-pointer rounded-lg border-2 border-transparent object-cover hover:border-blue-400"
+                    class="h-16 w-16 cursor-pointer rounded-lg border-2 border-transparent object-cover hover:border-primary-600"
                     @click="onSymbolClick(entry.riddleId)"
                   />
                 </div>
               </div>
-              <div v-else class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-                <p class="text-sm text-green-800">{{ symbolPickerData.successText }}</p>
+              <div v-else class="alert-success">
+                <p>{{ symbolPickerData.successText }}</p>
               </div>
             </template>
 
             <!-- Phase 2 or regular riddle -->
             <template v-else>
               <div v-if="answerState !== 'correct'" class="flex flex-col gap-1">
-                <label for="previewAnswer" class="text-sm font-medium text-gray-700">
+                <label for="previewAnswer" class="form-label">
                   Deine Antwort
                 </label>
 
@@ -116,24 +116,24 @@
                   type="text"
                   autofocus
                   class="w-full rounded-lg border px-3 py-2 text-sm"
-                  :class="answerState === 'wrong' ? 'border-red-400' : 'border-gray-300'"
+                  :class="answerState === 'wrong' ? 'input-error' : 'input-default'"
                   placeholder="Antwort eingeben..."
                   @keydown.enter="submitAnswer"
                 />
 
-                <p v-if="answerState === 'wrong'" class="mt-0.5 text-xs text-red-600">
+                <p v-if="answerState === 'wrong'" class="mt-0.5 text-xs text-danger-600">
                   Falsche Antwort. Versuch es nochmal!
                 </p>
               </div>
 
-              <div v-else class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+              <div v-else class="alert-success">
                 <img
                   v-if="activeRiddleIconPreview"
                   :src="activeRiddleIconPreview"
                   alt="Symbol"
                   class="mb-3 h-16 w-16 rounded-lg object-cover"
                 />
-                <p class="text-sm text-green-800">
+                <p>
                   {{ activeRiddle.riddle.successText }}
                 </p>
               </div>
@@ -143,7 +143,7 @@
           <div class="mt-5 flex justify-end gap-2">
             <!-- Phase 1 footer -->
             <template v-if="isAbschlussRaetsel && riddlePhase === 'symbol'">
-              <BaseButton @click="closeDialog">Schließen</BaseButton>
+              <BaseButton variant="secondary" @click="closeDialog">Schließen</BaseButton>
               <BaseButton v-if="answerState === 'symbolCorrect'" @click="proceedToRiddle">
                 Weiter
               </BaseButton>
@@ -151,7 +151,7 @@
 
             <!-- Phase 2 / regular riddle footer -->
             <template v-else>
-              <BaseButton v-if="!(allComplete && answerState === 'correct')" @click="closeDialog">
+              <BaseButton variant="secondary" v-if="!(allComplete && answerState === 'correct')" @click="closeDialog">
                 Schließen
               </BaseButton>
               <BaseButton v-if="allComplete && answerState === 'correct'" @click="closeDialog">
@@ -179,6 +179,7 @@ import {
   SYMBOL_PICKER_DATA,
   COMPLETION_MESSAGE,
   START_SCREEN_DATA,
+  STYLING_CONFIG,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
@@ -195,6 +196,7 @@ const startScreenData = inject(START_SCREEN_DATA)
 const symbolPool = inject(SYMBOL_POOL)
 const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
 const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
+const stylingConfig = inject(STYLING_CONFIG)
 
 // create the JSON file
 const config = computed(function () {
@@ -207,6 +209,7 @@ const config = computed(function () {
     symbolPickerData.value,
     completionMessage.value,
     startScreenData.value,
+    stylingConfig,
   )
 })
 

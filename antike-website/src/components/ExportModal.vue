@@ -1,26 +1,26 @@
 <template>
   <BaseModal title="Export: riddle-config.json" width="60vw" height="80vh" @close="emit('close')">
-    <p class="shrink-0 border-b border-gray-100 px-5 py-3 text-sm text-gray-500">
+    <p class="shrink-0 border-b border-border-subtle px-5 py-3 text-sm text-ink-muted">
       Exportiere die vollständige Konfiguration als ZIP-Datei für den Spielserver.
     </p>
-    <div class="flex shrink-0 items-center justify-end gap-2 border-b border-gray-100 px-5 py-2">
+    <div class="flex shrink-0 items-center justify-end gap-2 border-b border-border-subtle px-5 py-2">
       <BaseButton @click="downloadZip">
         {{ 'Zip-Datei erstellen' }}
       </BaseButton>
-      <BaseButton @click="copyToClipboard">
+      <BaseButton variant="secondary" @click="copyToClipboard">
         {{ copyLabel }}
       </BaseButton>
     </div>
 
     <div class="flex-1 overflow-auto px-5 py-4">
-      <pre class="font-mono text-xs whitespace-pre text-gray-800">{{ jsonString }}</pre>
+      <pre class="code-preview">{{ jsonString }}</pre>
     </div>
   </BaseModal>
 </template>
 
 <script setup>
 import { computed, inject, ref } from 'vue'
-import { PLAIN_SVG_TEXT, ELEMENTS_DATA, SELECTED_MODE, SYMBOL_POOL, ABSCHLUSS_RAETSEL_ID, ABSCHLUSS_PENALTY, SYMBOL_PICKER_DATA, COMPLETION_MESSAGE, START_SCREEN_DATA } from '../injectionKeys.js'
+import { PLAIN_SVG_TEXT, ELEMENTS_DATA, SELECTED_MODE, SYMBOL_POOL, ABSCHLUSS_RAETSEL_ID, ABSCHLUSS_PENALTY, SYMBOL_PICKER_DATA, COMPLETION_MESSAGE, START_SCREEN_DATA, STYLING_CONFIG } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
@@ -38,6 +38,7 @@ const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
 const symbolPickerData = inject(SYMBOL_PICKER_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
 const startScreenData = inject(START_SCREEN_DATA)
+const stylingConfig = inject(STYLING_CONFIG)
 
 const copyState = ref(null)
 
@@ -47,7 +48,7 @@ const copyLabel = computed(function () {
   return 'Kopieren'
 })
 
-const config = computed(() => buildRiddleConfig(elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value))
+const config = computed(() => buildRiddleConfig(elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig))
 const jsonString = computed(() => JSON.stringify(config.value, null, 2))
 
 function resetCopyState() {
@@ -71,7 +72,7 @@ function copyToClipboard() {
 }
 
 function downloadZip() {
-  exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value)
+  exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig)
 }
 
 </script>

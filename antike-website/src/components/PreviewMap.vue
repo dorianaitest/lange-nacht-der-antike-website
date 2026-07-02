@@ -1,9 +1,9 @@
 <template>
-  <div ref="container" class="h-full w-full" v-html="svgText" />
+  <div ref="container" class="h-full w-full" :style="cssVars" v-html="svgText" />
 </template>
 
 <script setup>
-import { ref, inject, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, inject, watch, nextTick, onMounted } from 'vue'
 import { PLAIN_SVG_TEXT } from '../injectionKeys.js'
 
 const svgText = inject(PLAIN_SVG_TEXT)
@@ -22,6 +22,15 @@ const props = defineProps({
 const emit = defineEmits(['raetselClick'])
 
 const container = ref(null)
+
+const cssVars = computed(function () {
+  const s = props.config.styles || {}
+  return {
+    '--preview-highlight-color': s.highlightColor || 'var(--color-accent)',
+    '--preview-highlight-stroke-width': (s.highlightStrokeWidth ?? 1) + 'px',
+    '--preview-shrouded-opacity': s.shroudedOpacity ?? 0.2,
+  }
+})
 
 // id -> SVGElement
 const elements = {}

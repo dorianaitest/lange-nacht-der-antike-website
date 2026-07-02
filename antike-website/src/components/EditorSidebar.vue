@@ -1,12 +1,12 @@
 <template>
-  <aside class="flex h-full w-80 shrink-0 flex-col border-l border-gray-200 bg-white">
+  <aside class="sidebar-panel">
     <template v-if="entry">
-      <div class="flex shrink-0 items-center justify-between px-6 pt-6 pb-0">
-        <h2 class="truncate text-lg font-semibold text-gray-900" :title="selectedId">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title truncate" :title="selectedId">
           {{ selectedId }}
         </h2>
         <button
-          class="cursor-pointer text-xl text-gray-400 hover:text-gray-600"
+          class="icon-btn"
           @click="setSelectedElement(null)"
           aria-label="Schließen"
         >
@@ -18,36 +18,36 @@
         <!-- Rätsel-Template -->
         <template v-if="entry.elementArt === 'Rätsel'">
           <div class="flex flex-col gap-4">
-            <p class="text-xs text-gray-400">* Pflichtfeld</p>
+            <p class="text-xs text-ink-subtle">* Pflichtfeld</p>
 
-            <div class="flex flex-col gap-2">
-              <label for="riddleQuestion" class="text-sm font-medium text-gray-700"> Frage* </label>
+            <div class="form-group">
+              <label for="riddleQuestion" class="form-label"> Frage* </label>
 
               <textarea
                 id="riddleQuestion"
                 v-model="riddle.question"
                 rows="3"
                 required
-                class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                class="form-input"
                 placeholder="Rätsel oder Frage eingeben..."
               />
             </div>
 
-            <div class="flex flex-col gap-2">
-              <label for="riddleAnswer" class="text-sm font-medium text-gray-700"> Antwort* </label>
+            <div class="form-group">
+              <label for="riddleAnswer" class="form-label"> Antwort* </label>
 
               <textarea
                 id="riddleAnswer"
                 v-model="riddle.answer"
                 rows="3"
                 required
-                class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                class="form-input"
                 placeholder="Korrekte Antwort..."
               />
             </div>
 
-            <div class="flex flex-col gap-2">
-              <label for="riddleSuccess" class="text-sm font-medium text-gray-700">
+            <div class="form-group">
+              <label for="riddleSuccess" class="form-label">
                 Erfolgstext*
               </label>
 
@@ -56,12 +56,12 @@
                 v-model="riddle.successText"
                 rows="3"
                 required
-                class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                class="form-input"
                 placeholder="Text nach richtiger Antwort..."
               />
             </div>
-            <div v-if="selectedMode !== 'Symbolraetsel'" class="flex flex-col gap-2">
-              <label class="text-sm font-medium text-gray-700">Symbol</label>
+            <div v-if="selectedMode !== 'Symbolraetsel'" class="form-group">
+              <label class="form-label">Symbol</label>
 
               <input
                 ref="iconInput"
@@ -75,72 +75,72 @@
                 <img
                   :src="riddle.iconPreview"
                   alt="Symbol Vorschau"
-                  class="h-16 w-16 rounded-lg border border-gray-200 object-cover"
+                  class="h-16 w-16 rounded-lg border border-border-subtle object-cover"
                 />
               </div>
 
-              <BaseButton @click="openIconDialogue">
+              <BaseButton variant="secondary" @click="openIconDialogue">
                 {{ riddle.iconPreview ? 'Symbol ersetzen' : 'Symbol hochladen' }}
               </BaseButton>
             </div>
 
             <div
               v-if="selectedMode === 'Symbolraetsel' && selectedId === abschlussRaetselId"
-              class="flex flex-col gap-3 border-t border-gray-200 pt-4"
+              class="form-section"
             >
-              <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Symbolauswahl</p>
+              <p class="section-header">Symbolauswahl</p>
 
-              <div class="flex flex-col gap-2">
-                <label for="symbolPickerPrompt" class="text-sm font-medium text-gray-700">
+              <div class="form-group">
+                <label for="symbolPickerPrompt" class="form-label">
                   Hinweistext
                 </label>
                 <textarea
                   id="symbolPickerPrompt"
                   v-model="symbolPickerData.prompt"
                   rows="3"
-                  class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  class="form-input"
                   placeholder="Hinweistext über den Symbolen..."
                 />
               </div>
 
-              <div class="flex flex-col gap-2">
-                <label for="symbolPickerSuccess" class="text-sm font-medium text-gray-700">
+              <div class="form-group">
+                <label for="symbolPickerSuccess" class="form-label">
                   Erfolgstext
                 </label>
                 <textarea
                   id="symbolPickerSuccess"
                   v-model="symbolPickerData.successText"
                   rows="3"
-                  class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                  class="form-input"
                   placeholder="Text nach richtiger Symbolauswahl..."
                 />
               </div>
             </div>
 
-            <div class="flex flex-col gap-3 border-t border-gray-200 pt-4">
-              <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Erscheinung</p>
+            <div class="form-section">
+              <p class="section-header">Erscheinung</p>
 
-              <div class="flex flex-col gap-2">
-                <p class="text-sm text-gray-700">Gesperrt:</p>
-                <select v-model="riddle.style.gesperrt" :class="SELECT_CLASS">
+              <div class="form-group">
+                <p class="text-sm text-ink-secondary">Gesperrt:</p>
+                <select v-model="riddle.style.gesperrt" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
                 </select>
               </div>
 
-              <div class="flex flex-col gap-2">
-                <p class="text-sm text-gray-700">Zugänglich:</p>
-                <select v-model="riddle.style.zugaenglich" :class="SELECT_CLASS">
+              <div class="form-group">
+                <p class="text-sm text-ink-secondary">Zugänglich:</p>
+                <select v-model="riddle.style.zugaenglich" class="form-select">
                   <option v-for="style in RAETSEL_STYLES_ZUGAENGLICH" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
                 </select>
               </div>
 
-              <div class="flex flex-col gap-2">
-                <p class="text-sm text-gray-700">Gelöst:</p>
-                <select v-model="riddle.style.geloest" :class="SELECT_CLASS">
+              <div class="form-group">
+                <p class="text-sm text-ink-secondary">Gelöst:</p>
+                <select v-model="riddle.style.geloest" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -153,10 +153,10 @@
         <!-- Dekoration-Template -->
         <template v-if="entry.elementArt === 'dynamische Dekoration'">
           <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-2">
-              <p class="text-sm text-gray-700">Freigeschaltet durch Rätsel (eines davon reicht):</p>
+            <div class="form-group">
+              <p class="text-sm text-ink-secondary">Freigeschaltet durch Rätsel (eines davon reicht):</p>
 
-              <p v-if="raetselIds.length === 0" class="text-xs text-gray-400 italic">
+              <p v-if="raetselIds.length === 0" class="hint-text">
                 Noch keine Rätsel vorhanden.
               </p>
 
@@ -164,7 +164,7 @@
                 <label
                   v-for="id in raetselIds"
                   :key="id"
-                  class="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
+                  class="checkbox-label"
                 >
                   <input
                     type="checkbox"
@@ -172,23 +172,23 @@
                     v-model="deco.linkedElements"
                     class="cursor-pointer"
                   />
-                  <span class="truncate font-mono" :title="id">{{ id }}</span>
+                  <span class="mono-truncate" :title="id">{{ id }}</span>
                 </label>
               </div>
             </div>
 
-            <div class="flex flex-col gap-2">
-              <p class="text-sm text-gray-700">Dekoration vor Freischaltung:</p>
-              <select v-model="deco.stateBefore" :class="SELECT_CLASS">
+            <div class="form-group">
+              <p class="text-sm text-ink-secondary">Dekoration vor Freischaltung:</p>
+              <select v-model="deco.stateBefore" class="form-select">
                 <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                   {{ style.label }}
                 </option>
               </select>
             </div>
 
-            <div class="flex flex-col gap-2">
-              <p class="text-sm text-gray-700">Dekoration nach Freischaltung:</p>
-              <select v-model="deco.stateAfter" :class="SELECT_CLASS">
+            <div class="form-group">
+              <p class="text-sm text-ink-secondary">Dekoration nach Freischaltung:</p>
+              <select v-model="deco.stateAfter" class="form-select">
                 <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                   {{ style.label }}
                 </option>
@@ -201,7 +201,7 @@
     <template v-else>
       <!-- Empty state -->
       <div class="flex flex-1 items-center justify-center px-6">
-        <p class="text-center text-sm text-gray-400">
+        <p class="text-center text-sm text-ink-subtle">
           Klicke ein Rätsel oder eine dynamische Dekoration auf der Karte, um es zu konfigurieren.
           Elemente werden zuerst im Ebenen-Panel einer Rolle zugewiesen.
         </p>

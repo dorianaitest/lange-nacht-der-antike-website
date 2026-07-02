@@ -1,4 +1,4 @@
-export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty, symbolPickerData, completionMessage, startScreenData) {
+export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig) {
   const entries = Object.entries(elementsData)
   const nodes = {}
 
@@ -42,6 +42,11 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
     mode,
     startScreen: { titel: startScreenData.titel, beschreibung: startScreenData.beschreibung },
     completionMessage,
+    styles: {
+      highlightColor: stylingConfig.highlightColor,
+      highlightStrokeWidth: stylingConfig.highlightStrokeWidth,
+      shroudedOpacity: stylingConfig.shroudedOpacity,
+    },
     nodes,
   }
 
