@@ -415,7 +415,7 @@ watch(allComplete, function (done) {
 
 onMounted(async function () {
   try {
-    const riddle = await loadRiddle('/current/riddle.zip')
+    const riddle = await loadRiddle('current/riddle.zip')
 
     svgText.value = riddle.svgText
     config.value = riddle.config
