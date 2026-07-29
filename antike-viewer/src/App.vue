@@ -10,7 +10,7 @@
 
     <div v-else-if="state === 'ready'" class="app-root">
       <div
-        v-if="gameStarted && !allComplete"
+        v-if="isGameStarted && !isAllComplete"
         class="pointer-events-none absolute top-3 right-3 z-10 rounded-lg bg-white/90 px-3 py-1 font-mono text-sm text-ink-secondary shadow-sm"
       >
         {{ formatTime(elapsedSeconds) }}
@@ -20,17 +20,17 @@
         :svgText="svgText"
         :config="config"
         :completedRiddles="completedRiddles"
-        @raetselClick="onRaetselClick"
+        @riddleClick="onRiddleClick"
       />
 
-      <div v-if="!gameStarted" class="modal-overlay">
+      <div v-if="!isGameStarted" class="modal-overlay">
         <div class="modal-card">
           <div class="scroll-body">
             <h3 class="mb-3 text-lg font-semibold text-ink">
-              {{ config.startScreen.titel }}
+              {{ config.startScreen.title }}
             </h3>
-            <p v-if="config.startScreen.beschreibung" class="text-sm text-ink-secondary">
-              {{ config.startScreen.beschreibung }}
+            <p v-if="config.startScreen.description" class="text-sm text-ink-secondary">
+              {{ config.startScreen.description }}
             </p>
           </div>
           <div class="mt-5">
@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <div v-if="allComplete && !activeRiddle" class="modal-overlay">
+      <div v-if="isAllComplete && !activeRiddle" class="modal-overlay">
         <div class="modal-card">
           <div class="scroll-body">
             <h3 class="mb-1 text-lg font-semibold text-ink">Alle Rätsel gelöst!</h3>
@@ -57,7 +57,7 @@
         </div>
       </div>
 
-      <div v-if="penaltyActive" class="modal-overlay">
+      <div v-if="isPenaltyActive" class="modal-overlay">
         <div class="flex w-96 flex-col items-center gap-4 rounded-xl bg-white p-8 text-center shadow-2xl">
           <p class="text-base font-semibold text-danger-600">Falsche Auswahl!</p>
           <p class="text-sm text-ink-muted">Du kannst es erneut versuchen in:</p>
@@ -79,20 +79,17 @@
                 {{ activeRiddle.id }}
               </p>
               <h3
-                v-if="!(isAbschlussRaetsel && riddlePhase === 'symbol')"
+                v-if="!(isFinalRiddle && riddlePhase === 'symbol')"
                 class="dialog-title"
               >
                 {{ activeRiddle.riddle.question }}
               </h3>
             </div>
 
-            <template v-if="isAbschlussRaetsel && riddlePhase === 'symbol'">
+            <template v-if="isFinalRiddle && riddlePhase === 'symbol'">
               <div v-if="answerState !== 'symbolCorrect'" class="form-group">
-                <p
-                  v-if="config.nodes[activeRiddle.id].symbolPicker && config.nodes[activeRiddle.id].symbolPicker.prompt"
-                  class="text-sm text-ink-secondary"
-                >
-                  {{ config.nodes[activeRiddle.id].symbolPicker.prompt }}
+                <p v-if="symbolPickerData?.prompt" class="text-sm text-ink-secondary">
+                  {{ symbolPickerData.prompt }}
                 </p>
                 <div class="flex flex-wrap gap-2">
                   <img
@@ -106,7 +103,7 @@
                 </div>
               </div>
               <div v-else class="alert-success">
-                <p>{{ config.nodes[activeRiddle.id].symbolPicker && config.nodes[activeRiddle.id].symbolPicker.successText }}</p>
+                <p>{{ symbolPickerData?.successText }}</p>
               </div>
             </template>
 
@@ -143,7 +140,7 @@
           </div>
 
           <div class="mt-5 flex justify-end gap-2">
-            <template v-if="isAbschlussRaetsel && riddlePhase === 'symbol'">
+            <template v-if="isFinalRiddle && riddlePhase === 'symbol'">
               <BaseButton variant="secondary" @click="closeDialog">Schließen</BaseButton>
               <BaseButton v-if="answerState === 'symbolCorrect'" @click="proceedToRiddle">
                 Weiter
@@ -152,14 +149,14 @@
 
             <template v-else>
               <BaseButton
-                v-if="!(allComplete && answerState === 'correct')"
+                v-if="!(isAllComplete && answerState === 'correct')"
                 variant="secondary"
                 @click="closeDialog"
               >
                 Schließen
               </BaseButton>
               <BaseButton
-                v-if="allComplete && answerState === 'correct'"
+                v-if="isAllComplete && answerState === 'correct'"
                 @click="closeDialog"
               >
                 Fertig!
@@ -196,7 +193,7 @@ const usedSymbolIndices = {}
 const symbolSelectionPassed = reactive({})
 
 // flow control
-const gameStarted = ref(false)
+const isGameStarted = ref(false)
 const activeRiddle = ref(null)
 const answerInput = ref('')
 const answerState = ref('idle')
@@ -208,50 +205,62 @@ const elapsedSeconds = ref(0)
 let intervalId = null
 
 // penalty
-const penaltyActive = ref(false)
+const isPenaltyActive = ref(false)
 const penaltySecondsLeft = ref(0)
 let penaltyIntervalId = null
 
-const raetselCount = computed(function () {
+const riddleCount = computed(function () {
   if (!config.value) return 0 // async guard
   let count = 0
   for (const id in config.value.nodes) {
-    if (config.value.nodes[id].type === 'rätsel') {
+    if (config.value.nodes[id].type === 'riddle') {
       count++
     }
   }
   return count
 })
 
-const allComplete = computed(function () {
-  if (raetselCount.value === 0) return false
+const isAllComplete = computed(function () {
+  if (riddleCount.value === 0) return false
   let completedCount = 0
   for (const id in completedRiddles) {
     if (completedRiddles[id] === true) {
       completedCount++
     }
   }
-  return completedCount === raetselCount.value
+  return completedCount === riddleCount.value
 })
 
-const isAbschlussRaetsel = computed(function () {
+const isSymbolRiddleMode = computed(function () {
+  return config.value?.mode === 'SymbolRiddle'
+})
+
+function isFinalRiddleId(id) {
+  return id === config.value.finalRiddleId
+}
+
+const isFinalRiddle = computed(function () {
   if (!activeRiddle.value) return false
-  if (!config.value) return false // async guard
-  if (config.value.mode !== 'Symbolraetsel') return false
-  return activeRiddle.value.id === config.value.abschlussRaetselId
+  if (!isSymbolRiddleMode.value) return false
+  return isFinalRiddleId(activeRiddle.value.id)
 })
 
 const activeRiddleIconPreview = computed(function () {
   if (!activeRiddle.value) return null
 
-  if (config.value.mode === 'Symbolraetsel') {
-    if (isAbschlussRaetsel.value) return null
+  if (isSymbolRiddleMode.value) {
+    if (isFinalRiddle.value) return null
     return assignedSymbols[activeRiddle.value.id] || null
   }
 
   const node = config.value.nodes[activeRiddle.value.id]
   if (!node || !node.riddle || !node.riddle.icon) return null
   return iconMap.value[node.riddle.icon] || null
+})
+
+const symbolPickerData = computed(function () {
+  if (!activeRiddle.value) return null
+  return config.value.nodes[activeRiddle.value.id]?.symbolPicker || null
 })
 
 function formatTime(totalSeconds) {
@@ -282,8 +291,8 @@ function closeDialog() {
 
 function startPenalty() {
   closeDialog()
-  penaltySecondsLeft.value = config.value.abschlussRaetselPenalty
-  penaltyActive.value = true
+  penaltySecondsLeft.value = config.value.finalRiddlePenalty
+  isPenaltyActive.value = true
 
   penaltyIntervalId = setInterval(function () {
     penaltySecondsLeft.value--
@@ -291,18 +300,18 @@ function startPenalty() {
     if (penaltySecondsLeft.value <= 0) {
       clearInterval(penaltyIntervalId)
       penaltyIntervalId = null
-      penaltyActive.value = false
+      isPenaltyActive.value = false
 
-      onRaetselClick({
-        id: config.value.abschlussRaetselId,
-        riddle: config.value.nodes[config.value.abschlussRaetselId].riddle,
+      onRiddleClick({
+        id: config.value.finalRiddleId,
+        riddle: config.value.nodes[config.value.finalRiddleId].riddle,
       })
     }
   }, 1000)
 }
 
 function startGame() {
-  gameStarted.value = true
+  isGameStarted.value = true
   startTimer()
 }
 
@@ -311,8 +320,36 @@ function restart() {
   window.location.reload()
 }
 
-function onRaetselClick(riddleElement) {
-  if (!gameStarted.value) return
+function assignFinalRiddleSymbol(riddleId) {
+  if (assignedSymbols[riddleId]) return
+
+  for (let i = 0; i < symbolPool.value.length; i++) {
+    if (!usedSymbolIndices[i]) {
+      usedSymbolIndices[i] = true
+      assignedSymbols[riddleId] = symbolPool.value[i].preview
+      break
+    }
+  }
+}
+
+function buildShuffledSymbolEntries() {
+  const entries = []
+  for (const riddleId in assignedSymbols) {
+    entries.push({ riddleId: riddleId, preview: assignedSymbols[riddleId] })
+  }
+
+  for (let i = entries.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = entries[i]
+    entries[i] = entries[j]
+    entries[j] = temp
+  }
+
+  return entries
+}
+
+function onRiddleClick(riddleElement) {
+  if (!isGameStarted.value) return
 
   activeRiddle.value = {
     id: riddleElement.id,
@@ -322,87 +359,64 @@ function onRaetselClick(riddleElement) {
   answerInput.value = ''
   answerState.value = 'idle'
 
-  const isSpezialMode = config.value.mode === 'Symbolraetsel'
-  const isAbschluss = riddleElement.id === config.value.abschlussRaetselId
+  if (!isSymbolRiddleMode.value || !isFinalRiddleId(riddleElement.id)) return
 
-  if (isSpezialMode && isAbschluss) {
-    if (symbolSelectionPassed[riddleElement.id]) {
-      riddlePhase.value = 'riddle'
-      return
-    }
-
-    riddlePhase.value = 'symbol'
-
-    if (!assignedSymbols[riddleElement.id]) {
-      for (let i = 0; i < symbolPool.value.length; i++) {
-        if (!usedSymbolIndices[i]) {
-          usedSymbolIndices[i] = true
-          assignedSymbols[riddleElement.id] = symbolPool.value[i].preview
-          break
-        }
-      }
-    }
-
-    const entries = []
-    for (const riddleId in assignedSymbols) {
-      entries.push({ riddleId: riddleId, preview: assignedSymbols[riddleId] })
-    }
-
-    for (let i = entries.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      const temp = entries[i]
-      entries[i] = entries[j]
-      entries[j] = temp
-    }
-
-    shuffledSymbolEntries.value = entries
+  if (symbolSelectionPassed[riddleElement.id]) {
+    riddlePhase.value = 'riddle'
+    return
   }
+
+  riddlePhase.value = 'symbol'
+  assignFinalRiddleSymbol(riddleElement.id)
+  shuffledSymbolEntries.value = buildShuffledSymbolEntries()
+}
+
+function isAnswerCorrect(riddle, input) {
+  const normalizedInput = normalizeAnswer(input)
+
+  for (const answer of riddle.answers) {
+    if (normalizeAnswer(answer) === normalizedInput) return true
+  }
+  return false
+}
+
+function assignRandomSymbol(riddleId) {
+  const available = []
+  for (let i = 0; i < symbolPool.value.length; i++) {
+    if (!usedSymbolIndices[i]) {
+      available.push(i)
+    }
+  }
+  if (available.length === 0) return
+
+  const pick = available[Math.floor(Math.random() * available.length)]
+  usedSymbolIndices[pick] = true
+  assignedSymbols[riddleId] = symbolPool.value[pick].preview
 }
 
 function submitAnswer() {
   if (!activeRiddle.value) return
   if (answerState.value === 'correct') return
 
-  const given = normalizeAnswer(answerInput.value)
-
-  let isCorrect = false
-  for (const answer of activeRiddle.value.riddle.answers) {
-    if (normalizeAnswer(answer) === given) {
-      isCorrect = true
-      break
-    }
+  if (!isAnswerCorrect(activeRiddle.value.riddle, answerInput.value)) {
+    answerState.value = 'wrong'
+    return
   }
 
-  if (isCorrect) {
-    answerState.value = 'correct'
+  answerState.value = 'correct'
 
-    const solvedRiddleId = activeRiddle.value.id
-    completedRiddles[solvedRiddleId] = true
+  const solvedRiddleId = activeRiddle.value.id
+  completedRiddles[solvedRiddleId] = true
 
-    const isSpezialMode = config.value.mode === 'Symbolraetsel'
-    const isAbschluss = solvedRiddleId === config.value.abschlussRaetselId
+  const isFinalRiddleSolved = isFinalRiddleId(solvedRiddleId)
 
-    if (isSpezialMode && symbolPool.value.length > 0 && !isAbschluss) {
-      const available = []
-      for (let i = 0; i < symbolPool.value.length; i++) {
-        if (!usedSymbolIndices[i]) {
-          available.push(i)
-        }
-      }
-
-      if (available.length > 0) {
-        const pick = available[Math.floor(Math.random() * available.length)]
-        usedSymbolIndices[pick] = true
-        assignedSymbols[solvedRiddleId] = symbolPool.value[pick].preview
-      }
-    }
-  } else {
-    answerState.value = 'wrong'
+  if (isSymbolRiddleMode.value && symbolPool.value.length > 0 && !isFinalRiddleSolved) {
+    assignRandomSymbol(solvedRiddleId)
   }
 }
 
 function onSymbolClick(clickedRiddleId) {
-  if (clickedRiddleId === config.value.abschlussRaetselId) {
+  if (isFinalRiddleId(clickedRiddleId)) {
     answerState.value = 'symbolCorrect'
     symbolSelectionPassed[activeRiddle.value.id] = true
   } else {
@@ -415,7 +429,7 @@ function proceedToRiddle() {
   answerState.value = 'idle'
 }
 
-watch(allComplete, function (done) {
+watch(isAllComplete, function (done) {
   if (done) {
     stopTimer()
   }

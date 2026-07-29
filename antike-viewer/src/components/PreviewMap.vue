@@ -20,16 +20,16 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['raetselClick'])
+const emit = defineEmits(['riddleClick'])
 
 const container = ref(null)
 
 const cssVars = computed(function () {
-  const s = props.config.styles || {}
+  const styles = props.config.styles || {}
   return {
-    '--preview-highlight-color': s.highlightColor || 'var(--color-accent)',
-    '--preview-highlight-stroke-width': (s.highlightStrokeWidth ?? 1) + 'px',
-    '--preview-shrouded-opacity': s.shroudedOpacity ?? 0.2,
+    '--preview-highlight-color': styles.highlightColor || 'var(--color-accent)',
+    '--preview-highlight-stroke-width': (styles.highlightStrokeWidth ?? 1) + 'px',
+    '--preview-shrouded-opacity': styles.shroudedOpacity ?? 0.2,
   }
 })
 
@@ -37,10 +37,10 @@ const cssVars = computed(function () {
 const elements = {}
 
 const PREVIEW_CLASSES = [
-  'preview-raetsel-accessible',
-  'preview-raetsel-completed',
-  'preview-raetsel-locked',
-  'preview-raetsel-hover',
+  'preview-riddle-accessible',
+  'preview-riddle-completed',
+  'preview-riddle-locked',
+  'preview-riddle-hover',
   'preview-deco-hidden',
   'preview-deco-shrouded',
   'preview-deco-highlighted',
@@ -55,15 +55,15 @@ function isAccessible(id) {
 
   const element = props.config.nodes[id]
   if (!element) return false
-  if (element.type !== 'rätsel') return false
+  if (element.type !== 'riddle') return false
 
   if (props.config.ordering === 'unordered') {
     return true
   }
 
-  if (props.config.abschlussRaetselId && id === props.config.abschlussRaetselId) {
+  if (props.config.finalRiddleId && id === props.config.finalRiddleId) {
     for (const [nodeId, node] of Object.entries(props.config.nodes)) {
-      if (nodeId !== id && node.type === 'rätsel' && !isCompleted(nodeId)) {
+      if (nodeId !== id && node.type === 'riddle' && !isCompleted(nodeId)) {
         return false
       }
     }
@@ -81,8 +81,8 @@ function isAccessible(id) {
 }
 
 function removePreviewClasses(svgElement) {
-  for (const cls of PREVIEW_CLASSES) {
-    svgElement.classList.remove(cls)
+  for (const className of PREVIEW_CLASSES) {
+    svgElement.classList.remove(className)
   }
 }
 
@@ -94,22 +94,22 @@ function applyVisualClass(svgElement, value) {
 
 function updateRiddleVisual(id, svgElement) {
   const element = props.config.nodes[id]
-  const style = element.style || { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' }
+  const style = element.style || { locked: 'shrouded', accessible: 'highlighted', completed: 'none' }
 
   if (isCompleted(id)) {
-    svgElement.classList.add('preview-raetsel-completed')
-    applyVisualClass(svgElement, style.geloest)
+    svgElement.classList.add('preview-riddle-completed')
+    applyVisualClass(svgElement, style.completed)
     return
   }
 
   if (isAccessible(id)) {
-    svgElement.classList.add('preview-raetsel-accessible')
-    applyVisualClass(svgElement, style.zugaenglich)
+    svgElement.classList.add('preview-riddle-accessible')
+    applyVisualClass(svgElement, style.accessible)
     return
   }
 
-  svgElement.classList.add('preview-raetsel-locked')
-  applyVisualClass(svgElement, style.gesperrt)
+  svgElement.classList.add('preview-riddle-locked')
+  applyVisualClass(svgElement, style.locked)
 }
 
 function decorationLevel(linkedId) {
@@ -118,7 +118,7 @@ function decorationLevel(linkedId) {
   return 0
 }
 
-const DECORATION_LEVEL_KEYS = ['gesperrt', 'zugaenglich', 'geloest']
+const DECORATION_LEVEL_KEYS = ['locked', 'accessible', 'completed']
 
 function updateDecorationVisual(element, svgElement) {
   const linked = element.linkedElements || []
@@ -141,9 +141,9 @@ function updateVisuals() {
 
     removePreviewClasses(svgElement)
 
-    if (element.type === 'rätsel') {
+    if (element.type === 'riddle') {
       updateRiddleVisual(id, svgElement)
-    } else if (element.type === 'dekoration') {
+    } else if (element.type === 'decoration') {
       updateDecorationVisual(element, svgElement)
     }
   }
@@ -153,7 +153,7 @@ function setupListeners() {
   const entries = Object.entries(props.config.nodes)
 
   for (const [id, element] of entries) {
-    if (element.type !== 'rätsel') continue
+    if (element.type !== 'riddle') continue
 
     const svgElement = elements[id]
     if (!svgElement) continue
@@ -161,7 +161,7 @@ function setupListeners() {
     function onClick() {
       if (!isAccessible(id)) return
 
-      emit('raetselClick', {
+      emit('riddleClick', {
         id,
         riddle: element.riddle,
       })
@@ -170,12 +170,12 @@ function setupListeners() {
     function onEnter() {
       if (!isAccessible(id)) return
 
-      svgElement.classList.add('preview-raetsel-hover')
+      svgElement.classList.add('preview-riddle-hover')
       svgElement.style.cursor = 'pointer'
     }
 
     function onLeave() {
-      svgElement.classList.remove('preview-raetsel-hover')
+      svgElement.classList.remove('preview-riddle-hover')
     }
 
     svgElement.addEventListener('click', onClick)

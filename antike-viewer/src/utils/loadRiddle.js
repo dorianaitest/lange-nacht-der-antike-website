@@ -1,10 +1,10 @@
 import { unzipSync } from 'fflate'
 
 export async function loadRiddle(url) {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(res.statusText)
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(response.statusText)
 
-  const buffer = await res.arrayBuffer()
+  const buffer = await response.arrayBuffer()
   const files = unzipSync(new Uint8Array(buffer))
   const decoder = new TextDecoder()
 

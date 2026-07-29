@@ -50,26 +50,13 @@
 
 @layer components {
   /* SVG map states */
-  .highlight-raetsel {
-    stroke: var(--color-primary-600);
-    stroke-width: 1px;
-  }
-  .highlight-dekoration {
-    stroke: var(--color-accent);
-    stroke-width: 1px;
-  }
-  .highlight-deaktiviert {
-    stroke: var(--color-ink-subtle);
-    stroke-width: 2px;
-  }
-
-  .preview-raetsel-accessible {
+  .preview-riddle-accessible {
     cursor: pointer;
   }
-  .preview-raetsel-completed {
+  .preview-riddle-completed {
     cursor: default;
   }
-  .preview-raetsel-locked {
+  .preview-riddle-locked {
     cursor: not-allowed;
   }
 

@@ -2,8 +2,8 @@
   <button
     :class="[
       'btn-' + variant,
-      { 'btn-active': active && variant === 'primary' },
-      { 'btn-secondary-active': active && variant === 'secondary' },
+      { 'btn-active': isActive && variant === 'primary' },
+      { 'btn-secondary-active': isActive && variant === 'secondary' },
     ]"
   >
     <slot />
@@ -12,7 +12,7 @@
 
 <script setup>
 defineProps({
-  active: {
+  isActive: {
     type: Boolean,
     default: false,
   },
