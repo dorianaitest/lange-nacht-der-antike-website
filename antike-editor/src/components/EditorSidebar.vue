@@ -79,7 +79,7 @@
                 placeholder="Text nach richtiger Antwort..."
               />
             </div>
-            <div v-if="selectedMode !== 'Symbolraetsel'" class="form-group">
+            <div v-if="selectedMode !== 'SymbolRiddle'" class="form-group">
               <label class="form-label">Symbol</label>
 
               <input
@@ -87,7 +87,7 @@
                 type="file"
                 accept="image/*"
                 class="hidden"
-                @change="iconSelected"
+                @change="onIconSelected"
               />
 
               <div v-if="riddle.iconPreview">
@@ -98,13 +98,13 @@
                 />
               </div>
 
-              <BaseButton variant="secondary" @click="openIconDialogue">
+              <BaseButton variant="secondary" @click="openIconPicker">
                 {{ riddle.iconPreview ? 'Symbol ersetzen' : 'Symbol hochladen' }}
               </BaseButton>
             </div>
 
             <div
-              v-if="selectedMode === 'Symbolraetsel' && selectedId === abschlussRaetselId"
+              v-if="selectedMode === 'SymbolRiddle' && selectedId === finalRiddleId"
               class="form-section"
             >
               <p class="section-header">Symbolauswahl</p>
@@ -141,7 +141,7 @@
 
               <div class="form-group">
                 <p class="text-sm text-ink-secondary">Gesperrt:</p>
-                <select v-model="riddle.style.gesperrt" class="form-select">
+                <select v-model="riddle.style.locked" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -150,8 +150,8 @@
 
               <div class="form-group">
                 <p class="text-sm text-ink-secondary">Zugänglich:</p>
-                <select v-model="riddle.style.zugaenglich" class="form-select">
-                  <option v-for="style in RAETSEL_STYLES_ZUGAENGLICH" :key="style.value" :value="style.value">
+                <select v-model="riddle.style.accessible" class="form-select">
+                  <option v-for="style in RIDDLE_STYLES_ACCESSIBLE" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
                 </select>
@@ -159,7 +159,7 @@
 
               <div class="form-group">
                 <p class="text-sm text-ink-secondary">Gelöst:</p>
-                <select v-model="riddle.style.geloest" class="form-select">
+                <select v-model="riddle.style.completed" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -175,13 +175,13 @@
             <div class="form-group">
               <p class="text-sm text-ink-secondary">Verknüpfte Rätsel:</p>
 
-              <p v-if="raetselIds.length === 0" class="hint-text">
+              <p v-if="riddleIds.length === 0" class="hint-text">
                 Noch keine Rätsel vorhanden.
               </p>
 
               <div v-else class="flex flex-col gap-1">
                 <label
-                  v-for="id in raetselIds"
+                  v-for="id in riddleIds"
                   :key="id"
                   class="checkbox-label"
                 >
@@ -205,7 +205,7 @@
 
               <div class="form-group">
                 <p class="text-sm text-ink-secondary">Rätsel gesperrt:</p>
-                <select v-model="deco.style.gesperrt" class="form-select">
+                <select v-model="deco.style.locked" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -214,7 +214,7 @@
 
               <div class="form-group">
                 <p class="text-sm text-ink-secondary">Rätsel zugänglich:</p>
-                <select v-model="deco.style.zugaenglich" class="form-select">
+                <select v-model="deco.style.accessible" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -223,7 +223,7 @@
 
               <div class="form-group">
                 <p class="text-sm text-ink-secondary">Rätsel gelöst:</p>
-                <select v-model="deco.style.geloest" class="form-select">
+                <select v-model="deco.style.completed" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -249,14 +249,14 @@
 <script setup>
 //computed allows to recalculate easily once selectedId changes
 import { ref, computed, inject } from 'vue'
-import { SELECTED_ELEMENT_ID, SET_SELECTED_ELEMENT, ELEMENTS_DATA, SELECTED_MODE, ABSCHLUSS_RAETSEL_ID, SYMBOL_PICKER_DATA } from '../injectionKeys.js'
+import { SELECTED_ELEMENT_ID, SET_SELECTED_ELEMENT, ELEMENTS_DATA, SELECTED_MODE, FINAL_RIDDLE_ID, SYMBOL_PICKER_DATA } from '../injectionKeys.js'
 import BaseButton from './BaseButton.vue'
 
 const selectedId = inject(SELECTED_ELEMENT_ID)
 const setSelectedElement = inject(SET_SELECTED_ELEMENT)
 const elementsData = inject(ELEMENTS_DATA)
 const selectedMode = inject(SELECTED_MODE)
-const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
+const finalRiddleId = inject(FINAL_RIDDLE_ID)
 const symbolPickerData = inject(SYMBOL_PICKER_DATA)
 
 const iconInput = ref(null)
@@ -268,7 +268,7 @@ const DECO_STYLES = [
   { value: 'highlighted', label: 'hervorgehoben' },
 ]
 
-const RAETSEL_STYLES_ZUGAENGLICH = [
+const RIDDLE_STYLES_ACCESSIBLE = [
   { value: 'none', label: 'normal' },
   { value: 'shrouded', label: 'verschleiert' },
   { value: 'highlighted', label: 'hervorgehoben' },
@@ -288,7 +288,7 @@ const deco = computed(function () {
   return entry.value?.deco
 })
 
-const raetselIds = computed(function () {
+const riddleIds = computed(function () {
   const entries = Object.entries(elementsData.value)
   const result = []
 
@@ -307,22 +307,22 @@ function removeAnswer(index) {
   riddle.value.answers.splice(index, 1)
 }
 
-function openIconDialogue() {
+function openIconPicker() {
   iconInput.value.click()
 }
 
-function iconSelected(e) {
-  const file = e.target.files?.[0]
+function onIconSelected(event) {
+  const file = event.target.files?.[0]
 
   const reader = new FileReader()
 
   reader.readAsDataURL(file)
 
-  reader.onload = function (e) {
-    riddle.value.iconPreview = e.target.result
+  reader.onload = function (loadEvent) {
+    riddle.value.iconPreview = loadEvent.target.result
     riddle.value.iconFile = file
   }
 
-  e.target.value = ''
+  event.target.value = ''
 }
 </script>

@@ -52,14 +52,14 @@ import { ELEMENTS_DATA, EXTRACT_ELEMENTS } from '../injectionKeys.js'
 defineEmits(['close'])
 
 const elementsData = inject(ELEMENTS_DATA)
-provide(EXTRACT_ELEMENTS, () => {}) // prevent EXTRACT_ELEMENT from resetting elementsData; cleanup later
+provide(EXTRACT_ELEMENTS, () => {}) // prevent EXTRACT_ELEMENTS from resetting elementsData; cleanup later
 
 const options = ['Inaktiv', 'Rätsel', 'dynamische Dekoration']
 
 const HIGHLIGHT_CLASS = {
-  Rätsel: 'highlight-raetsel',
-  'dynamische Dekoration': 'highlight-dekoration',
-  Inaktiv: 'highlight-deaktiviert',
+  Rätsel: 'highlight-riddle',
+  'dynamische Dekoration': 'highlight-decoration',
+  Inaktiv: 'highlight-inactive',
 }
 
 const svgMap = ref(null)
@@ -73,8 +73,8 @@ function onListEnter(id, entry) {
 function onListLeave(id) {
   const svgElement = svgMap.value?.elements[id]
   if (!svgElement) return
-  for (const cls in HIGHLIGHT_CLASS) {
-    svgElement.classList.remove(HIGHLIGHT_CLASS[cls])
+  for (const elementType in HIGHLIGHT_CLASS) {
+    svgElement.classList.remove(HIGHLIGHT_CLASS[elementType])
   }
 }
 </script>

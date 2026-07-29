@@ -1,8 +1,8 @@
 import { strToU8, zipSync } from 'fflate'
 import { buildRiddleConfig } from './buildRiddleConfig.js'
 
-export async function exportZip(plainSvgText, elementsData, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig) {
-  const config = buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig)
+export async function exportZip(plainSvgText, elementsData, mode, symbolPool, finalRiddleId, finalRiddlePenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig) {
+  const config = buildRiddleConfig(elementsData, mode, symbolPool, finalRiddleId, finalRiddlePenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig)
 
   // the zip file needs raw bytes so we need to convert the strings
   const files = {
@@ -10,7 +10,7 @@ export async function exportZip(plainSvgText, elementsData, mode, symbolPool, ab
     'riddle-config.json': strToU8(JSON.stringify(config, null, 2)),
   }
 
-  if (mode === 'Symbolraetsel') {
+  if (mode === 'SymbolRiddle') {
     for (const symbol of symbolPool) {
       const file = symbol.file
       const buffer = await file.arrayBuffer()
@@ -30,9 +30,9 @@ export async function exportZip(plainSvgText, elementsData, mode, symbolPool, ab
   const blob = new Blob([zipped], { type: 'application/zip' })
   const url = URL.createObjectURL(blob)
 
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'riddle.zip'
-  a.click()
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'riddle.zip'
+  link.click()
   URL.revokeObjectURL(url)
 }

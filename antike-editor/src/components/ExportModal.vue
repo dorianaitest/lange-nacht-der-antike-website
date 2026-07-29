@@ -20,7 +20,7 @@
 
 <script setup>
 import { computed, inject, ref } from 'vue'
-import { PLAIN_SVG_TEXT, ELEMENTS_DATA, SELECTED_MODE, SYMBOL_POOL, ABSCHLUSS_RAETSEL_ID, ABSCHLUSS_PENALTY, SYMBOL_PICKER_DATA, COMPLETION_MESSAGE, START_SCREEN_DATA, STYLING_CONFIG } from '../injectionKeys.js'
+import { PLAIN_SVG_TEXT, ELEMENTS_DATA, SELECTED_MODE, SYMBOL_POOL, FINAL_RIDDLE_ID, FINAL_RIDDLE_PENALTY, SYMBOL_PICKER_DATA, COMPLETION_MESSAGE, START_SCREEN_DATA, STYLING_CONFIG } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
@@ -32,8 +32,8 @@ const plainSvgText = inject(PLAIN_SVG_TEXT)
 const elementsData = inject(ELEMENTS_DATA)
 const selectedMode = inject(SELECTED_MODE)
 const symbolPool = inject(SYMBOL_POOL)
-const abschlussRaetselId = inject(ABSCHLUSS_RAETSEL_ID)
-const abschlussRaetselPenalty = inject(ABSCHLUSS_PENALTY)
+const finalRiddleId = inject(FINAL_RIDDLE_ID)
+const finalRiddlePenalty = inject(FINAL_RIDDLE_PENALTY)
 
 const symbolPickerData = inject(SYMBOL_PICKER_DATA)
 const completionMessage = inject(COMPLETION_MESSAGE)
@@ -48,7 +48,7 @@ const copyLabel = computed(function () {
   return 'Kopieren'
 })
 
-const config = computed(() => buildRiddleConfig(elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig))
+const config = computed(() => buildRiddleConfig(elementsData.value, selectedMode.value, symbolPool.value, finalRiddleId.value, finalRiddlePenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig))
 const jsonString = computed(() => JSON.stringify(config.value, null, 2))
 
 function resetCopyState() {
@@ -72,7 +72,7 @@ function copyToClipboard() {
 }
 
 function downloadZip() {
-  exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, abschlussRaetselId.value, abschlussRaetselPenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig)
+  exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, finalRiddleId.value, finalRiddlePenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig)
 }
 
 </script>

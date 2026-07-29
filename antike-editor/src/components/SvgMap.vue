@@ -33,8 +33,8 @@ const container = ref(null)
 const elements = ref({})
 
 const HIGHLIGHT_CLASS = {
-  Rätsel: 'highlight-raetsel',
-  'dynamische Dekoration': 'highlight-dekoration',
+  Rätsel: 'highlight-riddle',
+  'dynamische Dekoration': 'highlight-decoration',
 }
 
 function setupHoverListeners() {
@@ -45,17 +45,17 @@ function setupHoverListeners() {
   }
 }
 
-function getArt(id) {
+function getElementType(id) {
   return elementsData.value?.[id]?.elementArt
 }
 
 function addListenersToElement(id, svgElement) {
   function onEnter() {
-    const art = getArt(id)
+    const elementType = getElementType(id)
 
-    if (art !== 'Inaktiv') {
+    if (elementType !== 'Inaktiv') {
       svgElement.style.cursor = 'pointer'
-      applyHighlight(svgElement, art)
+      applyHighlight(svgElement, elementType)
       emit('hoverChange', id)
     } else {
       svgElement.style.cursor = 'default'
@@ -64,7 +64,7 @@ function addListenersToElement(id, svgElement) {
 
   function onLeave() {
     svgElement.style.cursor = ''
-    //need to ensure we don't remove the highlighting if allHighlighting is enabled
+    //need to ensure we don't remove the highlighting if highlightAll is enabled
     if (!props.highlightAll) {
       removeHighlight(svgElement)
     }
@@ -73,9 +73,9 @@ function addListenersToElement(id, svgElement) {
   }
 
   function onClick() {
-    const art = getArt(id)
+    const elementType = getElementType(id)
 
-    if (art !== 'Inaktiv') {
+    if (elementType !== 'Inaktiv') {
       setSelectedElement(id)
     }
   }
@@ -110,25 +110,25 @@ function extractSvgElements() {
 
 //these helpers are new: maybe need to update other parts of code
 function removeHighlight(svgElement) {
-  for (const cls in HIGHLIGHT_CLASS) {
-    svgElement.classList.remove(HIGHLIGHT_CLASS[cls])
+  for (const elementType in HIGHLIGHT_CLASS) {
+    svgElement.classList.remove(HIGHLIGHT_CLASS[elementType])
   }
 }
 
-function applyHighlight(svgElement, art) {
+function applyHighlight(svgElement, elementType) {
   removeHighlight(svgElement)
-  svgElement.classList.add(HIGHLIGHT_CLASS[art])
+  svgElement.classList.add(HIGHLIGHT_CLASS[elementType])
 }
 
-function updateAllHighlights(highlightActive) {
+function updateAllHighlights(isHighlightActive) {
   const entries = Object.entries(elements.value)
 
   for (const [id, svgElement] of entries) {
     removeHighlight(svgElement)
 
-    if (highlightActive) {
-      const art = getArt(id)
-      applyHighlight(svgElement, art)
+    if (isHighlightActive) {
+      const elementType = getElementType(id)
+      applyHighlight(svgElement, elementType)
     }
   }
 }

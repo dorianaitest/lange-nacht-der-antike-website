@@ -2,13 +2,13 @@
   <!-- emit close for UX behavior -->
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-    @click.self="closeable && emit('close')"
+    @click.self="isCloseable && emit('close')"
   >
     <!-- :style handles the transform from string to css value -->
     <div class="flex flex-col rounded-xl bg-white" :style="{ width, height, maxHeight }">
       <div class="flex shrink-0 items-center justify-between border-b border-border-subtle px-5 py-4">
         <h2 class="text-base font-bold text-ink">{{ title }}</h2>
-        <button v-if="closeable" class="icon-btn" aria-label="Schließen" @click="emit('close')">✕</button>
+        <button v-if="isCloseable" class="icon-btn" aria-label="Schließen" @click="emit('close')">✕</button>
       </div>
       <slot />
     </div>
@@ -33,7 +33,7 @@ defineProps({
     type: String,
     default: undefined,
   },
-  closeable: {
+  isCloseable: {
     type: Boolean,
     default: true,
   },

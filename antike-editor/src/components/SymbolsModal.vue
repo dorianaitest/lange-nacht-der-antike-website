@@ -93,8 +93,8 @@ function onSymbolsSelected(event) {
   event.target.value = ''
   for (const file of files) {
     const reader = new FileReader()
-    reader.onload = function (e) {
-      symbolPool.value.push({ file, preview: e.target.result })
+    reader.onload = function (loadEvent) {
+      symbolPool.value.push({ file, preview: loadEvent.target.result })
     }
     reader.readAsDataURL(file)
   }

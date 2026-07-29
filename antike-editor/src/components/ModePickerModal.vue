@@ -1,5 +1,5 @@
 <template>
-  <BaseModal title="Rätselmodus wählen" :closeable="false" width="auto" height="auto">
+  <BaseModal title="Rätselmodus wählen" :isCloseable="false" width="auto" height="auto">
     <div class="flex gap-6 p-8">
       <button
         class="mode-card"
@@ -13,7 +13,7 @@
       </button>
       <button
         class="mode-card"
-        @click="emit('pick', 'Symbolraetsel')"
+        @click="emit('pick', 'SymbolRiddle')"
       >
         <p class="dialog-title">Symbolrätsel</p>
         <p class="mode-description">

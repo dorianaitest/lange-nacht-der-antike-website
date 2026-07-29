@@ -1,23 +1,23 @@
 export function validateConfig(
   elementsData,
   mode,
-  abschlussRaetselId,
+  finalRiddleId,
   symbolPool,
 ) {
   const errors = []
   const warnings = []
 
-  let hasStartRaetsel = false
-  let raetselCount = 0
+  let hasStartRiddle = false
+  let riddleCount = 0
   const incompleteIds = []
   const noAnswerIds = []
   const unlinkedDecoIds = []
   for (const id in elementsData) {
     const entry = elementsData[id]
     if (entry.elementArt === 'Rätsel') {
-      raetselCount++
+      riddleCount++
       if (entry.riddle.unlockAfterIds.length === 0) {
-        hasStartRaetsel = true
+        hasStartRiddle = true
       }
       let hasAnswer = false
       for (const answer of entry.riddle.answers) {
@@ -64,22 +64,22 @@ export function validateConfig(
     )
   }
 
-  if (!hasStartRaetsel) {
+  if (!hasStartRiddle) {
     errors.push(
       'Es gibt kein Start-Rätsel. Mindestens ein Rätsel muss als Start konfiguriert sein.',
     )
   }
 
-  if (mode === 'Symbolraetsel' && !abschlussRaetselId) {
+  if (mode === 'SymbolRiddle' && !finalRiddleId) {
     errors.push('Es wurde kein Abschluss-Rätsel festgelegt.')
   }
 
-  if (mode === 'Symbolraetsel' && symbolPool.length !== raetselCount) {
+  if (mode === 'SymbolRiddle' && symbolPool.length !== riddleCount) {
     errors.push(
       'Die Symbolanzahl muss genau der Rätselanzahl entsprechen (Momentan: ' +
         symbolPool.length +
         ' Symbole, ' +
-        raetselCount +
+        riddleCount +
         ' Rätsel).',
     )
   }

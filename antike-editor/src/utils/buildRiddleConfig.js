@@ -1,4 +1,4 @@
-export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaetselId, abschlussRaetselPenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig) {
+export function buildRiddleConfig(elementsData, mode, symbolPool, finalRiddleId, finalRiddlePenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig) {
   const entries = Object.entries(elementsData)
   const nodes = {}
 
@@ -16,18 +16,18 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
         successText: entry.riddle.successText,
       }
 
-      if (mode !== 'Symbolraetsel' && entry.riddle.iconFile) {
+      if (mode !== 'SymbolRiddle' && entry.riddle.iconFile) {
         riddle.icon = entry.riddle.iconFile.name
       }
 
       nodes[id] = {
-        type: 'rätsel',
+        type: 'riddle',
         unlockAfterIds: entry.riddle.unlockAfterIds,
-        style: entry.riddle.style || { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' },
+        style: entry.riddle.style || { locked: 'shrouded', accessible: 'highlighted', completed: 'none' },
         riddle,
       }
 
-      if (mode === 'Symbolraetsel' && id === abschlussRaetselId) {
+      if (mode === 'SymbolRiddle' && id === finalRiddleId) {
         nodes[id].symbolPicker = {
           prompt: symbolPickerData.prompt,
           successText: symbolPickerData.successText,
@@ -35,7 +35,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
       }
     } else if (entry.elementArt === 'dynamische Dekoration') {
       nodes[id] = {
-        type: 'dekoration',
+        type: 'decoration',
         linkedElements: entry.deco.linkedElements,
         style: entry.deco.style,
       }
@@ -45,7 +45,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
   const config = {
     svgFile: 'background.svg',
     mode,
-    startScreen: { titel: startScreenData.titel, beschreibung: startScreenData.beschreibung },
+    startScreen: { title: startScreenData.title, description: startScreenData.description },
     completionMessage,
     styles: {
       highlightColor: stylingConfig.highlightColor,
@@ -55,14 +55,14 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
     nodes,
   }
 
-  if (mode === 'Symbolraetsel') {
+  if (mode === 'SymbolRiddle') {
     const poolFileNames = []
     for (const symbol of symbolPool) {
       poolFileNames.push(symbol.file.name)
     }
     config.symbolPool = poolFileNames
-    config.abschlussRaetselId = abschlussRaetselId || null
-    config.abschlussRaetselPenalty = abschlussRaetselPenalty || 30
+    config.finalRiddleId = finalRiddleId || null
+    config.finalRiddlePenalty = finalRiddlePenalty || 30
   }
 
   return config

@@ -10,20 +10,20 @@
             class="flex shrink-0 items-center justify-between border-b border-border-subtle px-4 py-2"
           >
             <div class="flex items-center gap-2">
-              <BaseButton variant="secondary" @click="setupModalOpen = true">Ebenen</BaseButton>
+              <BaseButton variant="secondary" @click="isSetupModalOpen = true">Ebenen</BaseButton>
               <BaseButton
                 variant="secondary"
-                :active="highlightAllElements"
-                @click="highlightAllElements = !highlightAllElements"
+                :isActive="isHighlightAllElements"
+                @click="isHighlightAllElements = !isHighlightAllElements"
                 >Elemente hervorheben</BaseButton
               >
-              <BaseButton variant="secondary" :active="orderingOpen" @click="toggleOrdering"
+              <BaseButton variant="secondary" :isActive="isOrderingOpen" @click="toggleOrdering"
                 >Spielkonfiguration</BaseButton
               >
-              <BaseButton variant="secondary" v-if="selectedMode === 'Symbolraetsel'" @click="symboleOpen = true"
+              <BaseButton variant="secondary" v-if="selectedMode === 'SymbolRiddle'" @click="isSymbolsModalOpen = true"
                 >Symbole</BaseButton
               >
-              <BaseButton variant="secondary" @click="darstellungOpen = true">Darstellung</BaseButton>
+              <BaseButton variant="secondary" @click="isStylingModalOpen = true">Darstellung</BaseButton>
             </div>
 
             <span class="text-sm text-ink-secondary">Modus: {{ selectedMode }}</span>
@@ -36,7 +36,7 @@
 
           <SvgMap
             class="min-w-0 flex-1"
-            :highlightAll="highlightAllElements"
+            :highlightAll="isHighlightAllElements"
             @hoverChange="hoveredElementId = $event"
           />
 
@@ -46,26 +46,26 @@
           </p>
         </div>
 
-        <OrderingSidebar v-if="orderingOpen" @close="orderingOpen = false" />
+        <OrderingSidebar v-if="isOrderingOpen" @close="isOrderingOpen = false" />
         <EditorSidebar v-else />
       </div>
 
-      <ModePickerModal v-if="modePickerOpen" @pick="onModePicked" @close="onModePickerClose" />
+      <ModePickerModal v-if="isModePickerOpen" @pick="onModePicked" @close="onModePickerClose" />
 
-      <SvgSetupModal v-if="setupModalOpen" @close="setupModalOpen = false" />
+      <SvgSetupModal v-if="isSetupModalOpen" @close="isSetupModalOpen = false" />
 
-      <ExportModal v-if="exportOpen" @close="exportOpen = false" />
+      <ExportModal v-if="isExportOpen" @close="isExportOpen = false" />
 
-      <PreviewModal v-if="previewOpen" @close="previewOpen = false" @reset="resetPreview" />
+      <PreviewModal v-if="isPreviewOpen" @close="isPreviewOpen = false" @reset="resetPreview" />
 
-      <SymboleModal v-if="symboleOpen" @close="symboleOpen = false" />
-      <DarstellungModal v-if="darstellungOpen" @close="darstellungOpen = false" />
+      <SymbolsModal v-if="isSymbolsModalOpen" @close="isSymbolsModalOpen = false" />
+      <StylingModal v-if="isStylingModalOpen" @close="isStylingModalOpen = false" />
 
       <ValidationModal
-        v-if="validationModalOpen"
+        v-if="isValidationModalOpen"
         :errors="validationErrors"
         :warnings="validationWarnings"
-        @close="validationModalOpen = false"
+        @close="isValidationModalOpen = false"
         @proceed="onValidationProceed"
       />
     </template>
@@ -89,8 +89,8 @@ import OrderingSidebar from './components/OrderingSidebar.vue'
 import ExportModal from './components/ExportModal.vue'
 import PreviewModal from './components/PreviewModal.vue'
 import ModePickerModal from './components/ModePickerModal.vue'
-import SymboleModal from './components/SymboleModal.vue'
-import DarstellungModal from './components/DarstellungModal.vue'
+import SymbolsModal from './components/SymbolsModal.vue'
+import StylingModal from './components/StylingModal.vue'
 import BaseButton from './components/BaseButton.vue'
 import {
   PLAIN_SVG_TEXT,
@@ -100,8 +100,8 @@ import {
   SET_SELECTED_ELEMENT,
   SELECTED_MODE,
   SYMBOL_POOL,
-  ABSCHLUSS_RAETSEL_ID,
-  ABSCHLUSS_PENALTY,
+  FINAL_RIDDLE_ID,
+  FINAL_RIDDLE_PENALTY,
   SYMBOL_PICKER_DATA,
   COMPLETION_MESSAGE,
   START_SCREEN_DATA,
@@ -113,27 +113,27 @@ const fileInput = ref(null)
 const svgText = ref(null)
 const symbolPickerData = ref({ prompt: '', successText: '' })
 const completionMessage = ref('')
-const startScreenData = ref({ titel: '', beschreibung: '' })
+const startScreenData = ref({ title: '', description: '' })
 const elementsData = ref({})
 const selectedElementId = ref(null)
-const modePickerOpen = ref(false)
-const symboleOpen = ref(false)
-const darstellungOpen = ref(false)
+const isModePickerOpen = ref(false)
+const isSymbolsModalOpen = ref(false)
+const isStylingModalOpen = ref(false)
 const selectedMode = ref(null)
-const setupModalOpen = ref(false)
-const orderingOpen = ref(false)
-const exportOpen = ref(false)
-const previewOpen = ref(false)
-const validationModalOpen = ref(false)
+const isSetupModalOpen = ref(false)
+const isOrderingOpen = ref(false)
+const isExportOpen = ref(false)
+const isPreviewOpen = ref(false)
+const isValidationModalOpen = ref(false)
 const validationErrors = ref([])
 const validationWarnings = ref([])
-const pendingModalOpen = ref(null)
+const pendingModalType = ref(null)
 const hoveredElementId = ref(null)
-const highlightAllElements = ref(false)
+const isHighlightAllElements = ref(false)
 const symbolPool = ref([])
 const stylingConfig = reactive({ highlightColor: '#8c7b3e', highlightStrokeWidth: 1, shroudedOpacity: 0.2 })
-const abschlussRaetselId = ref(null)
-const abschlussRaetselPenalty = ref(30)
+const finalRiddleId = ref(null)
+const finalRiddlePenalty = ref(30)
 
 provide(PLAIN_SVG_TEXT, svgText)
 provide(ELEMENTS_DATA, elementsData)
@@ -149,9 +149,9 @@ provide(EXTRACT_ELEMENTS, function (ids) {
         iconFile: null,
         iconPreview: null,
         unlockAfterIds: [],
-        style: { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' },
+        style: { locked: 'shrouded', accessible: 'highlighted', completed: 'none' },
       },
-      deco: { linkedElements: [], style: { gesperrt: 'hidden', zugaenglich: 'shrouded', geloest: 'none' } },
+      deco: { linkedElements: [], style: { locked: 'hidden', accessible: 'shrouded', completed: 'none' } },
     }
   }
 })
@@ -160,8 +160,8 @@ provide(COMPLETION_MESSAGE, completionMessage)
 provide(START_SCREEN_DATA, startScreenData)
 provide(SELECTED_MODE, selectedMode)
 provide(SYMBOL_POOL, symbolPool)
-provide(ABSCHLUSS_RAETSEL_ID, abschlussRaetselId)
-provide(ABSCHLUSS_PENALTY, abschlussRaetselPenalty)
+provide(FINAL_RIDDLE_ID, finalRiddleId)
+provide(FINAL_RIDDLE_PENALTY, finalRiddlePenalty)
 provide(STYLING_CONFIG, stylingConfig)
 provide(SELECTED_ELEMENT_ID, selectedElementId)
 provide(SET_SELECTED_ELEMENT, (id) => {
@@ -169,18 +169,18 @@ provide(SET_SELECTED_ELEMENT, (id) => {
 })
 
 function toggleOrdering() {
-  orderingOpen.value = !orderingOpen.value
-  if (orderingOpen.value) {
+  isOrderingOpen.value = !isOrderingOpen.value
+  if (isOrderingOpen.value) {
     selectedElementId.value = null
   }
 }
 
 watch(selectedElementId, function (id) {
-  if (!id || !orderingOpen.value) return
+  if (!id || !isOrderingOpen.value) return
 
   const entry = elementsData.value[id]
   if (entry && (entry.elementArt === 'Rätsel' || entry.elementArt === 'dynamische Dekoration')) {
-    orderingOpen.value = false
+    isOrderingOpen.value = false
   }
 })
 
@@ -188,14 +188,14 @@ function openWithValidation(requestedModal) {
   const result = validateConfig(
     elementsData.value,
     selectedMode.value,
-    abschlussRaetselId.value,
+    finalRiddleId.value,
     symbolPool.value,
   )
   if (result.errors.length > 0 || result.warnings.length > 0) {
     validationErrors.value = result.errors
     validationWarnings.value = result.warnings
-    pendingModalOpen.value = requestedModal
-    validationModalOpen.value = true
+    pendingModalType.value = requestedModal
+    isValidationModalOpen.value = true
   } else {
     openModalAfterValidation(requestedModal)
   }
@@ -203,16 +203,16 @@ function openWithValidation(requestedModal) {
 
 function openModalAfterValidation(requestedModal) {
   if (requestedModal === 'preview') {
-    previewOpen.value = true
+    isPreviewOpen.value = true
   } else if (requestedModal === 'export') {
-    exportOpen.value = true
+    isExportOpen.value = true
   }
 }
 
 function onValidationProceed() {
-  validationModalOpen.value = false
-  openModalAfterValidation(pendingModalOpen.value)
-  pendingModalOpen.value = null
+  isValidationModalOpen.value = false
+  openModalAfterValidation(pendingModalType.value)
+  pendingModalType.value = null
 }
 
 function openPreview() {
@@ -225,9 +225,9 @@ function openExport() {
 
 // need to refactor (if I can figure out how to reset a reactive component object..)
 async function resetPreview() {
-  previewOpen.value = false
+  isPreviewOpen.value = false
   await nextTick()
-  previewOpen.value = true
+  isPreviewOpen.value = true
 }
 
 function openFilePicker() {
@@ -235,23 +235,23 @@ function openFilePicker() {
 }
 
 function onModePickerClose() {
-  modePickerOpen.value = false
+  isModePickerOpen.value = false
   svgText.value = null
   selectedMode.value = null
   elementsData.value = {}
   selectedElementId.value = null
   symbolPool.value = []
-  abschlussRaetselId.value = null
-  abschlussRaetselPenalty.value = 30
-  startScreenData.value = { titel: '', beschreibung: '' }
+  finalRiddleId.value = null
+  finalRiddlePenalty.value = 30
+  startScreenData.value = { title: '', description: '' }
   completionMessage.value = ''
   symbolPickerData.value = { prompt: '', successText: '' }
 }
 
 function onModePicked(mode) {
   selectedMode.value = mode
-  modePickerOpen.value = false
-  setupModalOpen.value = true
+  isModePickerOpen.value = false
+  isSetupModalOpen.value = true
 }
 
 function onFileSelected(event) {
@@ -260,9 +260,9 @@ function onFileSelected(event) {
 
   const reader = new FileReader()
   reader.readAsText(file)
-  reader.onload = (e) => {
-    svgText.value = e.target.result
-    modePickerOpen.value = true
+  reader.onload = (loadEvent) => {
+    svgText.value = loadEvent.target.result
+    isModePickerOpen.value = true
   }
 }
 </script>

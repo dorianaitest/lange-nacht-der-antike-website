@@ -42,33 +42,33 @@
   --color-warning-800: #6b4a10;
 
   /* Editor: highlighting */
-  --color-highlight-raetsel: #fa0505;
-  --color-highlight-dekoration: #faf205;
-  --color-highlight-inaktiv: #8a9a82;
+  --color-highlight-riddle: #fa0505;
+  --color-highlight-decoration: #faf205;
+  --color-highlight-inactive: #8a9a82;
 }
 
 @layer components {
   /* SVG map states */
-  .highlight-raetsel {
-    stroke: var(--color-highlight-raetsel);
+  .highlight-riddle {
+    stroke: var(--color-highlight-riddle);
     stroke-width: 1px;
   }
-  .highlight-dekoration {
-    stroke: var(--color-highlight-dekoration);
+  .highlight-decoration {
+    stroke: var(--color-highlight-decoration);
     stroke-width: 1px;
   }
-  .highlight-deaktiviert {
-    stroke: var(--color-highlight-inaktiv);
+  .highlight-inactive {
+    stroke: var(--color-highlight-inactive);
     stroke-width: 2px;
   }
 
-  .preview-raetsel-accessible {
+  .preview-riddle-accessible {
     cursor: pointer;
   }
-  .preview-raetsel-completed {
+  .preview-riddle-completed {
     cursor: default;
   }
-  .preview-raetsel-locked {
+  .preview-riddle-locked {
     cursor: not-allowed;
   }
 
