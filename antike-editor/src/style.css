@@ -119,7 +119,7 @@
     @apply text-ink-muted text-xs font-medium tracking-wide uppercase;
   }
   .icon-btn {
-    @apply text-ink-subtle hover:text-ink-muted cursor-pointer text-xl;
+    @apply text-ink-subtle hover:text-ink-muted cursor-pointer text-xl disabled:cursor-not-allowed disabled:text-ink-subtle/40 disabled:hover:text-ink-subtle/40;
   }
   .hint-text {
     @apply text-ink-subtle text-xs italic;

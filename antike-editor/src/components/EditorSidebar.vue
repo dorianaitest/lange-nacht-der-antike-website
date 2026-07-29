@@ -34,16 +34,35 @@
             </div>
 
             <div class="form-group">
-              <label for="riddleAnswer" class="form-label"> Antwort* </label>
+              <label class="form-label"> Antwort* </label>
 
-              <textarea
-                id="riddleAnswer"
-                v-model="riddle.answer"
-                rows="3"
-                required
-                class="form-input"
-                placeholder="Korrekte Antwort..."
-              />
+              <div class="flex flex-col gap-2">
+                <div
+                  v-for="(answer, index) in riddle.answers"
+                  :key="index"
+                  class="flex gap-2"
+                >
+                  <input
+                    type="text"
+                    v-model="riddle.answers[index]"
+                    class="form-input"
+                    placeholder="Korrekte Antwort..."
+                  />
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    aria-label="Antwort entfernen"
+                    :disabled="riddle.answers.length === 1"
+                    @click="removeAnswer(index)"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              <BaseButton variant="secondary" @click="addAnswer">
+                Antwort hinzufügen
+              </BaseButton>
             </div>
 
             <div class="form-group">
@@ -154,7 +173,7 @@
         <template v-if="entry.elementArt === 'dynamische Dekoration'">
           <div class="flex flex-col gap-4">
             <div class="form-group">
-              <p class="text-sm text-ink-secondary">Freigeschaltet durch Rätsel (eines davon reicht):</p>
+              <p class="text-sm text-ink-secondary">Verknüpfte Rätsel:</p>
 
               <p v-if="raetselIds.length === 0" class="hint-text">
                 Noch keine Rätsel vorhanden.
@@ -175,24 +194,41 @@
                   <span class="mono-truncate" :title="id">{{ id }}</span>
                 </label>
               </div>
+
+              <p class="hint-text">
+                Bei mehreren verknüpften Rätseln gilt der am weitesten fortgeschrittene Zustand.
+              </p>
             </div>
 
-            <div class="form-group">
-              <p class="text-sm text-ink-secondary">Dekoration vor Freischaltung:</p>
-              <select v-model="deco.stateBefore" class="form-select">
-                <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
-                  {{ style.label }}
-                </option>
-              </select>
-            </div>
+            <div class="form-section">
+              <p class="section-header">Erscheinung</p>
 
-            <div class="form-group">
-              <p class="text-sm text-ink-secondary">Dekoration nach Freischaltung:</p>
-              <select v-model="deco.stateAfter" class="form-select">
-                <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
-                  {{ style.label }}
-                </option>
-              </select>
+              <div class="form-group">
+                <p class="text-sm text-ink-secondary">Rätsel gesperrt:</p>
+                <select v-model="deco.style.gesperrt" class="form-select">
+                  <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
+                    {{ style.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <p class="text-sm text-ink-secondary">Rätsel zugänglich:</p>
+                <select v-model="deco.style.zugaenglich" class="form-select">
+                  <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
+                    {{ style.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <p class="text-sm text-ink-secondary">Rätsel gelöst:</p>
+                <select v-model="deco.style.geloest" class="form-select">
+                  <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
+                    {{ style.label }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
         </template>
@@ -261,6 +297,15 @@ const raetselIds = computed(function () {
   }
   return result
 })
+
+function addAnswer() {
+  riddle.value.answers.push('')
+}
+
+function removeAnswer(index) {
+  if (riddle.value.answers.length === 1) return
+  riddle.value.answers.splice(index, 1)
+}
 
 function openIconDialogue() {
   iconInput.value.click()

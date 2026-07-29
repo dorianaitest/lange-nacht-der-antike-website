@@ -111,24 +111,24 @@ function updateRiddleVisual(id, svgElement) {
   applyVisualClass(svgElement, style.gesperrt)
 }
 
+function decorationLevel(linkedId) {
+  if (isCompleted(linkedId)) return 2
+  if (isAccessible(linkedId)) return 1
+  return 0
+}
+
+const DECORATION_LEVEL_KEYS = ['gesperrt', 'zugaenglich', 'geloest']
+
 function updateDecorationVisual(element, svgElement) {
-  let style = element.stateBefore
-
   const linked = element.linkedElements || []
+
+  let maxLevel = 0
   for (const linkedId of linked) {
-    if (isCompleted(linkedId)) {
-      style = element.stateAfter
-      break
-    }
+    const level = decorationLevel(linkedId)
+    if (level > maxLevel) maxLevel = level
   }
 
-  if (style === 'hidden') {
-    svgElement.classList.add('preview-deco-hidden')
-  } else if (style === 'shrouded') {
-    svgElement.classList.add('preview-deco-shrouded')
-  } else if (style === 'highlighted') {
-    svgElement.classList.add('preview-deco-highlighted')
-  }
+  applyVisualClass(svgElement, element.style[DECORATION_LEVEL_KEYS[maxLevel]])
 }
 
 function updateVisuals() {

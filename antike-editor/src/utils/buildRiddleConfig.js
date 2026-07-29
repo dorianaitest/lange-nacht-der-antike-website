@@ -4,9 +4,15 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
 
   for (const [id, entry] of entries) {
     if (entry.elementArt === 'Rätsel') {
+      const answers = []
+      for (const answer of entry.riddle.answers) {
+        const trimmed = answer.trim()
+        if (trimmed) answers.push(trimmed)
+      }
+
       const riddle = {
         question: entry.riddle.question,
-        answer: entry.riddle.answer,
+        answers,
         successText: entry.riddle.successText,
       }
 
@@ -31,8 +37,7 @@ export function buildRiddleConfig(elementsData, mode, symbolPool, abschlussRaets
       nodes[id] = {
         type: 'dekoration',
         linkedElements: entry.deco.linkedElements,
-        stateBefore: entry.deco.stateBefore,
-        stateAfter: entry.deco.stateAfter,
+        style: entry.deco.style,
       }
     }
   }

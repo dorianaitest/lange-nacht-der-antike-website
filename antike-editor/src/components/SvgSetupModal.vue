@@ -4,7 +4,7 @@
       <ul class="flex-1 divide-y divide-border-subtle overflow-y-auto">
         <li class="px-5 py-3 text-sm text-ink-muted">
           Weise jedem Element eine Rolle zu: <span class="font-medium text-ink-secondary">Rätsel</span> (spielbar),
-          <span class="font-medium text-ink-secondary">dynamische Dekoration</span> (reagiert auf gelöste Rätsel) oder
+          <span class="font-medium text-ink-secondary">dynamische Dekoration</span> (reagiert auf den Zustand verknüpfter Rätsel) oder
           <span class="font-medium text-ink-secondary">Inaktiv</span> (wird ignoriert).
         </li>
         <li

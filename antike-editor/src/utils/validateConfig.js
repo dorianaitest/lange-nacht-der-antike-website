@@ -10,6 +10,7 @@ export function validateConfig(
   let hasStartRaetsel = false
   let raetselCount = 0
   const incompleteIds = []
+  const noAnswerIds = []
   const unlinkedDecoIds = []
   for (const id in elementsData) {
     const entry = elementsData[id]
@@ -18,7 +19,17 @@ export function validateConfig(
       if (entry.riddle.unlockAfterIds.length === 0) {
         hasStartRaetsel = true
       }
-      if (!entry.riddle.question || !entry.riddle.answer || !entry.riddle.successText) {
+      let hasAnswer = false
+      for (const answer of entry.riddle.answers) {
+        if (answer.trim()) {
+          hasAnswer = true
+          break
+        }
+      }
+      if (!hasAnswer) {
+        noAnswerIds.push(id)
+      }
+      if (!entry.riddle.question || !entry.riddle.successText) {
         incompleteIds.push(id)
       }
     } else if (entry.elementArt === 'dynamische Dekoration' && entry.deco.linkedElements.length === 0) {
@@ -29,8 +40,17 @@ export function validateConfig(
   if (incompleteIds.length > 0) {
     warnings.push(
       incompleteIds.length +
-        ' Rätsel haben leere Felder (Frage, Antwort oder Erfolgstext): ' +
+        ' Rätsel haben leere Felder (Frage oder Erfolgstext): ' +
         incompleteIds.join(', ') +
+        '.',
+    )
+  }
+
+  if (noAnswerIds.length > 0) {
+    errors.push(
+      noAnswerIds.length +
+        ' Rätsel haben keine gültige Antwort: ' +
+        noAnswerIds.join(', ') +
         '.',
     )
   }
@@ -38,7 +58,7 @@ export function validateConfig(
   if (unlinkedDecoIds.length > 0) {
     warnings.push(
       unlinkedDecoIds.length +
-        ' dynamische Dekoration(en) haben kein Rätsel nach dem sie freigeschaltet werden: ' +
+        ' dynamische Dekoration(en) haben kein verknüpftes Rätsel: ' +
         unlinkedDecoIds.join(', ') +
         '.',
     )

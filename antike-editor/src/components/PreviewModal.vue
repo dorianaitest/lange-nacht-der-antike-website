@@ -185,6 +185,7 @@ import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import PreviewMap from './PreviewMap.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
+import { normalizeAnswer } from '../utils/normalizeAnswer.js'
 
 const emit = defineEmits(['close', 'reset'])
 
@@ -388,10 +389,17 @@ function submitAnswer() {
   if (!activeRiddle.value) return
   if (answerState.value === 'correct') return
 
-  const expected = activeRiddle.value.riddle.answer.trim().toLowerCase()
-  const given = answerInput.value.trim().toLowerCase()
+  const given = normalizeAnswer(answerInput.value)
 
-  if (given === expected) {
+  let isCorrect = false
+  for (const answer of activeRiddle.value.riddle.answers) {
+    if (normalizeAnswer(answer) === given) {
+      isCorrect = true
+      break
+    }
+  }
+
+  if (isCorrect) {
     answerState.value = 'correct'
 
     const solvedRiddleId = activeRiddle.value.id

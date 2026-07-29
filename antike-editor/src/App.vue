@@ -144,14 +144,14 @@ provide(EXTRACT_ELEMENTS, function (ids) {
       elementArt: 'Inaktiv',
       riddle: {
         question: '',
-        answer: '',
+        answers: [''],
         successText: '',
         iconFile: null,
         iconPreview: null,
         unlockAfterIds: [],
         style: { gesperrt: 'shrouded', zugaenglich: 'highlighted', geloest: 'none' },
       },
-      deco: { linkedElements: [], stateBefore: 'hidden', stateAfter: 'none' },
+      deco: { linkedElements: [], style: { gesperrt: 'hidden', zugaenglich: 'shrouded', geloest: 'none' } },
     }
   }
 })

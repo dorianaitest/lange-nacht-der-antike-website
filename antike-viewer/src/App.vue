@@ -180,6 +180,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import PreviewMap from './components/PreviewMap.vue'
 import BaseButton from './components/BaseButton.vue'
 import { loadRiddle } from './utils/loadRiddle.js'
+import { normalizeAnswer } from './utils/normalizeAnswer.js'
 
 // base variables [should structure editor variables likes this too]
 const state = ref('loading')
@@ -362,10 +363,17 @@ function submitAnswer() {
   if (!activeRiddle.value) return
   if (answerState.value === 'correct') return
 
-  const expected = activeRiddle.value.riddle.answer.trim().toLowerCase()
-  const given = answerInput.value.trim().toLowerCase()
+  const given = normalizeAnswer(answerInput.value)
 
-  if (given === expected) {
+  let isCorrect = false
+  for (const answer of activeRiddle.value.riddle.answers) {
+    if (normalizeAnswer(answer) === given) {
+      isCorrect = true
+      break
+    }
+  }
+
+  if (isCorrect) {
     answerState.value = 'correct'
 
     const solvedRiddleId = activeRiddle.value.id
