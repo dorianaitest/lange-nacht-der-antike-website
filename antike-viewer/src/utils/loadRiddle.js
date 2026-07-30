@@ -1,5 +1,11 @@
 import { unzipSync } from 'fflate'
 
+/**
+ * Fetches a riddle zip from the given URL and extracts its contents.
+ * @param {string} URL of the riddle zip file.
+ * @returns {Promise<{svgText: string, config: Object, iconMap: Object, symbolPool: Array}>}
+ *   The map SVG source, parsed config, and object URL maps for icons or symbols.
+ */
 export async function loadRiddle(url) {
   const response = await fetch(url)
   if (!response.ok) throw new Error(response.statusText)
@@ -27,4 +33,3 @@ export async function loadRiddle(url) {
 
   return { svgText, config, iconMap, symbolPool }
 }
-

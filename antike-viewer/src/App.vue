@@ -209,6 +209,10 @@ const isPenaltyActive = ref(false)
 const penaltySecondsLeft = ref(0)
 let penaltyIntervalId = null
 
+/**
+ * Counts riddle elements in the config
+ * @returns {number} Total number of riddle elements.
+ */
 const riddleCount = computed(function () {
   if (!config.value) return 0 // async guard
   let count = 0
@@ -220,6 +224,10 @@ const riddleCount = computed(function () {
   return count
 })
 
+/**
+ * Checks if every riddle has been completed.
+ * @returns {boolean} True if all riddles are solved.
+ */
 const isAllComplete = computed(function () {
   if (riddleCount.value === 0) return false
   let completedCount = 0
@@ -231,20 +239,37 @@ const isAllComplete = computed(function () {
   return completedCount === riddleCount.value
 })
 
+/**
+ * Checks if the loaded config uses SymbolRiddle mode.
+ * @returns {boolean} True if mode is 'SymbolRiddle'.
+ */
 const isSymbolRiddleMode = computed(function () {
   return config.value?.mode === 'SymbolRiddle'
 })
 
+/**
+ * Checks if element id is the final riddle.
+ * @param {string} riddle element id
+ * @returns {boolean} True if id is the final riddle.
+ */
 function isFinalRiddleId(id) {
   return id === config.value.finalRiddleId
 }
 
+/**
+ * Checks if the open riddle is the final riddle in SymbolRiddle mode
+ * @returns {boolean} True if the riddle is the final riddle.
+ */
 const isFinalRiddle = computed(function () {
   if (!activeRiddle.value) return false
   if (!isSymbolRiddleMode.value) return false
   return isFinalRiddleId(activeRiddle.value.id)
 })
 
+/**
+ * Resolves the icon image to show for the active riddle, depending on mode
+ * @returns {string|null} Object URL of the icon, or null if none.
+ */
 const activeRiddleIconPreview = computed(function () {
   if (!activeRiddle.value) return null
 
@@ -258,17 +283,27 @@ const activeRiddleIconPreview = computed(function () {
   return iconMap.value[node.riddle.icon] || null
 })
 
+/**
+ * Reads the symbol picker config for the active riddle, if any.
+ * @returns {Object|null} Symbol picker data, or null.
+ */
 const symbolPickerData = computed(function () {
   if (!activeRiddle.value) return null
   return config.value.nodes[activeRiddle.value.id]?.symbolPicker || null
 })
 
+/**
+ * Formats a duration in seconds as MM:SS.
+ * @param {number} totalSeconds, Duration in seconds.
+ * @returns {string} Formatted time string.
+ */
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0')
   const seconds = (totalSeconds % 60).toString().padStart(2, '0')
   return minutes + ':' + seconds
 }
 
+/** Starts the elapsed-time timer, resetting it to zero. */
 function startTimer() {
   clearInterval(intervalId)
   elapsedSeconds.value = 0
@@ -277,11 +312,13 @@ function startTimer() {
   }, 1000)
 }
 
+/** Stops the elapsed-time timer. */
 function stopTimer() {
   clearInterval(intervalId)
   intervalId = null
 }
 
+/** Closes the active riddle dialog and resets its input state. */
 function closeDialog() {
   activeRiddle.value = null
   answerInput.value = ''
@@ -289,6 +326,7 @@ function closeDialog() {
   riddlePhase.value = 'riddle'
 }
 
+/** Closes the dialog and starts the final-riddle wrong-answer penalty countdown. */
 function startPenalty() {
   closeDialog()
   penaltySecondsLeft.value = config.value.finalRiddlePenalty
@@ -310,16 +348,22 @@ function startPenalty() {
   }, 1000)
 }
 
+/** Marks the game as started and starts the timer. */
 function startGame() {
   isGameStarted.value = true
   startTimer()
 }
 
 // consider if needed / wanted. Maybe guard click.
+/** Reloads the page to restart the game. */
 function restart() {
   window.location.reload()
 }
 
+/**
+ * Assigns the next unused pool symbol to a riddle, once, for the final riddle's symbol-picker phase.
+ * @param {string} riddleId, Riddle id to assign a symbol to.
+ */
 function assignFinalRiddleSymbol(riddleId) {
   if (assignedSymbols[riddleId]) return
 
@@ -332,6 +376,10 @@ function assignFinalRiddleSymbol(riddleId) {
   }
 }
 
+/**
+ * Builds a shuffled list of all assigned symbols for the final riddle's picker.
+ * @returns {Array<{riddleId: string, preview: string}>} Shuffled entries.
+ */
 function buildShuffledSymbolEntries() {
   const entries = []
   for (const riddleId in assignedSymbols) {
@@ -348,6 +396,10 @@ function buildShuffledSymbolEntries() {
   return entries
 }
 
+/**
+ * Opens a riddle's dialog, entering the symbol-picker phase first if it's the unsolved final riddle in SymbolRiddle mode.
+ * @param {Object} riddleElement, Clicked riddle element ({id, riddle}).
+ */
 function onRiddleClick(riddleElement) {
   if (!isGameStarted.value) return
 
@@ -371,6 +423,12 @@ function onRiddleClick(riddleElement) {
   shuffledSymbolEntries.value = buildShuffledSymbolEntries()
 }
 
+/**
+ * Checks a submitted answer against a riddle's accepted answers, ignoring case/punctuation/extra whitespace.
+ * @param {Object} riddle, Riddle data with an answers array.
+ * @param {string} input, submitted answer text.
+ * @returns {boolean} True if input matches any accepted answer.
+ */
 function isAnswerCorrect(riddle, input) {
   const normalizedInput = normalizeAnswer(input)
 
@@ -380,6 +438,10 @@ function isAnswerCorrect(riddle, input) {
   return false
 }
 
+/**
+ * Assigns a random unused pool symbol to a riddle.
+ * @param {string} riddleId, riddle id to assign a symbol to.
+ */
 function assignRandomSymbol(riddleId) {
   const available = []
   for (let i = 0; i < symbolPool.value.length; i++) {
@@ -394,6 +456,7 @@ function assignRandomSymbol(riddleId) {
   assignedSymbols[riddleId] = symbolPool.value[pick].preview
 }
 
+/** Validates the current answer input and marks the riddle solved if correct. */
 function submitAnswer() {
   if (!activeRiddle.value) return
   if (answerState.value === 'correct') return
@@ -415,6 +478,10 @@ function submitAnswer() {
   }
 }
 
+/**
+ * Handles a symbol click during the final riddle's picker phase. Passes on the correct symbol, penalizes otherwise.
+ * @param {string} clickedRiddleId, Riddle id of the clicked symbol.
+ */
 function onSymbolClick(clickedRiddleId) {
   if (isFinalRiddleId(clickedRiddleId)) {
     answerState.value = 'symbolCorrect'
@@ -424,11 +491,13 @@ function onSymbolClick(clickedRiddleId) {
   }
 }
 
+/** Advances from the final riddle's symbol-picker phase to its question. */
 function proceedToRiddle() {
   riddlePhase.value = 'riddle'
   answerState.value = 'idle'
 }
 
+/** Watches for the game to finish so that the timer is stopped */
 watch(isAllComplete, function (done) {
   if (done) {
     stopTimer()
@@ -450,4 +519,28 @@ onMounted(async function () {
     state.value = 'error'
   }
 })
+
+/**
+ * INSIDE DEV SERVER ONLY
+ * Runs test for isAnswerCorrect: case/whitespace/punctuation
+ * tolerance and rejection of wrong answers. 
+ */
+function checkIsAnswerCorrectBehavior() {
+  console.assert(
+    isAnswerCorrect({ answers: ['Zeus, Sohn des Kronos'] }, ' zeus  sohn des   kroNOS.') === true,
+    'isAnswerCorrect: should match answer regardless of case/whitespace',
+  )
+  console.assert(
+    isAnswerCorrect({ answers: ['Zeus, Sohn des Kronos'] }, ' ze  us  sohn des   kroNOS.') === false,
+    'isAnswerCorrect: whitespace only trims only around words',
+  )
+  console.assert(
+    isAnswerCorrect({ answers: ['Zeus, Sohn des Kronos'] }, 'Hera') === false,
+    'isAnswerCorrect: should reject wrong answer',
+  )
+}
+
+if (import.meta.env.DEV) {
+  checkIsAnswerCorrectBehavior()
+}
 </script>
