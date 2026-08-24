@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <div v-if="errors.length === 0" class="shrink-0 flex justify-end">
+      <div v-if="errors.length === 0 && canProceed" class="shrink-0 flex justify-end">
         <BaseButton variant="danger" @click="emit('proceed')">Trotzdem fortfahren</BaseButton>
       </div>
     </div>
@@ -52,6 +52,10 @@ defineProps({
   warnings: {
     type: Array,
     required: true,
+  },
+  canProceed: {
+    type: Boolean,
+    default: true,
   },
 })
 

@@ -19,14 +19,14 @@
         <p class="mb-3 text-sm text-ink-muted">
           Dieses Rätsel zeigt dem Spieler alle Symbole und fragt, welches er noch nicht gesehen hat.
         </p>
-        <select v-model="finalRiddleId" class="form-select">
+        <select v-model="finalRiddleId" aria-label="Abschluss Rätsel" class="form-select">
           <option :value="null">Keines</option>
           <option v-for="[id] in riddleEntries" :key="id" :value="id">{{ id }}</option>
         </select>
 
         <div class="mt-3 flex items-center gap-3">
-          <p class="text-sm text-ink-muted">Zeitstrafe bei falscher Antwort:</p>
-          <select v-model="finalRiddlePenalty" class="form-select">
+          <label for="finalRiddlePenalty" class="text-sm text-ink-muted">Zeitstrafe bei falscher Antwort:</label>
+          <select id="finalRiddlePenalty" v-model="finalRiddlePenalty" class="form-select">
             <option :value="15">15s</option>
             <option :value="30">30s</option>
             <option :value="45">45s</option>
@@ -55,13 +55,13 @@
                 <span v-if="entry.riddle.unlockAfterIds.length === 0" class="font-sans text-xs font-normal text-success-800">(START)</span>
               </span>
 
-              <p class="text-xs text-ink-muted">Freigeschaltet durch:</p>
+              <p :id="'unlockedByLabel-' + id" class="text-xs text-ink-muted">Freigeschaltet durch:</p>
 
               <p v-if="otherRiddles(id).length === 0" class="hint-text">
                 Kein anderes Rätsel verfügbar. Ab Start zugänglich
               </p>
 
-              <div v-else class="flex flex-col gap-1">
+              <div v-else role="group" :aria-labelledby="'unlockedByLabel-' + id" class="flex flex-col gap-1">
                 <label
                   v-for="[otherId] in otherRiddles(id)"
                   :key="otherId"
@@ -89,12 +89,14 @@
           <input
             v-model="startScreenData.title"
             type="text"
+            aria-label="Titel des Startbildschirms"
             class="form-input"
             placeholder="Titel des Rätsels..."
           />
           <textarea
             v-model="startScreenData.description"
             rows="3"
+            aria-label="Beschreibung des Startbildschirms"
             class="form-input"
             placeholder="Einleitungstext / Anweisungen..."
           />
@@ -108,6 +110,7 @@
         <textarea
           v-model="completionMessage"
           rows="3"
+          aria-label="Abschlussnachricht"
           class="form-input"
           placeholder="Du hast es geschafft! Nun hast du ..."
         />

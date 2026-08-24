@@ -1,6 +1,13 @@
 <template>
   <div class="h-screen w-screen">
     <input ref="fileInput" type="file" accept=".svg" class="hidden" @change="onFileSelected" />
+    <input
+      ref="projectFileInput"
+      type="file"
+      accept=".zip"
+      class="hidden"
+      @change="onProjectFileSelected"
+    />
 
     <template v-if="svgText">
       <div class="flex h-full w-full">
@@ -34,16 +41,17 @@
             </div>
           </div>
 
-          <SvgMap
-            class="min-w-0 flex-1"
-            :highlightAll="isHighlightAllElements"
-            @hoverChange="hoveredElementId = $event"
-          />
+          <SvgMap class="min-w-0 flex-1" :highlightAll="isHighlightAllElements" />
 
-          <p class="shrink-0 border-t border-border-subtle px-4 py-2 text-sm text-ink-muted">
-            Hervorgehobenes Element:
-            <span class="font-mono text-ink">{{ hoveredElementId }}</span>
-          </p>
+          <MilestoneBar
+            :isSvgUploaded="milestones.isSvgUploaded"
+            :areElementsClassified="milestones.areElementsClassified"
+            :isConfigured="milestones.isConfigured"
+            :isOrderSet="milestones.isOrderSet"
+            :isValidated="milestones.isValidated"
+            :issueCount="liveValidation.errors.length + liveValidation.warnings.length"
+            @open-issues="openIssues"
+          />
         </div>
 
         <OrderingSidebar v-if="isOrderingOpen" @close="isOrderingOpen = false" />
@@ -65,23 +73,31 @@
         v-if="isValidationModalOpen"
         :errors="validationErrors"
         :warnings="validationWarnings"
+        :canProceed="pendingModalType !== null"
         @close="isValidationModalOpen = false"
         @proceed="onValidationProceed"
       />
     </template>
 
     <template v-else>
-      <div class="flex h-full w-full items-center justify-center bg-canvas">
-        <BaseButton @click="openFilePicker">Wähle eine SVG Datei</BaseButton>
+      <div class="flex h-full w-full flex-col items-center justify-center gap-4 bg-canvas">
+        <div class="flex items-center gap-2">
+          <BaseButton @click="openFilePicker">Wähle eine SVG Datei</BaseButton>
+          <BaseButton variant="secondary" @click="openProjectFilePicker">Bestehendes Projekt laden</BaseButton>
+        </div>
+        <p v-if="projectLoadError" class="text-sm text-danger-600">{{ projectLoadError }}</p>
       </div>
     </template>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, provide, watch, nextTick } from 'vue'
+import { ref, reactive, computed, provide, watch, nextTick } from 'vue'
 import { validateConfig } from './utils/validateConfig.js'
+import { loadProjectZip } from './utils/loadProjectZip.js'
+import { applyProjectConfig } from './utils/applyProjectConfig.js'
 import ValidationModal from './components/ValidationModal.vue'
+import MilestoneBar from './components/MilestoneBar.vue'
 import SvgMap from './components/SvgMap.vue'
 import EditorSidebar from './components/EditorSidebar.vue'
 import SvgSetupModal from './components/SvgSetupModal.vue'
@@ -109,6 +125,9 @@ import {
 } from './injectionKeys.js'
 
 const fileInput = ref(null)
+const projectFileInput = ref(null)
+const pendingElementOverrides = ref(null)
+const projectLoadError = ref(null)
 // better than using the ?component from before multiple times
 const svgText = ref(null)
 const symbolPickerData = ref({ prompt: '', successText: '' })
@@ -128,7 +147,6 @@ const isValidationModalOpen = ref(false)
 const validationErrors = ref([])
 const validationWarnings = ref([])
 const pendingModalType = ref(null)
-const hoveredElementId = ref(null)
 const isHighlightAllElements = ref(false)
 const symbolPool = ref([])
 const stylingConfig = reactive({ highlightColor: '#8c7b3e', highlightStrokeWidth: 1, shroudedOpacity: 0.2 })
@@ -138,9 +156,10 @@ const finalRiddlePenalty = ref(30)
 provide(PLAIN_SVG_TEXT, svgText)
 provide(ELEMENTS_DATA, elementsData)
 provide(EXTRACT_ELEMENTS, function (ids) {
+  const overrides = pendingElementOverrides.value
   for (const id of ids) {
     // for now all elements get the riddle attribute CHANGE LATER
-    elementsData.value[id] = {
+    elementsData.value[id] = overrides?.[id] || {
       elementArt: 'Inaktiv',
       riddle: {
         question: '',
@@ -154,6 +173,7 @@ provide(EXTRACT_ELEMENTS, function (ids) {
       deco: { linkedElements: [], style: { locked: 'hidden', accessible: 'shrouded', completed: 'none' } },
     }
   }
+  pendingElementOverrides.value = null
 })
 provide(SYMBOL_PICKER_DATA, symbolPickerData)
 provide(COMPLETION_MESSAGE, completionMessage)
@@ -184,13 +204,60 @@ watch(selectedElementId, function (id) {
   }
 })
 
-function openWithValidation(requestedModal) {
-  const result = validateConfig(
+/**
+ * Live validateConfig result, used for the milestone bar and
+ * config validation when triggering preview or export
+ */
+const liveValidation = computed(function () {
+  return validateConfig(
     elementsData.value,
     selectedMode.value,
     finalRiddleId.value,
     symbolPool.value,
+    startScreenData.value,
+    completionMessage.value,
+    symbolPickerData.value,
   )
+})
+
+/**
+ * creates the milestone booleans for the checklist
+ */
+const milestones = computed(function () {
+  return {
+    isSvgUploaded: !!svgText.value,
+    areElementsClassified: Object.values(elementsData.value).some((entry) => entry.elementArt !==
+      'Inaktiv'), // any elements that are non inaktiv
+    isConfigured:
+      liveValidation.value.riddleCount > 0 &&
+      liveValidation.value.incompleteIds.length === 0 &&
+      liveValidation.value.noAnswerIds.length === 0 &&
+      liveValidation.value.unlinkedDecoIds.length === 0,
+    isOrderSet:
+      liveValidation.value.hasStartRiddle &&
+      (liveValidation.value.riddleCount <= 1 || // at least one riddle with predecessor
+        Object.values(elementsData.value).some(
+          (entry) => entry.elementArt === 'Rätsel' && entry.riddle.unlockAfterIds.length > 0,
+        )),
+    isValidated: liveValidation.value.errors.length === 0 && liveValidation.value.warnings.length === 0,
+  }
+})
+
+/**
+ * opens validation modal from milestone bar to see open issues
+ */
+function openIssues() {
+  validationErrors.value = liveValidation.value.errors
+  validationWarnings.value = liveValidation.value.warnings
+  isValidationModalOpen.value = true
+}
+
+/**
+ * opens validationModal if there are any errors or warnings when clicking
+ * preview or export
+ */
+function openWithValidation(requestedModal) {
+  const result = liveValidation.value
   if (result.errors.length > 0 || result.warnings.length > 0) {
     validationErrors.value = result.errors
     validationWarnings.value = result.warnings
@@ -246,6 +313,7 @@ function onModePickerClose() {
   startScreenData.value = { title: '', description: '' }
   completionMessage.value = ''
   symbolPickerData.value = { prompt: '', successText: '' }
+  pendingElementOverrides.value = null
 }
 
 function onModePicked(mode) {
@@ -263,6 +331,43 @@ function onFileSelected(event) {
   reader.onload = (loadEvent) => {
     svgText.value = loadEvent.target.result
     isModePickerOpen.value = true
+  }
+}
+
+/**
+ * Opens the file picker for loading a previously exported project zip.
+ */
+function openProjectFilePicker() {
+  projectFileInput.value.click()
+}
+
+/**
+ * Reads the selected project zip, reconstructs the full editor state from
+ * it. Shows an error and stays on the start screen if the zip can't be read.
+ * @param {Event} event - The project file input.
+ */
+async function onProjectFileSelected(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  try {
+    const { svgText: loadedSvgText, config, iconFiles, symbolFiles } = await loadProjectZip(file)
+    const state = applyProjectConfig(config, iconFiles, symbolFiles)
+
+    pendingElementOverrides.value = state.elementOverrides
+    selectedMode.value = state.selectedMode
+    symbolPool.value = state.symbolPool
+    finalRiddleId.value = state.finalRiddleId
+    finalRiddlePenalty.value = state.finalRiddlePenalty
+    completionMessage.value = state.completionMessage
+    startScreenData.value = state.startScreenData
+    symbolPickerData.value = state.symbolPickerData
+    Object.assign(stylingConfig, state.stylingConfig)
+
+    projectLoadError.value = null
+    svgText.value = loadedSvgText
+  } catch {
+    projectLoadError.value = 'Das Projekt konnte nicht geladen werden. Bitte prüfe die Datei und versuche es erneut.'
   }
 }
 </script>

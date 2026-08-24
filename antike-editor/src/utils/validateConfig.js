@@ -1,8 +1,25 @@
+/**
+ * Checks the current editor state for errors and warnings,
+ * and what those issues are.
+ * @param {Object<string, Object>} elementsData - all elements
+ * @param {string} mode - 'Standard' or 'SymbolRiddle'.
+ * @param {string|null} finalRiddleId - The configured Abschluss-Rätsel
+ * @param {Array} symbolPool - The list of symbols.
+ * @param {{title: string, description: string}} startScreenData - Start screen title/description.
+ * @param {string} completionMessage - The game completion message.
+ * @param {{prompt: string, successText: string}} symbolPickerData - Abschluss-Rätsel texts.
+ * @returns {{errors: string[], warnings: string[], hasStartRiddle: boolean,
+ *   riddleCount: number, incompleteIds: string[], noAnswerIds: string[],
+ *   unlinkedDecoIds: string[]}}
+ */
 export function validateConfig(
   elementsData,
   mode,
   finalRiddleId,
   symbolPool,
+  startScreenData,
+  completionMessage,
+  symbolPickerData,
 ) {
   const errors = []
   const warnings = []
@@ -84,5 +101,17 @@ export function validateConfig(
     )
   }
 
-  return { errors, warnings }
+  if (!startScreenData.title || !startScreenData.description) {
+    warnings.push('Der Startbildschirm ist nicht konfiguriert (Titel oder Beschreibung fehlt).')
+  }
+
+  if (!completionMessage) {
+    warnings.push('Es wurde keine Abschlussnachricht konfiguriert.')
+  }
+
+  if (mode === 'SymbolRiddle' && (!symbolPickerData.prompt || !symbolPickerData.successText)) {
+    warnings.push('Die Symbolauswahl-Texte sind nicht konfiguriert (Hinweistext oder Erfolgstext fehlt).')
+  }
+
+  return { errors, warnings, hasStartRiddle, riddleCount, incompleteIds, noAnswerIds, unlinkedDecoIds }
 }

@@ -26,7 +26,8 @@
             class="h-20 w-20 rounded-lg border border-border-subtle object-cover"
           />
           <button
-            class="absolute top-0 right-0 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-danger-600 text-xs text-white"
+            class="absolute top-0 right-0 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-danger-600 text-xs text-white"
+            aria-label="Symbol entfernen"
             @click="removeSymbol(index)"
           >
             ✕

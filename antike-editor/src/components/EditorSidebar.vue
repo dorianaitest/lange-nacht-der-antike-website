@@ -45,6 +45,7 @@
                   <input
                     type="text"
                     v-model="riddle.answers[index]"
+                    :aria-label="'Antwort ' + (index + 1)"
                     class="form-input"
                     placeholder="Korrekte Antwort..."
                   />
@@ -140,8 +141,8 @@
               <p class="section-header">Erscheinung</p>
 
               <div class="form-group">
-                <p class="text-sm text-ink-secondary">Gesperrt:</p>
-                <select v-model="riddle.style.locked" class="form-select">
+                <label for="riddleStyleLocked" class="text-sm text-ink-secondary">Gesperrt:</label>
+                <select id="riddleStyleLocked" v-model="riddle.style.locked" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -149,8 +150,8 @@
               </div>
 
               <div class="form-group">
-                <p class="text-sm text-ink-secondary">Zugänglich:</p>
-                <select v-model="riddle.style.accessible" class="form-select">
+                <label for="riddleStyleAccessible" class="text-sm text-ink-secondary">Zugänglich:</label>
+                <select id="riddleStyleAccessible" v-model="riddle.style.accessible" class="form-select">
                   <option v-for="style in RIDDLE_STYLES_ACCESSIBLE" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -158,8 +159,8 @@
               </div>
 
               <div class="form-group">
-                <p class="text-sm text-ink-secondary">Gelöst:</p>
-                <select v-model="riddle.style.completed" class="form-select">
+                <label for="riddleStyleCompleted" class="text-sm text-ink-secondary">Gelöst:</label>
+                <select id="riddleStyleCompleted" v-model="riddle.style.completed" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -173,13 +174,13 @@
         <template v-if="entry.elementArt === 'dynamische Dekoration'">
           <div class="flex flex-col gap-4">
             <div class="form-group">
-              <p class="text-sm text-ink-secondary">Verknüpfte Rätsel:</p>
+              <p id="linkedRiddlesLabel" class="text-sm text-ink-secondary">Verknüpfte Rätsel:</p>
 
               <p v-if="riddleIds.length === 0" class="hint-text">
                 Noch keine Rätsel vorhanden.
               </p>
 
-              <div v-else class="flex flex-col gap-1">
+              <div v-else role="group" aria-labelledby="linkedRiddlesLabel" class="flex flex-col gap-1">
                 <label
                   v-for="id in riddleIds"
                   :key="id"
@@ -204,8 +205,8 @@
               <p class="section-header">Erscheinung</p>
 
               <div class="form-group">
-                <p class="text-sm text-ink-secondary">Rätsel gesperrt:</p>
-                <select v-model="deco.style.locked" class="form-select">
+                <label for="decoStyleLocked" class="text-sm text-ink-secondary">Rätsel gesperrt:</label>
+                <select id="decoStyleLocked" v-model="deco.style.locked" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -213,8 +214,8 @@
               </div>
 
               <div class="form-group">
-                <p class="text-sm text-ink-secondary">Rätsel zugänglich:</p>
-                <select v-model="deco.style.accessible" class="form-select">
+                <label for="decoStyleAccessible" class="text-sm text-ink-secondary">Rätsel zugänglich:</label>
+                <select id="decoStyleAccessible" v-model="deco.style.accessible" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>
@@ -222,8 +223,8 @@
               </div>
 
               <div class="form-group">
-                <p class="text-sm text-ink-secondary">Rätsel gelöst:</p>
-                <select v-model="deco.style.completed" class="form-select">
+                <label for="decoStyleCompleted" class="text-sm text-ink-secondary">Rätsel gelöst:</label>
+                <select id="decoStyleCompleted" v-model="deco.style.completed" class="form-select">
                   <option v-for="style in DECO_STYLES" :key="style.value" :value="style.value">
                     {{ style.label }}
                   </option>

@@ -1,5 +1,8 @@
 <template>
-  <button :class="['btn-' + variant, { 'btn-active': isActive && variant === 'primary', 'btn-secondary-active': isActive && variant === 'secondary' }]">
+  <button
+    :disabled="disabled"
+    :class="['btn-' + variant, { 'btn-active': isActive && variant === 'primary', 'btn-secondary-active': isActive && variant === 'secondary' }]"
+  >
     <slot />
   </button>
 </template>
@@ -8,5 +11,6 @@
 defineProps({
   isActive: { type: Boolean, default: false },
   variant:  { type: String,  default: 'primary' },
+  disabled: { type: Boolean, default: false },
 })
 </script>
