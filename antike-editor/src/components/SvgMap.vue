@@ -1,6 +1,6 @@
 <template>
   <!-- v-html because we need to inject the svg as html not text -->
-  <div ref="container" class="h-full w-full" v-html="svgText" />
+  <div ref="container" class="h-full w-full min-h-0" v-html="svgText" />
 </template>
 
 <script setup>

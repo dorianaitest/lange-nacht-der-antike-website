@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen w-screen">
+  <div class="h-full w-full overflow-hidden">
     <input ref="fileInput" type="file" accept=".svg" class="hidden" @change="onFileSelected" />
     <input
       ref="projectFileInput"
@@ -41,7 +41,7 @@
             </div>
           </div>
 
-          <SvgMap class="min-w-0 flex-1" :highlightAll="isHighlightAllElements" />
+          <SvgMap class="min-h-0 min-w-0 flex-1" :highlightAll="isHighlightAllElements" />
 
           <MilestoneBar
             :isSvgUploaded="milestones.isSvgUploaded"
