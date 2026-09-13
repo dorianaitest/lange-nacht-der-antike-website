@@ -42,35 +42,59 @@ const stylingConfig = inject(STYLING_CONFIG)
 
 const copyState = ref(null)
 
+/**
+ * Button label for copy. Used mostly for DEV work
+ */
 const copyLabel = computed(function () {
   if (copyState.value === 'success') return 'Kopiert! ✓'
   if (copyState.value === 'error') return 'Fehler!'
   return 'Kopieren'
 })
-
+/**
+ * The live riddle-config.json object for the current editor state.
+ */
 const config = computed(() => buildRiddleConfig(elementsData.value, selectedMode.value, symbolPool.value, finalRiddleId.value, finalRiddlePenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig))
+
+/**
+ * Pretty-printed JSON config, shown in preview.
+ */
 const jsonString = computed(() => JSON.stringify(config.value, null, 2))
 
+/**
+ * Clears the feedback state
+ */
 function resetCopyState() {
   copyState.value = null
 }
 
+/**
+ * Shows success label for 2 seconds after a successful clipboard copy.
+ */
 function onCopySuccess() {
   copyState.value = 'success'
   setTimeout(resetCopyState, 2000)
 }
 
+/**
+ * Shows error label for 2 seconds after a failed clipboard copy.
+ */
 function onCopyError() {
   copyState.value = 'error'
   setTimeout(resetCopyState, 2000)
 }
 
+/**
+ * Copies the config JSON to clipboard.
+ */
 function copyToClipboard() {
   navigator.clipboard.writeText(jsonString.value)
     .then(onCopySuccess)
     .catch(onCopyError)
 }
 
+/**
+ * Builds and downloads the full project zip (SVG, config, icons/symbols).
+ */
 function downloadZip() {
   exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, finalRiddleId.value, finalRiddlePenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig)
 }

@@ -274,21 +274,30 @@ const RIDDLE_STYLES_ACCESSIBLE = [
   { value: 'shrouded', label: 'verschleiert' },
   { value: 'highlighted', label: 'hervorgehoben' },
 ]
-
+/**
+ * The selected element's elementsData entry, or null when nothing is selected.
+ */
 const entry = computed(function () {
   if (!selectedId.value) return null
 
   return elementsData.value[selectedId.value]
 })
-
+/**
+ * selected entry's riddle config.
+ */
 const riddle = computed(function () {
   return entry.value?.riddle
 })
-
+/**
+ * selected entry's decoration config.
+ */
 const deco = computed(function () {
   return entry.value?.deco
 })
 
+/**
+* Ids of every element classified as 'Rätsel'.
+ */
 const riddleIds = computed(function () {
   const entries = Object.entries(elementsData.value)
   const result = []
@@ -299,19 +308,31 @@ const riddleIds = computed(function () {
   return result
 })
 
+/**
+ * Appends an empty answer field to the riddle.
+ */
 function addAnswer() {
   riddle.value.answers.push('')
 }
-
+/**
+ * Removes answer field, keeping at least one.
+ * @param {number} index - Position in riddle.answers.
+ */
 function removeAnswer(index) {
   if (riddle.value.answers.length === 1) return
   riddle.value.answers.splice(index, 1)
 }
-
+/**
+ * opens file picker
+ */
 function openIconPicker() {
   iconInput.value.click()
 }
-
+/**
+ * Reads the chosen image as a data URL and stores it as the riddle's icon
+ * preview and file.
+ * @param {Event} event - file input event
+ */
 function onIconSelected(event) {
   const file = event.target.files?.[0]
 

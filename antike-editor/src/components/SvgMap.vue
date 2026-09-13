@@ -37,6 +37,9 @@ const HIGHLIGHT_CLASS = {
   'dynamische Dekoration': 'highlight-decoration',
 }
 
+/**
+ * hover and click listeners for extracted SVG elements
+ */
 function setupHoverListeners() {
   const entries = Object.entries(elements.value)
 
@@ -44,12 +47,23 @@ function setupHoverListeners() {
     addListenersToElement(id, svgElement)
   }
 }
-
+/**
+ * Returns configured role for SVG id.
+ * @param {string} id - SVG element id.
+ * @returns {string|undefined} 'Inaktiv' | 'Rätsel' | 'dynamische Dekoration', or undefined if the id isn't in elementsData.
+ */
 function getElementType(id) {
   return elementsData.value?.[id]?.elementArt
 }
 
+/**
+ * mouseenter / mouseleave / click on one SVG element: hover highlights it
+ * and emits 'hoverChange', click selects it. doesn't work for 'Inaktiv' elements.
+ * @param {string} id - SVG element id.
+ * @param {SVGElement} svgElement - DOM node.
+ */
 function addListenersToElement(id, svgElement) {
+  /** Highlight + pointer cursor on hover, unless the element is inactive. */
   function onEnter() {
     const elementType = getElementType(id)
 
@@ -61,17 +75,16 @@ function addListenersToElement(id, svgElement) {
       svgElement.style.cursor = 'default'
     }
   }
-
+  /** Clear the hover highlight (kept if "highlight all" is on) and the cursor. */
   function onLeave() {
     svgElement.style.cursor = ''
-    //need to ensure we don't remove the highlighting if highlightAll is enabled
     if (!props.highlightAll) {
       removeHighlight(svgElement)
     }
 
     emit('hoverChange', null)
   }
-
+  /** Select the element on click, unless it's inactive. */
   function onClick() {
     const elementType = getElementType(id)
 
@@ -85,6 +98,12 @@ function addListenersToElement(id, svgElement) {
   svgElement.addEventListener('click', onClick)
 }
 
+/**
+ * Reads the injected SVG once it's in the DOM. every '[id]' node mapped to
+ * 'elements', uses ELEMENTS_DATA to extract elements into extractElements,
+ * and sets up hover listeners.
+ * @returns {boolean} False if no SVG text yet, true once processed.
+ */
 function extractSvgElements() {
   if (!svgText) return false
   const svg = container.value.querySelector('svg')
@@ -108,18 +127,31 @@ function extractSvgElements() {
   return true
 }
 
-//these helpers are new: maybe need to update other parts of code
+/**
+ * Removes every highlight class from an SVG element.
+ * @param{SVGElement} svgElement - element to clear.
+ */
 function removeHighlight(svgElement) {
   for (const elementType in HIGHLIGHT_CLASS) {
     svgElement.classList.remove(HIGHLIGHT_CLASS[elementType])
   }
 }
 
+/**
+ * Applies highlight class for an element type, clearing any previous
+ * @param {SVGElement} svgElement - element to highlight.
+ * @param {string} elementType - 'Rätsel' | 'dynamische Dekoration'.
+ */
 function applyHighlight(svgElement, elementType) {
   removeHighlight(svgElement)
   svgElement.classList.add(HIGHLIGHT_CLASS[elementType])
 }
 
+/**
+ * applies or clears highlights on every element, for the "Elemente
+ * hervorheben" toggle.
+ * @param {boolean} isHighlightActive - Whether the toggle is on.
+ */
 function updateAllHighlights(isHighlightActive) {
   const entries = Object.entries(elements.value)
 
@@ -133,7 +165,7 @@ function updateAllHighlights(isHighlightActive) {
   }
 }
 
-// need to make the boolean reactive; feels inefficient--> maybe debug later
+// need to make the boolean reactive
 const highlightAllRef = toRef(props, 'highlightAll')
 
 watch(highlightAllRef, function (highlightAllIsActive) {

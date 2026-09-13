@@ -1,6 +1,23 @@
 import { strToU8, zipSync } from 'fflate'
 import { buildRiddleConfig } from './buildRiddleConfig.js'
 
+/**
+ * Builds the project zip and triggers a browser download of `riddle.zip`.
+ * Contents: `background.svg`, `riddle-config.json`,
+ * either `symbols/` (all pool symbols, SymbolRiddle mode) or
+ * `icons/` (per-riddle icon files, Standard mode).
+ * @param{string} plainSvgText - background SVG markup.
+ * @param {Object<string, Object>} elementsData - Per-element editor config
+ * @param {'Standard'|'SymbolRiddle'} mode - editor mode.
+ * @param {Array<{file: File}>} symbolPool - Reward symbols
+ * @param {string|null} finalRiddleId - The Abschluss-Rätsel id
+ * @param {number} finalRiddlePenalty - Penalty seconds for  final riddle.
+ * @param {{prompt: string, successText: string}} symbolPickerData - symbol-picker texts.
+ * @param {string} completionMessage - End message.
+ * @param {{title: string, description: string}} startScreenData - Start screen texts.
+ * @param {{highlightColor: string, highlightStrokeWidth: number, shroudedOpacity: number}} stylingConfig - Global visual settings.
+ * @returns {Promise<void>} Resolves once the download has been triggered.
+ */
 export async function exportZip(plainSvgText, elementsData, mode, symbolPool, finalRiddleId, finalRiddlePenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig) {
   const config = buildRiddleConfig(elementsData, mode, symbolPool, finalRiddleId, finalRiddlePenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig)
 

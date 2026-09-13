@@ -139,8 +139,18 @@ const startScreenData = inject(START_SCREEN_DATA)
 const finalRiddleId = inject(FINAL_RIDDLE_ID)
 const finalRiddlePenalty = inject(FINAL_RIDDLE_PENALTY)
 
+/**
+ *value the viewer uses to determine
+ *the final riddle (AbschlussRätsel)
+ */
 const FINAL_RIDDLE_PLACEHOLDER = '[last]'
 
+/**
+ * Keeps final riddle prerequisites consistent when it changes.
+ * the newly chosen final riddle is switched to the placeholder
+ * unlock and it is stripped out of every other riddle's
+ * own unlockAfterIds so it can't also be used as normal prerequisite.
+ */
 watch(finalRiddleId, function (newId) {
   if (!newId) return
 
@@ -164,6 +174,12 @@ watch(finalRiddleId, function (newId) {
   }
 })
 
+/**
+ * Riddle entries eligible as a prerequisite for a given riddle.
+ * every riddle except itself and the final riddle.
+ * @param {string} currentId - riddle being configured.
+ * @returns {Array<[string, Object]>} [id, entry] pairs.
+ */
 function otherRiddles(currentId) {
   const result = []
 
@@ -176,6 +192,9 @@ function otherRiddles(currentId) {
   return result
 }
 
+/**
+ * All elements classified as 'Rätsel', as [id, entry] pairs.
+ */
 const riddleEntries = computed(function () {
   const result = []
 

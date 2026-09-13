@@ -1,3 +1,18 @@
+/**
+ * creates the riddle-confg.json object for export
+ * Standard mode only: icon filenames
+ * SymbolRiddle mode only: symbol pool, final-riddle field
+ * @param {Object<string, Object>} elementsData - Per-element editor config
+ * @param {'Standard'|'SymbolRiddle'} mode - editor mode.
+ * @param {Array<{file: File}>} symbolPool - Reward symbols
+ * @param {string|null} finalRiddleId - Abschluss-Rätsel id
+ * @param {number} finalRiddlePenalty - Penalty seconds for final riddle.
+ * @param {{prompt: string, successText: string}} symbolPickerData - symbol-picker texts.
+ * @param {string} completionMessage - End message.
+ * @param {{title: string, description: string}} startScreenData - Start screen texts.
+ * @param {{highlightColor: string, highlightStrokeWidth: number, shroudedOpacity: number}} stylingConfig - Global visual settings.
+ * @returns {Object} The riddle-config.json object.
+ */
 export function buildRiddleConfig(elementsData, mode, symbolPool, finalRiddleId, finalRiddlePenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig) {
   const entries = Object.entries(elementsData)
   const nodes = {}

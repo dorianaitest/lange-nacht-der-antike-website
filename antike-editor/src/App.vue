@@ -128,7 +128,6 @@ const fileInput = ref(null)
 const projectFileInput = ref(null)
 const pendingElementOverrides = ref(null)
 const projectLoadError = ref(null)
-// better than using the ?component from before multiple times
 const svgText = ref(null)
 const symbolPickerData = ref({ prompt: '', successText: '' })
 const completionMessage = ref('')
@@ -155,10 +154,15 @@ const finalRiddlePenalty = ref(30)
 
 provide(PLAIN_SVG_TEXT, svgText)
 provide(ELEMENTS_DATA, elementsData)
+/**
+* Creates the elements fund in the SVG for ELEMENTS_DATA
+* When loading a preexisting project the configured elements
+* are overwritten
+* @param {string[]} ids - All 'id' attributes of the svg
+*/
 provide(EXTRACT_ELEMENTS, function (ids) {
   const overrides = pendingElementOverrides.value
   for (const id of ids) {
-    // for now all elements get the riddle attribute CHANGE LATER
     elementsData.value[id] = overrides?.[id] || {
       elementArt: 'Inaktiv',
       riddle: {
@@ -188,6 +192,9 @@ provide(SET_SELECTED_ELEMENT, (id) => {
   selectedElementId.value = id
 })
 
+/**
+* Toggles the sidebar for ordering the elements
+*/
 function toggleOrdering() {
   isOrderingOpen.value = !isOrderingOpen.value
   if (isOrderingOpen.value) {
@@ -195,6 +202,11 @@ function toggleOrdering() {
   }
 }
 
+/**
+* Selecting a riddle or decoration triggers the config for
+* the element
+* @param {string} id - id of selected element
+*/
 watch(selectedElementId, function (id) {
   if (!id || !isOrderingOpen.value) return
 
@@ -222,6 +234,8 @@ const liveValidation = computed(function () {
 
 /**
  * creates the milestone booleans for the checklist
+ * @returns {{isSvgUploaded: boolean, areElementsClassified: boolean,
+ *  isConfigured: boolean, isOrderSet: boolean, isValidated: boolean}}
  */
 const milestones = computed(function () {
   return {
@@ -255,6 +269,7 @@ function openIssues() {
 /**
  * opens validationModal if there are any errors or warnings when clicking
  * preview or export
+ * @param {'preview'|'export'} requestedModal - modal that opens after validation
  */
 function openWithValidation(requestedModal) {
   const result = liveValidation.value
@@ -268,6 +283,10 @@ function openWithValidation(requestedModal) {
   }
 }
 
+/**
+* Opens the modal requested via openWithValidation
+* @param {'preview'|'export'} requestedModal - modal that opens after validation
+*/
 function openModalAfterValidation(requestedModal) {
   if (requestedModal === 'preview') {
     isPreviewOpen.value = true
@@ -276,31 +295,40 @@ function openModalAfterValidation(requestedModal) {
   }
 }
 
+/**
+* handles the "continue anyway" case
+*/
 function onValidationProceed() {
   isValidationModalOpen.value = false
   openModalAfterValidation(pendingModalType.value)
   pendingModalType.value = null
 }
-
+/** "Vorschau" button triggers validation then possibly opens PreviewModal */
 function openPreview() {
   openWithValidation('preview')
 }
 
+/** "Exportieren" button triggers validation then possibly opens ExportModal */
 function openExport() {
   openWithValidation('export')
 }
 
-// need to refactor (if I can figure out how to reset a reactive component object..)
+/** resets the preview */
 async function resetPreview() {
   isPreviewOpen.value = false
   await nextTick()
   isPreviewOpen.value = true
 }
 
+/** Opens the file picker for the svg */
 function openFilePicker() {
   fileInput.value.click()
 }
 
+/**
+* resets all project state when closing mode picker and returns to
+* starting screen.
+*/
 function onModePickerClose() {
   isModePickerOpen.value = false
   svgText.value = null
@@ -316,12 +344,20 @@ function onModePickerClose() {
   pendingElementOverrides.value = null
 }
 
+/**
+* Handles mode selection
+* @param{'Standard'|'SymbolRiddle'} mode - mode that was selected
+*/
 function onModePicked(mode) {
   selectedMode.value = mode
   isModePickerOpen.value = false
   isSetupModalOpen.value = true
 }
 
+/**
+ * Reads the chosen SVG file as text and opens the mode picker.
+ * @param {Event} event - Change event from the hidden SVG file input.
+ */
 function onFileSelected(event) {
   const file = event.target.files[0]
   if (!file) return
@@ -366,7 +402,8 @@ async function onProjectFileSelected(event) {
 
     projectLoadError.value = null
     svgText.value = loadedSvgText
-  } catch {
+  } catch (error) {
+    console.error('Project load failed:', error)
     projectLoadError.value = 'Das Projekt konnte nicht geladen werden. Bitte prüfe die Datei und versuche es erneut.'
   }
 }

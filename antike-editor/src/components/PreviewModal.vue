@@ -199,7 +199,9 @@ const finalRiddleId = inject(FINAL_RIDDLE_ID)
 const finalRiddlePenalty = inject(FINAL_RIDDLE_PENALTY)
 const stylingConfig = inject(STYLING_CONFIG)
 
-// create the JSON file
+/**
+ * The live riddle-config.json object, rebuilt whenever the editor state changes.
+ */
 const config = computed(function () {
   return buildRiddleConfig(
     elementsData.value,
@@ -214,13 +216,14 @@ const config = computed(function () {
   )
 })
 
-// probalby need to refactor this --> lowkey breaking my brain how to reset this
 const completedRiddles = reactive({})
 const assignedSymbols = reactive({})
 const usedSymbolIndices = {}
 const symbolSelectionPassed = reactive({})
 
-// gotta be an easier way
+/**
+ * Number of riddle nodes in the config.
+ */
 const riddleCount = computed(function () {
   let count = 0
   for (const id in config.value.nodes) {
@@ -231,6 +234,9 @@ const riddleCount = computed(function () {
   return count
 })
 
+/**
+ * True once every riddle node has been solved.
+ */
 const isAllComplete = computed(function () {
   if (riddleCount.value === 0) return false
   let completedCount = 0
@@ -251,6 +257,11 @@ watch(isAllComplete, function (done) {
 const elapsedSeconds = ref(0)
 let intervalId = null
 
+/**
+ * Formats a duration as MM:SS.
+ * @param {number} totalSeconds - Duration in seconds.
+ * @returns {string} padded 'MM:SS'.
+ */
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60)
     .toString()
@@ -258,7 +269,9 @@ function formatTime(totalSeconds) {
   const seconds = (totalSeconds % 60).toString().padStart(2, '0')
   return minutes + ':' + seconds
 }
-
+/**
+ * Resets the elapsed counter and starts ticking once per second.
+*/
 function startTimer() {
   clearInterval(intervalId)
   elapsedSeconds.value = 0
@@ -266,7 +279,9 @@ function startTimer() {
     elapsedSeconds.value++
   }, 1000)
 }
-
+/**
+ * Stops the elapsed-time interval.
+*/
 function stopTimer() {
   clearInterval(intervalId)
   intervalId = null
@@ -276,6 +291,10 @@ const isPenaltyActive = ref(false)
 const penaltySecondsLeft = ref(0)
 let penaltyIntervalId = null
 
+/**
+ * Runs the penalty: closes the dialog, counts down from the
+ * configured penalty seconds, then reopens the automatically.
+ */
 function startPenalty() {
   closeDialog()
   penaltySecondsLeft.value = finalRiddlePenalty.value
@@ -289,8 +308,7 @@ function startPenalty() {
       penaltyIntervalId = null
       isPenaltyActive.value = false
 
-      // reopen the final riddle dialog automatically since that's all that's left
-      // maybe ask if we should allow players to revisit riddles to see their rewards (?)
+      // reopen the riddle dialog automatically since that's all that's left
       onRiddleClick({
         id: finalRiddleId.value,
         riddle: config.value.nodes[finalRiddleId.value].riddle,
@@ -300,7 +318,9 @@ function startPenalty() {
 }
 
 const isGameStarted = ref(false)
-
+/**
+ * Dismisses the start screen and starts the timer.
+ */
 function startGame() {
   isGameStarted.value = true
   startTimer()
@@ -316,6 +336,10 @@ const answerInput = ref('')
 const answerState = ref('idle')
 const riddlePhase = ref('riddle')
 
+/**
+ * Reward image for solved riddle: the drawn pool symbol in SymbolRiddle mode,
+ * otherwise the riddle's own configured icon. Null when there is none.
+ */
 const activeRiddleIconPreview = computed(function () {
   if (!activeRiddle.value) return null
 
@@ -329,8 +353,10 @@ const activeRiddleIconPreview = computed(function () {
   if (!entry || !entry.riddle) return null
   return entry.riddle.iconPreview || null
 })
-
-// true when the final riddle is active in Symbol Riddle mode: used for symbol grid
+/**
+ * True when the active riddle is the AbschlussRätsel in SymbolRiddle mode,
+ * which triggers the symbolPicker.
+ */
 const isFinalRiddle = computed(function () {
   if (!activeRiddle.value) return false
   if (selectedMode.value !== 'SymbolRiddle') return false
@@ -340,6 +366,12 @@ const isFinalRiddle = computed(function () {
 // holds the shuffled symbol entries for the final riddle grid
 const shuffledSymbolEntries = ref([])
 
+/**
+ * Opens a riddle dialog. In SymbolRiddle mode the final riddle starts in the
+ * symbolpicker unless it was already passed: it gets a pool symbol
+ * assigned and the grid of all assigned symbols is reshuffled.
+ * @param {{id: string, riddle: Object}} riddleElement - clicked riddle.
+ */
 function onRiddleClick(riddleElement) {
   if (!isGameStarted.value) return
 
@@ -384,7 +416,11 @@ function onRiddleClick(riddleElement) {
     shuffledSymbolEntries.value = entries
   }
 }
-
+/**
+ * Checks the typed answer against the accepted answers, both
+ * normalised. On success marks the riddle complete and
+ * draws an unused pool symbol as its reward.
+ */
 function submitAnswer() {
   if (!activeRiddle.value) return
   if (answerState.value === 'correct') return
@@ -428,7 +464,11 @@ function submitAnswer() {
     answerState.value = 'wrong'
   }
 }
-
+/**
+ * Handles a pick in the symbolpikcer. final riddle's own
+ * symbol advances to the answer phase, anything else triggers the penalty.
+ * @param {string} riddleId - riddle the picked symbol belongs to.
+ */
 function onSymbolClick(riddleId) {
   if (riddleId === finalRiddleId.value) {
     answerState.value = 'symbolCorrect'
@@ -437,12 +477,16 @@ function onSymbolClick(riddleId) {
     startPenalty()
   }
 }
-
+/**
+ * Moves the final riddle from the symbol phase to the answer phase.
+ */
 function proceedToRiddle() {
   riddlePhase.value = 'riddle'
   answerState.value = 'idle'
 }
-
+/**
+ * Closes the riddle dialog and resets its state.
+ */
 function closeDialog() {
   activeRiddle.value = null
   answerInput.value = ''

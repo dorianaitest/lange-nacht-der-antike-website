@@ -64,12 +64,21 @@ const HIGHLIGHT_CLASS = {
 
 const svgMap = ref(null)
 
+/**
+ * Highlights the hovered row's element on the map, using the class for whichever
+ * role is currently selected for it.
+ * @param {string} id -  SVG element id for the row.
+ * @param {Object} entry - element's elementsData entry.
+ */
 function onListEnter(id, entry) {
   const svgElement = svgMap.value?.elements[id]
   if (!svgElement) return
   svgElement.classList.add(HIGHLIGHT_CLASS[entry.elementArt])
 }
-
+/**
+ * Clears every role highlight from the element when the pointer leaves its row.
+ * @param{string} id - SVG element id for the row.
+ */
 function onListLeave(id) {
   const svgElement = svgMap.value?.elements[id]
   if (!svgElement) return

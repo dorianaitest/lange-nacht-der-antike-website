@@ -64,7 +64,9 @@ const elementsData = inject(ELEMENTS_DATA)
 const symbolPool = inject(SYMBOL_POOL)
 
 const symbolInput = ref(null)
-
+/**
+ * Number of elements currently classified as 'Rätsel'.
+ */
 const riddleCount = computed(function () {
   let count = 0
   for (const element of Object.values(elementsData.value)) {
@@ -74,20 +76,33 @@ const riddleCount = computed(function () {
   }
   return count
 })
-
+/**
+ * Number of symbols uploaded so far.
+ */
 const uploadedCount = computed(function () {
   return symbolPool.value.length
 })
 
+/**
+ * state for the upload counter: 'none' when there are no riddles, 'ok'
+ * when every riddle has a symbol, 'warning' while some are still missing.
+ */
 const countStatus = computed(function () {
   if (riddleCount.value === 0) return 'none'
   return uploadedCount.value === riddleCount.value ? 'ok' : 'warning'
 })
 
+/**
+* opens file picker for uploading images
+*/
 function openPicker() {
   symbolInput.value.click()
 }
 
+/**
+ * Reads each picked image as a data URL and appends it to the symbolPool.
+ * @param {Event} event - hidden file input event.
+ */
 function onSymbolsSelected(event) {
   const files = Array.from(event.target.files)
   if (!files.length) return
@@ -100,7 +115,10 @@ function onSymbolsSelected(event) {
     reader.readAsDataURL(file)
   }
 }
-
+/**
+ * Removes symbol from the pool, after a confirmation prompt.
+ * @param {number} index - Position of the symbol in symbolPool.
+ */
 function removeSymbol(index) {
   if (!confirm('Symbol entfernen?')) return
   symbolPool.value.splice(index, 1)

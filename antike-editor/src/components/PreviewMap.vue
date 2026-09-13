@@ -23,6 +23,10 @@ const emit = defineEmits(['riddleClick'])
 
 const container = ref(null)
 
+/**
+ * Inline CSS custom properties that pass the styling config (highlight colour,
+ * stroke width, shrouded opacity) into the preview stylesheet.
+ */
 const cssVars = computed(function () {
   const styles = props.config.styles || {}
   return {
@@ -45,10 +49,23 @@ const PREVIEW_CLASSES = [
   'preview-deco-highlighted',
 ]
 
+/**
+ * Whether a riddle has been solved.
+ * @param {string} id - node id.
+ * @returns {boolean}
+ */
 function isCompleted(id) {
   return props.completedRiddles[id] === true
 }
 
+/**
+ * Whether riddle node is currently unlocked and not yet completed.
+ * The final riddle unlocks only once every other riddle is done.
+ * any other node unlocks when it has no prerequisites or
+ * any one of them is completed.
+ * @param {string} id - The node id.
+ * @returns {boolean}
+ */
 function isAccessible(id) {
   if (isCompleted(id)) return false
 
@@ -78,19 +95,34 @@ function isAccessible(id) {
   }
   return false
 }
-
+/**
+ * Strips every preview-state class from an element before the current one is
+ * reapplied.
+ * @param {SVGElement} svgElement - element to clear.
+ */
 function removePreviewClasses(svgElement) {
   for (const className of PREVIEW_CLASSES) {
     svgElement.classList.remove(className)
   }
 }
-
+/**
+ * Adds the decoration class matching a style value
+ * 'none' or unknown value adds nothing.
+ * @param {SVGElement} svgElement - element to style.
+ * @param {string} value - 'hidden' | 'shrouded' | 'highlighted' | 'none'.
+ */
 function applyVisualClass(svgElement, value) {
   if (value === 'hidden') svgElement.classList.add('preview-deco-hidden')
   else if (value === 'shrouded') svgElement.classList.add('preview-deco-shrouded')
   else if (value === 'highlighted') svgElement.classList.add('preview-deco-highlighted')
 }
 
+/**
+ * Applies the preview class and configured style for a riddle node based on its
+ * current completed / accessible / locked state.
+ * @param {string} id - The node id.
+ * @param {SVGElement} svgElement - The matching element.
+ */
 function updateRiddleVisual(id, svgElement) {
   const element = props.config.nodes[id]
   const style = element.style || { locked: 'shrouded', accessible: 'highlighted', completed: 'none' }
@@ -111,6 +143,12 @@ function updateRiddleVisual(id, svgElement) {
   applyVisualClass(svgElement, style.locked)
 }
 
+/**
+ * Maps a linked riddle's state to a decoration level: 0 locked, 1 accessible,
+ * 2 completed.
+ * @param {string} linkedId - linked riddle's node id.
+ * @returns {number}
+*/
 function decorationLevel(linkedId) {
   if (isCompleted(linkedId)) return 2
   if (isAccessible(linkedId)) return 1
@@ -118,7 +156,11 @@ function decorationLevel(linkedId) {
 }
 
 const DECORATION_LEVEL_KEYS = ['locked', 'accessible', 'completed']
-
+/**
+ * Styles a decoration by most advanced state among linked riddles.
+ * @param{Object} element - decoration node config.
+ *@param {SVGElement} svgElement - matching element.
+ */
 function updateDecorationVisual(element, svgElement) {
   const linked = element.linkedElements || []
 
@@ -130,7 +172,10 @@ function updateDecorationVisual(element, svgElement) {
 
   applyVisualClass(svgElement, element.style[DECORATION_LEVEL_KEYS[maxLevel]])
 }
-
+/**
+ * reapplies the preview visuals for every node to match the
+ * current completion state.
+ */
 function updateVisuals() {
   const entries = Object.entries(props.config.nodes)
 
@@ -147,7 +192,10 @@ function updateVisuals() {
     }
   }
 }
-
+/**
+* Attaches click and hover listeners to each riddle element. Clicks emit
+* 'riddleClick'.
+*/
 function setupListeners() {
   const entries = Object.entries(props.config.nodes)
 
@@ -182,7 +230,10 @@ function setupListeners() {
     svgElement.addEventListener('mouseleave', onLeave)
   }
 }
-
+/**
+ * setup once the SVG is in the DOM: indexes every '[id]' element,
+ * setup listeners and set initial visuals.
+ */
 function initPreview() {
   if (!container.value) return
 
