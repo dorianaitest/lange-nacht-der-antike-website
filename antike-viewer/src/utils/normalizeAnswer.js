@@ -1,7 +1,7 @@
 /**
  * Normalizes a submitted answer for comparison. 
  * strips punctuation, collapses whitespace, and lowercases.
- * @param {string} answer text.
+ * @param {string} str - answer text.
  * @returns {string} normalized answer.
  */
 export function normalizeAnswer(str) {

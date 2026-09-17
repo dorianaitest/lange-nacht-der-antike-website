@@ -52,8 +52,8 @@ const ELEMENT_CLASSES = [
 
 /** 
 * Checks if a riddle has already been solved.
-* @param {string} the riddle id to check
-* returns {boolean} True if riddle is completed
+* @param {string} id - the riddle id to check
+* @returns {boolean} True if riddle is completed
 */
 function isCompleted(id) {
   return props.completedRiddles[id] === true
@@ -61,9 +61,9 @@ function isCompleted(id) {
 
 /** 
 * Determines if a node is currently unlocked and not completed.
-* @param {string} the riddle id to check
-* @param {Object} the full riddle config
-* @param {Object} map of riddle id to completion status
+* @param {string} id - the riddle id to check
+* @param {Object} config - the full riddle config
+* @param {Object} completedRiddles - map of riddle id to completion status
 * @returns {boolean} True if riddle is unlocked and not completed
 */
 function isAccessible(id, config, completedRiddles) {
@@ -94,9 +94,9 @@ function isAccessible(id, config, completedRiddles) {
 /**
  * Checks if every other riddle has been completed, the unlock condition
  * for the final riddle.
- * @param {string} final riddle's id
- * @param {Object} The full riddle config
- * @param {Object} map of riddle id to completed status
+ * @param {string} id - final riddle's id
+ * @param {Object} config - The full riddle config
+ * @param {Object} completedRiddles - map of riddle id to completed status
  * @returns {boolean} True if all other riddles are completed.
  */
 function isFinalRiddleFullyUnlocked(id, config, completedRiddles) {
@@ -120,8 +120,8 @@ function removeElementClasses(svgElement) {
 
 /**
  * Adds the CSS class matching a style value ('hidden' | 'shrouded' | 'highlighted').
- * @param {SVGElement} element to style
- * @param {string} string value from elements style config
+ * @param {SVGElement} svgElement - element to style
+ * @param {string} value - string value from elements style config
  */
 function applyVisualClass(svgElement, value) {
   if (value === 'hidden') svgElement.classList.add('preview-deco-hidden')
@@ -132,8 +132,8 @@ function applyVisualClass(svgElement, value) {
 /**
  * Applies the correct preview class and style to a riddle node based on its
  * current completed/accessible/locked state.
- * @param {string} riddle node id.
- * @param {SVGElement} corresponding SVG element.
+ * @param {string} id - riddle node id.
+ * @param {SVGElement} svgElement - corresponding SVG element.
  */
 function updateRiddleVisual(id, svgElement) {
   const element = props.config.nodes[id]
@@ -157,7 +157,7 @@ function updateRiddleVisual(id, svgElement) {
 
 /**
  * Maps a linked riddle's state to a decoration level (0 = locked, 1 = accessible, 2 = completed).
- * @param {string} linked riddle's node id.
+ * @param {string} linkedId - linked riddle's node id.
  * @returns {number} decoration level.
  */
 function decorationLevel(linkedId) {
@@ -170,8 +170,8 @@ const DECORATION_LEVEL_KEYS = ['locked', 'accessible', 'completed']
 
 /**
  * Applies a decoration's style based on the most advanced state among its linked riddles.
- * @param {Object} decoration node config.
- * @param {SVGElement} corresponding SVG element.
+ * @param {Object} element - decoration node config.
+ * @param {SVGElement} svgElement - corresponding SVG element.
  */
 function updateDecorationVisual(element, svgElement) {
   const linked = element.linkedElements || []

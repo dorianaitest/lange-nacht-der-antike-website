@@ -1,51 +1,96 @@
-# Lange Nacht der Antike Website
+# Antike Riddle-Game Pipeline
 
-# Editing this README
+Zwei Vue-3 / Vite-Projekte für eine die Rätselprojekte für die Veranstaltung "Lange Nacht der Antike".
+Der Editor erzeugt Projektkonfiguration, der Viewer spielt ihn ab.
+Es gibt kein Backend und keine Server-Komponente, beide Projekte laufen rein im Browser.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## Architektur-Überblick
 
-## Suggestions for a good README
+- `antike-editor/`: browserbasierter SVG-Karten-Editor.
+  Ein Autor lädt ein Hintergrund-SVG hoch, markiert Elemente als Rätsel oder Dekoration und konfiguriert die Rätselinhalte.
+- `antike-viewer/`: lädt das vom Editor exportierte Zip Dateipaket (`background.svg` + `riddle-config.json` + Icon-/Symbol-Assets).
+  Rendert die spielbare Karte und übernimmt Rätsel-Freischaltung sowie Antwortprüfung.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Die beiden Projekte sind ausschließlich über das Zip-/Config-Format gekoppelt. Es gibt derzeit keinen gemeinsamen Code und keine gemeinsame Datenbank.
+Beide Anwendungen teilen sich dasselbe `elementsData`-Konfigurationsschema und denselben SVG-Rendering-Ansatz. `v-html`-Injection, DOM-Queries auf `svg [id]`-Elemente und CSS-Klassen in `style.css` für Highlight-/Preview-Zustände.
 
-## Name
-Choose a self-explaining name for your project.
+## Setup
 
-## Description
-Projekt für die Lange Nacht der Antike der Latein Fachschaft. Die Webseite besteht aus zwei Teilen: einem Editor und einem Viewer. Öffentlich zugänglich soll hierbei nur der Viewer sein, der Schüler:innen ermöglicht eine Folge von Rätseln zu lösen, indem sie eine interaktive Landkarte 'bereisen'. Der Editor soll hierbei jedoch ermöglichen, dass diese Rätsel ohne Programmierung erstellt werden können.
+Node-Version: `^20.19.0` oder `>=22.12.0`.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Beide Subprojekte werden separat installiert:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```bash
+cd antike-editor && npm install
+cd antike-viewer && npm install
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Nutzung
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+**Editor:**
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```bash
+cd antike-editor
+npm run dev
+```
 
-## Roadmap
-1. Editor Dummy Version for scoping out functionality and assessing implementation difficulty
-2. Create visual design with UX considerations (figma)
-3. Adjust dummy version and flesh out functionality
+1. SVG-Hintergrund hochladen
+2. Elemente als Rätsel oder Dekoration markieren
+3. Rätselinhalte konfigurieren
+4. Über das `ExportModal` als Zip exportieren (`riddle-config.json` + Icons/Symbole)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+**Viewer:**
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```bash
+cd antike-viewer
+npm run dev
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Das exportierte Zip im Viewer laden, danach ist die Karte inklusive Rätsel-Freischaltung und Antwortprüfung spielbar.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Rätselkonfiguration während der Entwicklung laden:<br>
+Datei unter antike-viewer/public/current/riddle.zip ablegen.
+Vite serviert alles aus public/ unverändert unter der Root, npm run dev liest sie dann von dort.
 
-## License
-For open source projects, say how it is licensed.
+Rätselkonfiguration auf dem Webserver laden:<br>
+Rätselpaket unter `dist/current/` als `riddle.zip` legen, relativ zum Ort, an dem die gebaute index.html liegt.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Tech-Stack
+
+- Vue 3 (`^3.5.x`), Vite 8
+- Tailwind CSS 4 (`@tailwindcss/vite`)
+- `fflate` für Zip-Erstellung/-Entpacken
+- Formatierung: Prettier
+
+## Projektstruktur
+
+```
+antike-editor/       Editor-Subprojekt
+|-- src/
+|   |-- components/
+|   |     |-- ...
+|   |-- App.vue
+|   |-- style.css
+|   |-- injectionKeys.js
+|   |-- main.js
+|   |-- utils/
+|         |-- ...
+antike-viewer/        Viewer-Subprojekt
+|-- src/
+|   |-- components/
+|   |     |-- ...
+|   |-- App.vue
+|   |-- style.css
+|   |-- main.js
+|   |-- utils/
+|         |-- ...
+|-- public/current/riddle.zip       aktuelles Rätselprojekt
+```
+
+## Bekannte Einschränkungen / Bereiche der Weiterentwicklung
+
+- Kein JSON-Schema
+- Kein geteilter Code --> Dopplungen in der Logik
+- Keine Testsuite
+- Keine Zykluserkennung in Validierung
+- Keine DOM-Sanierung Keine DOM-Sanierung

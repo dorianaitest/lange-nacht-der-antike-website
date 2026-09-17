@@ -249,7 +249,7 @@ const isSymbolRiddleMode = computed(function () {
 
 /**
  * Checks if element id is the final riddle.
- * @param {string} riddle element id
+ * @param {string} id - riddle element id
  * @returns {boolean} True if id is the final riddle.
  */
 function isFinalRiddleId(id) {
@@ -294,7 +294,7 @@ const symbolPickerData = computed(function () {
 
 /**
  * Formats a duration in seconds as MM:SS.
- * @param {number} totalSeconds, Duration in seconds.
+ * @param {number} totalSeconds - Duration in seconds.
  * @returns {string} Formatted time string.
  */
 function formatTime(totalSeconds) {
@@ -362,7 +362,7 @@ function restart() {
 
 /**
  * Assigns the next unused pool symbol to a riddle, once, for the final riddle's symbol-picker phase.
- * @param {string} riddleId, Riddle id to assign a symbol to.
+ * @param {string} riddleId - Riddle id to assign a symbol to.
  */
 function assignFinalRiddleSymbol(riddleId) {
   if (assignedSymbols[riddleId]) return
@@ -398,7 +398,7 @@ function buildShuffledSymbolEntries() {
 
 /**
  * Opens a riddle's dialog, entering the symbol-picker phase first if it's the unsolved final riddle in SymbolRiddle mode.
- * @param {Object} riddleElement, Clicked riddle element ({id, riddle}).
+ * @param {Object} riddleElement - Clicked riddle element ({id, riddle}).
  */
 function onRiddleClick(riddleElement) {
   if (!isGameStarted.value) return
@@ -425,8 +425,8 @@ function onRiddleClick(riddleElement) {
 
 /**
  * Checks a submitted answer against a riddle's accepted answers, ignoring case/punctuation/extra whitespace.
- * @param {Object} riddle, Riddle data with an answers array.
- * @param {string} input, submitted answer text.
+ * @param {Object} riddle - Riddle data with an answers array.
+ * @param {string} input - submitted answer text.
  * @returns {boolean} True if input matches any accepted answer.
  */
 function isAnswerCorrect(riddle, input) {
@@ -440,7 +440,7 @@ function isAnswerCorrect(riddle, input) {
 
 /**
  * Assigns a random unused pool symbol to a riddle.
- * @param {string} riddleId, riddle id to assign a symbol to.
+ * @param {string} riddleId - riddle id to assign a symbol to.
  */
 function assignRandomSymbol(riddleId) {
   const available = []
@@ -480,7 +480,7 @@ function submitAnswer() {
 
 /**
  * Handles a symbol click during the final riddle's picker phase. Passes on the correct symbol, penalizes otherwise.
- * @param {string} clickedRiddleId, Riddle id of the clicked symbol.
+ * @param {string} clickedRiddleId - Riddle id of the clicked symbol.
  */
 function onSymbolClick(clickedRiddleId) {
   if (isFinalRiddleId(clickedRiddleId)) {
