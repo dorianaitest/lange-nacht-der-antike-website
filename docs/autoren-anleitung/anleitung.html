@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anleitung: Rätsel hochladen</title>
+<style>
+  /* IQSH colors, taken from the Landesportal Schleswig-Holstein stylesheet */
+  :root {
+    --navy: #003064;
+    --navy-dark: #011e4a;
+    --accent: #d4004b;
+    --light: #f0f2f4;
+    --text: #333333;
+    --muted: #5c6670;
+  }
+
+  @page { size: A4; margin: 0; }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: #8a939c;
+    color: var(--text);
+    font: 11pt/1.45 Arial, Helvetica, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    margin: 10mm auto;
+    padding: 0 18mm;
+    background: #ffffff;
+    box-shadow: 0 2mm 6mm rgba(0, 0, 0, 0.35);
+    break-after: page;
+  }
+
+  .page:last-child { break-after: auto; }
+
+  @media print {
+    body { background: #ffffff; }
+    .page { margin: 0; box-shadow: none; }
+  }
+
+  .page-header {
+    margin: 0 -18mm 8mm;
+    padding: 6mm 18mm 5mm;
+    background: var(--navy);
+    color: #ffffff;
+    border-bottom: 2mm solid var(--accent);
+  }
+
+  .page-header .kicker {
+    font-size: 9pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .page-header h2 {
+    margin: 1mm 0 0;
+    font-size: 19pt;
+  }
+
+  .page-footer {
+    position: absolute;
+    left: 18mm;
+    right: 18mm;
+    bottom: 9mm;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 2mm;
+    border-top: 0.3mm solid var(--light);
+    color: var(--muted);
+    font-size: 8.5pt;
+  }
+
+  h3 {
+    margin: 6mm 0 2mm;
+    color: var(--navy);
+    font-size: 13pt;
+  }
+
+  p { margin: 0 0 3mm; }
+
+  ol, ul { margin: 0 0 3mm; padding-left: 6mm; }
+
+  li { margin-bottom: 1.5mm; }
+
+  code, .file-name {
+    padding: 0 1mm;
+    background: var(--light);
+    border-radius: 1mm;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 10pt;
+  }
+
+  .ui { font-weight: bold; color: var(--navy-dark); }
+
+  /* Values each author fills in from their own access data */
+  .fill-in {
+    padding: 0 1mm;
+    border: 0.3mm dashed var(--accent);
+    border-radius: 1mm;
+    color: var(--accent);
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 10pt;
+    font-weight: bold;
+  }
+
+  .box {
+    margin: 4mm 0;
+    padding: 3mm 4mm;
+    background: var(--light);
+    border-left: 1.5mm solid var(--navy);
+  }
+
+  .box.warning { border-left-color: var(--accent); }
+
+  .box strong:first-child { color: var(--navy); }
+
+  .box.warning strong:first-child { color: var(--accent); }
+
+  .box p:last-child, .box ul:last-child, .box ol:last-child { margin-bottom: 0; }
+
+  table {
+    width: 100%;
+    margin: 0 0 3mm;
+    border-collapse: collapse;
+    font-size: 10.5pt;
+  }
+
+  th, td {
+    padding: 1.5mm 2mm;
+    border-bottom: 0.3mm solid #d3d8dd;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th { color: var(--navy); }
+
+  figure { margin: 3mm 0 4mm; }
+
+  figure img {
+    display: block;
+    max-width: 100%;
+    max-height: var(--height);
+    margin: 0 auto;
+    border: 0.3mm solid #d3d8dd;
+  }
+
+  figcaption {
+    margin-top: 1mm;
+    color: var(--muted);
+    font-size: 9pt;
+  }
+
+  /* Screenshot slot until the real image exists. Fixed height so the layout does not shift later. */
+  .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--height);
+    padding: 4mm;
+    background: repeating-linear-gradient(45deg, #ffffff, #ffffff 3mm, var(--light) 3mm, var(--light) 6mm);
+    border: 0.5mm dashed var(--muted);
+    color: var(--muted);
+    font-size: 10pt;
+    text-align: center;
+  }
+
+  .cover-title {
+    margin: 20mm 0 4mm;
+    color: var(--navy);
+    font-size: 28pt;
+    line-height: 1.15;
+  }
+
+  .cover-subtitle {
+    margin-bottom: 12mm;
+    color: var(--accent);
+    font-size: 14pt;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page 1: Cover and requirements -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Lange Nacht der Antike</div>
+    <h2>Anleitung für Autorinnen und Autoren</h2>
+  </header>
+
+  <h1 class="cover-title">Ein neues Rätsel auf die Webseite hochladen</h1>
+  <p class="cover-subtitle">Mit dem kostenlosen Programm FileZilla</p>
+
+  <p>Mit dieser Anleitung ersetzt du das Rätselspiel auf der Webseite durch deine neue Version aus dem Editor.</p>
+  <p>Beim ersten Mal dauert das etwa 15 Minuten, weil du FileZilla installierst und die Verbindung einrichtest.
+  Danach verbindest du dich nur noch und machst die Schritte 4 bis 7, das dauert etwa 2 Minuten.</p>
+
+  <h3>1. Was du brauchst</h3>
+  <table>
+    <tr><th>Server</th><td><span class="fill-in">&lt;SERVER&gt;</span></td></tr>
+    <tr><th>Port</th><td><span class="fill-in">&lt;PORT&gt;</span></td></tr>
+    <tr><th>Benutzername</th><td><span class="fill-in">&lt;BENUTZERNAME&gt;</span></td></tr>
+    <tr><th>Passwort</th><td><span class="fill-in">&lt;PASSWORT&gt;</span></td></tr>
+    <tr><th>Zielordner</th><td><code>/httpdocs/viewer-vorschau/current</code></td></tr>
+  </table>
+  <p>Die rot umrandeten Werte stehen in deinen Zugangsdaten.
+  Gib dein Passwort nie an andere weiter.</p>
+  <p>Außerdem brauchst du die neue Datei <span class="file-name">riddle.zip</span>.
+  Du bekommst sie im Editor über <span class="ui">Exportieren</span>.</p>
+
+  <div class="box warning">
+    <p><strong>Wichtig: Bewahre die letzte funktionierende Version auf.</strong>
+    Lege jede <span class="file-name">riddle.zip</span>, die auf der Webseite gut funktioniert hat, in einen eigenen Ordner, z.&nbsp;B. „Rätsel-Sicherung“.
+    Wenn eine neue Version Fehler hat, kannst du die alte damit wieder hochladen (siehe Abschnitt 8).</p>
+  </div>
+
+  <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 1 von 8</span></footer>
+</section>
+
+<!-- Page 2: Installing FileZilla -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Einmalig</div>
+    <h2>2. FileZilla installieren</h2>
+  </header>
+
+  <ol>
+    <li>Öffne die offizielle Seite <code>https://filezilla-project.org</code>.
+    Lade FileZilla nur von dort herunter, nicht von anderen Download-Seiten.</li>
+    <li>Klicke auf <span class="ui">Download FileZilla Client</span>.
+    Wähle die kostenlose Version <span class="ui">FileZilla</span>, nicht „FileZilla Pro“.</li>
+  </ol>
+
+  <h3>Windows</h3>
+  <ol>
+    <li>Öffne die heruntergeladene Datei (sie beginnt mit <span class="file-name">FileZilla_</span> und endet auf <span class="file-name">.exe</span>).</li>
+    <li>Klicke dich mit <span class="ui">Next</span> bzw. <span class="ui">Weiter</span> durch die Installation.</li>
+  </ol>
+
+  <div class="box warning">
+    <p><strong>Achtung: Zusatzangebote ablehnen.</strong>
+    Während der Installation bietet FileZilla manchmal andere Programme an, z.&nbsp;B. einen Virenscanner oder Browser.
+    Diese brauchst du nicht.
+    Klicke in diesem Fenster auf <span class="ui">Decline</span> bzw. <span class="ui">Ablehnen</span>.</p>
+  </div>
+
+  <figure>
+    <img src="bilder/01-installation-zusatzangebot.png" alt="Installationsfenster mit dem Zusatzangebot, „Decline“ ist ausgewählt" style="--height: 70mm">
+    <figcaption>Zusatzangebote lehnst du ab.</figcaption>
+  </figure>
+
+  <h3>Mac</h3>
+  <ol>
+    <li>Öffne die heruntergeladene Datei per Doppelklick.
+    Es erscheint das Programm <span class="ui">FileZilla</span>.</li>
+    <li>Ziehe FileZilla in den Ordner <span class="ui">Programme</span>.</li>
+    <li>Beim ersten Start fragt der Mac eventuell, ob du das Programm wirklich öffnen willst.
+    Klicke auf <span class="ui">Öffnen</span>.</li>
+  </ol>
+
+  <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 2 von 8</span></footer>
+</section>
+
+<!-- Page 3: Site Manager, general tab -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Einmalig</div>
+    <h2>3. Verbindung einrichten</h2>
+  </header>
+
+  <p>Du speicherst die Verbindung einmal im <span class="ui">Servermanager</span>.
+  Danach verbindest du dich mit zwei Klicks.</p>
+
+  <ol>
+    <li>Öffne FileZilla und klicke oben auf <span class="ui">Datei</span> &gt; <span class="ui">Servermanager</span>.</li>
+    <li>Klicke auf <span class="ui">Neuer Server</span> und nenne ihn z.&nbsp;B. „Lange Nacht der Antike Server“.</li>
+    <li>Fülle im Reiter <span class="ui">Allgemein</span> diese Felder aus:</li>
+  </ol>
+
+  <table>
+    <tr><th>Protokoll</th><td>FTP - File Transfer Protocol</td></tr>
+    <tr><th>Server</th><td><span class="fill-in">&lt;SERVER&gt;</span></td></tr>
+    <tr><th>Port</th><td><span class="fill-in">&lt;PORT&gt;</span> (leer lassen, wenn in deinen Zugangsdaten kein Port steht)</td></tr>
+    <tr><th>Verschlüsselung</th><td>Wenn verfügbar, explizites FTP über TLS verwenden</td></tr>
+    <tr><th>Verbindungsart</th><td>Normal</td></tr>
+    <tr><th>Benutzer</th><td><span class="fill-in">&lt;BENUTZERNAME&gt;</span></td></tr>
+    <tr><th>Passwort</th><td><span class="fill-in">&lt;PASSWORT&gt;</span></td></tr>
+  </table>
+
+  <figure>
+    <img src="bilder/02-servermanager-allgemein.png" alt="Servermanager, Reiter „Allgemein“, ausgefüllt" style="--height: 76mm">
+    <figcaption>So sieht der ausgefüllte Reiter „Allgemein“ aus.</figcaption>
+  </figure>
+
+  <p>Weiter geht es auf der nächsten Seite, noch nicht auf <span class="ui">Verbinden</span> klicken.</p>
+
+  <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 3 von 8</span></footer>
+</section>
+
+<!-- Page 4: Site Manager, advanced tab and first connection -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Einmalig</div>
+    <h2>3. Verbindung einrichten (Fortsetzung)</h2>
+  </header>
+
+  <ol start="4">
+    <li>Wechsle in den Reiter <span class="ui">Erweitert</span>.</li>
+    <li>Trage bei <span class="ui">Standard-Verzeichnis auf Server</span> genau das ein:<br>
+    <code>/httpdocs/viewer-vorschau/current</code><br>
+    Dann öffnet FileZilla immer direkt den richtigen Ordner.</li>
+  </ol>
+
+  <figure>
+    <img src="bilder/03-servermanager-erweitert.png" alt="Servermanager, Reiter „Erweitert“, Feld „Standard-Verzeichnis auf Server“" style="--height: 76mm">
+    <figcaption>Das Standardverzeichnis spart dir die Suche nach dem Ordner.</figcaption>
+  </figure>
+
+  <ol start="6">
+    <li>Klicke auf <span class="ui">Verbinden</span>.</li>
+    <li>Beim ersten Verbinden erscheint das Fenster <span class="ui">Unbekanntes Zertifikat</span>.
+    Setze den Haken bei <span class="ui">Diesem Zertifikat zukünftig immer vertrauen</span> und klicke auf <span class="ui">OK</span>.<br>
+    Der rote Hinweis „Hostname passt nicht zum Zertifikat“ ist bei diesem Server normal.</li>
+  </ol>
+
+  <figure>
+    <img src="bilder/04-zertifikat.png" alt="Fenster „Unbekanntes Zertifikat“ mit Haken und „OK“" style="--height: 62mm">
+    <figcaption>Dieses Fenster kommt nur beim ersten Mal.</figcaption>
+  </figure>
+
+  <div class="box">
+    <p><strong>Beim nächsten Mal:</strong>
+    Öffne FileZilla, klicke auf <span class="ui">Datei</span> &gt; <span class="ui">Servermanager</span>, wähle „Lange Nacht der Antike Server“ und klicke auf <span class="ui">Verbinden</span>.</p>
+  </div>
+
+  <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 4 von 8</span></footer>
+</section>
+
+<!-- Page 5: Checking the server folder -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Jedes Mal</div>
+    <h2>4. Den Ordner auf dem Server prüfen</h2>
+  </header>
+
+  <p>FileZilla zeigt zwei Seiten.
+  Links ist dein Computer (<span class="ui">Lokal</span>), rechts der Server (<span class="ui">Server</span>).</p>
+
+  <ol>
+    <li>Prüfe das Feld <span class="ui">Server</span> über der rechten Hälfte (nicht die Leiste ganz oben): Dort muss <code>/httpdocs/viewer-vorschau/current</code> stehen.</li>
+    <li>Prüfe unten rechts in der Dateiliste: Dort muss die bisherige <span class="file-name">riddle.zip</span> zu sehen sein.</li>
+  </ol>
+
+  <figure>
+    <img src="bilder/05-ordner-current.png" alt="FileZilla nach dem Verbinden, rechts der Ordner current mit riddle.zip" style="--height: 145mm">
+    <figcaption>Rechts siehst du den Ordner <code>current</code> mit der bisherigen <span class="file-name">riddle.zip</span>.</figcaption>
+  </figure>
+
+  <div class="box">
+    <p><strong>Gelbe Ordner mit Fragezeichen sind normal.</strong>
+    Das Fragezeichen bedeutet nur, dass FileZilla diesen Ordner noch nicht geöffnet hat.
+    Es ist kein Fehler.</p>
+  </div>
+
+  <div class="box warning">
+    <p><strong>Ändere nichts außerhalb von <code>current</code>.</strong>
+    Auf dem Server liegen auch andere Teile der Webseite.
+    Verschiebe, lösche oder überschreibe dort nichts.
+    Wenn oben rechts ein anderer Pfad steht, tippe <code>/httpdocs/viewer-vorschau/current</code> in das Feld und drücke Enter.</p>
+  </div>
+
+  <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 5 von 8</span></footer>
+</section>
+
+<!-- Page 6: Checking the file name -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Jedes Mal</div>
+    <h2>5. Den Dateinamen prüfen</h2>
+  </header>
+
+  <p>Die Datei muss genau <span class="file-name">riddle.zip</span> heißen.
+  Die Webseite lädt nur eine Datei mit diesem Namen.</p>
+
+  <div class="box warning">
+    <p><strong>Häufiger Fehler:</strong>
+    Wenn schon eine <span class="file-name">riddle.zip</span> in deinem Download-Ordner liegt, nennt der Browser die neue Datei z.&nbsp;B. <span class="file-name">riddle (1).zip</span> oder <span class="file-name">riddle(2).zip</span>.
+    Lädst du diese hoch, ändert sich auf der Webseite nichts.</p>
+  </div>
+
+  <h3>So benennst du die Datei um</h3>
+  <ol>
+    <li>Falls im Ordner schon eine ältere <span class="file-name">riddle.zip</span> liegt: Verschiebe sie zuerst in deinen Ordner „Rätsel-Sicherung“ oder lösche sie.</li>
+    <li>Klicke mit der rechten Maustaste auf die neue Datei und wähle <span class="ui">Umbenennen</span>.</li>
+    <li>Gib <span class="file-name">riddle.zip</span> ein, ohne Leerzeichen und ohne Zahl in Klammern.</li>
+  </ol>
+
+  <h3>Windows: Wenn die Datei nur „riddle“ heißt</h3>
+  <p>Windows blendet die Endung <span class="file-name">.zip</span> oft aus.
+  Dann siehst du nur <span class="file-name">riddle</span> oder <span class="file-name">riddle (1)</span>.
+  Schalte die Endungen im Explorer ein:</p>
+  <ul>
+    <li>Windows 11: <span class="ui">Anzeigen</span> &gt; <span class="ui">Einblenden</span> &gt; <span class="ui">Dateinamenerweiterungen</span></li>
+    <li>Windows 10: Reiter <span class="ui">Ansicht</span> &gt; Haken bei <span class="ui">Dateinamenerweiterungen</span></li>
+  </ul>
+
+
+  <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 6 von 8</span></footer>
+</section>
+
+<!-- Page 7: Uploading -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Jedes Mal</div>
+    <h2>6. Die Datei hochladen</h2>
+  </header>
+
+  <ol>
+    <li>Gehe links in FileZilla zu dem Ordner, in dem deine neue <span class="file-name">riddle.zip</span> liegt, z.&nbsp;B. <span class="ui">Downloads</span>.</li>
+    <li>Ziehe die Datei von links nach rechts in die Dateiliste des Servers.
+    Oder: Rechtsklick auf die Datei &gt; <span class="ui">Hochladen</span>.</li>
+  </ol>
+
+  <figure>
+    <img src="bilder/07-hochladen.png" alt="Rechtsklick auf riddle.zip, Menüpunkt „Hochladen“" style="--height: 75mm">
+    <figcaption>Links deine neue Datei, rechts der Ordner <code>current</code> auf dem Server.</figcaption>
+  </figure>
+
+  <ol start="3">
+    <li>Das Fenster <span class="ui">Zieldatei existiert bereits</span> erscheint.
+    Wähle <span class="ui">Überschreiben</span> und klicke auf <span class="ui">OK</span>.</li>
+  </ol>
+
+  <figure>
+    <img src="bilder/08-ueberschreiben.png" alt="Fenster „Zieldatei existiert bereits“ mit „Überschreiben“ und „OK“" style="--height: 62mm">
+    <figcaption>„Überschreiben“ ersetzt das alte Rätsel durch dein neues.</figcaption>
+  </figure>
+
+  <ol start="4">
+    <li>Prüfe ganz unten den Reiter <span class="ui">Erfolgreiche Übertragungen</span>.
+    Dort muss jetzt <span class="file-name">riddle.zip</span> stehen.</li>
+  </ol>
+
+  <figure>
+    <img src="bilder/09-erfolgreiche-uebertragungen.png" alt="Reiter „Erfolgreiche Übertragungen“ mit der hochgeladenen riddle.zip" style="--height: 35mm">
+    <figcaption>Die Übertragung hat geklappt.</figcaption>
+  </figure>
+
+  <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 7 von 8</span></footer>
+</section>
+
+<!-- Page 8: Verifying and troubleshooting -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Jedes Mal</div>
+    <h2>7. Prüfen, ob das neue Spiel online ist</h2>
+  </header>
+
+  <ol>
+    <li>Öffne im Browser <span class="fill-in">&lt;WEBSEITE&gt;</span><code>/viewer-vorschau/</code>.
+    Ist die Seite schon offen, lade sie neu (Taste F5, am Mac Cmd&nbsp;+&nbsp;R).</li>
+    <li>Prüfe an etwas, das du geändert hast, z.&nbsp;B. am Titel des Startbildschirms, ob dein neues Rätsel zu sehen ist.</li>
+    <li>Siehst du noch das alte Rätsel, öffne die Seite in einem privaten Fenster.
+    Chrome und Edge: Strg&nbsp;+&nbsp;Umschalt&nbsp;+&nbsp;N, Firefox: Strg&nbsp;+&nbsp;Umschalt&nbsp;+&nbsp;P, am Mac Cmd statt Strg.</li>
+  </ol>
+
+  <h3>8. Wenn etwas nicht klappt</h3>
+  <table>
+    <tr>
+      <th style="width: 38%">Problem</th>
+      <th>Lösung</th>
+    </tr>
+    <tr>
+      <td>Auf der Webseite ist noch das alte Rätsel zu sehen.</td>
+      <td>Prüfe den Dateinamen (Abschnitt 5): Rechts auf dem Server darf nur <span class="file-name">riddle.zip</span> neu sein, keine <span class="file-name">riddle (1).zip</span>.
+      Prüfe den Ordner (Abschnitt 4).
+      Teste in einem privaten Fenster.</td>
+    </tr>
+    <tr>
+      <td>FileZilla kann sich nicht verbinden.</td>
+      <td>Vergleiche Server, Port, Benutzername und Passwort im Servermanager Zeichen für Zeichen mit deinen Zugangsdaten.
+      Prüfe die Einstellung bei <span class="ui">Verschlüsselung</span> (Abschnitt 3).</td>
+    </tr>
+    <tr>
+      <td>Das Spiel lädt nicht oder zeigt eine Fehlermeldung.</td>
+      <td>Lade die letzte funktionierende <span class="file-name">riddle.zip</span> aus deinem Ordner „Rätsel-Sicherung“ wieder hoch, genau wie in Abschnitt 6.
+      Damit ist das alte Spiel sofort wieder online.
+      Prüfe danach die neue Version im Editor.</td>
+    </tr>
+    <tr>
+      <td>Du hast versehentlich etwas außerhalb von <code>current</code> verändert.</td>
+      <td>Mache nichts weiter rückgängig und melde dich sofort beim Kontakt unten.</td>
+    </tr>
+  </table>
+
+  <div class="box">
+    <p><strong>Hilfe:</strong>
+    Wenn du nicht weiterkommst, wende dich an <span class="fill-in">&lt;KONTAKT&gt;</span>.</p>
+  </div>
+
+  <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 8 von 8</span></footer>
+</section>
+
+</body>
+</html>
