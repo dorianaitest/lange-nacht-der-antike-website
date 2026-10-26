@@ -1,0 +1,23 @@
+/* Play states of the SVG game map, set by shared/components/SvgGameMap.vue */
+@layer components {
+  .preview-riddle-accessible {
+    cursor: pointer;
+  }
+  .preview-riddle-completed {
+    cursor: default;
+  }
+  .preview-riddle-locked {
+    cursor: not-allowed;
+  }
+
+  .preview-deco-hidden {
+    display: none;
+  }
+  .preview-deco-shrouded {
+    opacity: var(--preview-shrouded-opacity, 0.2);
+  }
+  .preview-deco-highlighted {
+    stroke: var(--preview-highlight-color, var(--color-accent));
+    stroke-width: var(--preview-highlight-stroke-width, 1px);
+  }
+}

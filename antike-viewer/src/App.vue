@@ -174,7 +174,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
-import SvgGameMap from './components/SvgGameMap.vue'
+import SvgGameMap from '@shared/components/SvgGameMap.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
 import { loadRiddle } from './utils/loadRiddle.js'
 import {

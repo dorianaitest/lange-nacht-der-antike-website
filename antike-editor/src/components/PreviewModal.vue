@@ -8,7 +8,8 @@
         {{ formatTime(elapsedSeconds) }}
       </div>
 
-      <PreviewMap
+      <SvgGameMap
+        :svgText="plainSvgText"
         :config="config"
         :completedRiddles="completedRiddles"
         @riddleClick="onRiddleClick"
@@ -180,10 +181,11 @@ import {
   COMPLETION_MESSAGE,
   START_SCREEN_DATA,
   STYLING_CONFIG,
+  PLAIN_SVG_TEXT,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
-import PreviewMap from './PreviewMap.vue'
+import SvgGameMap from '@shared/components/SvgGameMap.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
 import {
   isAnswerCorrect,
@@ -204,6 +206,7 @@ const symbolPool = inject(SYMBOL_POOL)
 const finalRiddleId = inject(FINAL_RIDDLE_ID)
 const finalRiddlePenalty = inject(FINAL_RIDDLE_PENALTY)
 const stylingConfig = inject(STYLING_CONFIG)
+const plainSvgText = inject(PLAIN_SVG_TEXT)
 
 /**
  * The live riddle-config.json object, rebuilt whenever the editor state changes.
