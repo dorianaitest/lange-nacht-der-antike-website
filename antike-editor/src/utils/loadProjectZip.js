@@ -1,4 +1,5 @@
 import { strToU8, unzipSync, zipSync } from 'fflate'
+import { validateRiddleConfig } from '@shared/validateRiddleConfig.js'
 
 /**
  * Reads a previously exported project zip and extracts its contents.
@@ -18,6 +19,11 @@ export async function loadProjectZip(file) {
   const decoder = new TextDecoder()
   const svgText = decoder.decode(files['background.svg'])
   const config = JSON.parse(decoder.decode(files['riddle-config.json']))
+  const { valid, errors } = validateRiddleConfig(config)
+  if (!valid) {
+    console.error('riddle-config.json does not match the schema:', errors)
+    throw new Error('Invalid riddle-config.json')
+  }
 
   const iconFiles = extractFilesByPrefix(files, 'icons/')
   const symbolFiles = extractFilesByPrefix(files, 'symbols/')
