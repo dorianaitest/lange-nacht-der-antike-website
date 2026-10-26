@@ -1,4 +1,5 @@
 import { unzipSync } from 'fflate'
+import { validateRiddleConfig } from '@shared/validateRiddleConfig.js'
 
 /**
  * Fetches a riddle zip from the given URL and extracts its contents.
@@ -16,6 +17,11 @@ export async function loadRiddle(url) {
 
   const svgText = decoder.decode(files['background.svg'])
   const config = JSON.parse(decoder.decode(files['riddle-config.json']))
+  const { valid, errors } = validateRiddleConfig(config)
+  if (!valid) {
+    console.error('riddle-config.json does not match the schema:', errors)
+    throw new Error('Invalid riddle-config.json')
+  }
 
   const iconMap = {}
   for (const path in files) {
