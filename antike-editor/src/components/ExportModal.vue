@@ -11,6 +11,7 @@
         {{ copyLabel }}
       </BaseButton>
     </div>
+    <p v-if="exportError" role="alert" class="shrink-0 border-b border-border-subtle px-5 py-2 text-sm text-danger-600">{{ exportError }}</p>
 
     <div class="flex-1 overflow-auto px-5 py-4">
       <pre class="code-preview">{{ jsonString }}</pre>
@@ -41,6 +42,7 @@ const startScreenData = inject(START_SCREEN_DATA)
 const stylingConfig = inject(STYLING_CONFIG)
 
 const copyState = ref(null)
+const exportError = ref(null)
 
 /**
  * Button label for copy. Used mostly for DEV work
@@ -94,9 +96,16 @@ function copyToClipboard() {
 
 /**
  * Builds and downloads the full project zip (SVG, config, icons/symbols).
+ * Shows an error instead of downloading if the config fails the schema.
  */
-function downloadZip() {
-  exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, finalRiddleId.value, finalRiddlePenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig)
+async function downloadZip() {
+  try {
+    await exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, finalRiddleId.value, finalRiddlePenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig)
+    exportError.value = null
+  } catch (error) {
+    console.error('Export failed:', error)
+    exportError.value = 'Die Konfiguration ist fehlerhaft und konnte nicht exportiert werden. Details stehen in der Browser-Konsole.'
+  }
 }
 
 </script>
