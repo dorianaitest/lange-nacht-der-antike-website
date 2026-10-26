@@ -7,7 +7,7 @@ import { unzipSync } from 'fflate'
  *   The map SVG source, parsed config, and object URL maps for icons or symbols.
  */
 export async function loadRiddle(url) {
-  const response = await fetch(url)
+  const response = await fetch(url, { cache: 'no-cache' })
   if (!response.ok) throw new Error(response.statusText)
 
   const buffer = await response.arrayBuffer()
