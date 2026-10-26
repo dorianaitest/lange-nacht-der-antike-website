@@ -13,6 +13,8 @@ Es gibt kein Backend und keine Server-Komponente, beide Projekte laufen rein im 
 - `shared/`: gemeinsamer Code beider Projekte, kein eigenes npm-Paket.
   Enthält die Spiellogik (`gameLogic.js`), die Spielkarte (`SvgGameMap.vue`), den Spielbildschirm (`GameScreen.vue`), `BaseButton.vue` und die CSS-Klassen der Kartenzustände (`svgGameMap.css`).
   Die Editor-Vorschau und der Viewer spielen das Rätsel über denselben `GameScreen`.
+  Außerdem liegt hier das JSON-Schema des Config-Formats (`riddle-config.schema.json`) mit seinem Validator (`validateRiddleConfig.js`).
+  Der Viewer prüft damit jede geladene `riddle-config.json`, der Editor jede importierte und jede exportierte.
 
 Die beiden Projekte sind über das Zip-/Config-Format und den Ordner `shared/` gekoppelt.
 Es gibt keine gemeinsame Datenbank.
@@ -23,17 +25,13 @@ Beide Anwendungen teilen sich dasselbe `elementsData`-Konfigurationsschema und d
 
 Node-Version: `^20.19.0` oder `>=22.12.0`.
 
-Beide Subprojekte werden separat installiert:
-
-```bash
-cd antike-editor && npm install
-cd antike-viewer && npm install
-```
-
-`shared/` braucht nur für die Tests eine eigene Installation (siehe [Tests](#tests)):
+`shared/` und beide Subprojekte werden separat installiert.
+`shared/` muss zuerst installiert sein, sonst schlagen `npm run dev` und `npm run build` beider Apps fehl, weil der Validator `ajv` aus `shared/node_modules` lädt:
 
 ```bash
 cd shared && npm install
+cd antike-editor && npm install
+cd antike-viewer && npm install
 ```
 
 ## Nutzung
@@ -71,6 +69,8 @@ Schritt-für-Schritt-Anleitung für Autorinnen und Autoren (Upload mit FileZilla
 
 Die Spiellogik in `shared/gameLogic.js` ist mit Vitest getestet, die Tests liegen in `shared/gameLogic.test.js`.
 Sie prüfen Antwortprüfung, Freischaltregeln, Karten- und Dekorationszustände, Zeitformat und Symbolvergabe.
+Das JSON-Schema ist in `shared/validateRiddleConfig.test.js` getestet.
+Diese Tests prüfen gültige und ungültige Configs beider Modi und erzeugen außerdem Configs mit dem `buildRiddleConfig` des Editors, damit Schema und Export nicht auseinanderlaufen.
 Die Vue-Komponenten und die Darstellung im Browser sind nicht abgedeckt.
 
 ```bash
@@ -90,6 +90,7 @@ Bei einem Fehler zeigt Vitest den erwarteten Wert (`Expected`), den tatsächlich
 - Vue 3 (`^3.5.x`), Vite 8
 - Tailwind CSS 4 (`@tailwindcss/vite`)
 - `fflate` für Zip-Erstellung/-Entpacken
+- `ajv` für die Schema-Validierung der `riddle-config.json`
 - Formatierung: Prettier
 
 ## Projektstruktur
@@ -122,12 +123,14 @@ shared/               gemeinsamer Code beider Subprojekte
 |   |-- SvgGameMap.vue
 |-- gameLogic.js
 |-- gameLogic.test.js
+|-- riddle-config.schema.json
 |-- svgGameMap.css
+|-- validateRiddleConfig.js
+|-- validateRiddleConfig.test.js
 ```
 
 ## Bekannte Einschränkungen / Bereiche der Weiterentwicklung
 
-- Kein JSON-Schema
 - Tests nur für die Spiellogik in `shared/`, nicht für die Komponenten
 - Keine Zykluserkennung in Validierung
 - Keine DOM-Sanierung Keine DOM-Sanierung
