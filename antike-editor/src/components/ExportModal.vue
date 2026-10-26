@@ -22,7 +22,7 @@
 import { computed, inject, ref } from 'vue'
 import { PLAIN_SVG_TEXT, ELEMENTS_DATA, SELECTED_MODE, SYMBOL_POOL, FINAL_RIDDLE_ID, FINAL_RIDDLE_PENALTY, SYMBOL_PICKER_DATA, COMPLETION_MESSAGE, START_SCREEN_DATA, STYLING_CONFIG } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
-import BaseButton from './BaseButton.vue'
+import BaseButton from '@shared/components/BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
 import { exportZip } from '../utils/exportZip.js'
 

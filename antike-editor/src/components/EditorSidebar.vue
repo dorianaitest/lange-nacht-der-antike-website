@@ -251,7 +251,7 @@
 //computed allows to recalculate easily once selectedId changes
 import { ref, computed, inject } from 'vue'
 import { SELECTED_ELEMENT_ID, SET_SELECTED_ELEMENT, ELEMENTS_DATA, SELECTED_MODE, FINAL_RIDDLE_ID, SYMBOL_PICKER_DATA } from '../injectionKeys.js'
-import BaseButton from './BaseButton.vue'
+import BaseButton from '@shared/components/BaseButton.vue'
 
 const selectedId = inject(SELECTED_ELEMENT_ID)
 const setSelectedElement = inject(SET_SELECTED_ELEMENT)

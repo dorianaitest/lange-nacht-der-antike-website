@@ -56,7 +56,7 @@
 import { ref, computed, inject } from 'vue'
 import { ELEMENTS_DATA, SYMBOL_POOL } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
-import BaseButton from './BaseButton.vue'
+import BaseButton from '@shared/components/BaseButton.vue'
 
 const emit = defineEmits(['close'])
 

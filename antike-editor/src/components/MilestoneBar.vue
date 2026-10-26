@@ -22,7 +22,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import BaseButton from './BaseButton.vue'
+import BaseButton from '@shared/components/BaseButton.vue'
 
 const props = defineProps({
   isSvgUploaded: { type: Boolean, required: true },

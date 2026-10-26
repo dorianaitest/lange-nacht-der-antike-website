@@ -42,7 +42,7 @@
 
 <script setup>
 import BaseModal from './BaseModal.vue'
-import BaseButton from './BaseButton.vue'
+import BaseButton from '@shared/components/BaseButton.vue'
 
 defineProps({
   errors: {

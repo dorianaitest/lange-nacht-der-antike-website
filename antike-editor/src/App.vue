@@ -107,7 +107,7 @@ import PreviewModal from './components/PreviewModal.vue'
 import ModePickerModal from './components/ModePickerModal.vue'
 import SymbolsModal from './components/SymbolsModal.vue'
 import StylingModal from './components/StylingModal.vue'
-import BaseButton from './components/BaseButton.vue'
+import BaseButton from '@shared/components/BaseButton.vue'
 import {
   PLAIN_SVG_TEXT,
   ELEMENTS_DATA,

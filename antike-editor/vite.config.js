@@ -15,7 +15,16 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@shared': fileURLToPath(new URL('../shared', import.meta.url)),
+    },
+    // shared/ has no vue of its own, so its .vue files must resolve this app's copy
+    dedupe: ['vue'],
+  },
+  server: {
+    fs: {
+      // lets the dev server serve ../shared
+      allow: ['..'],
     },
   },
 })

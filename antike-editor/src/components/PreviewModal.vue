@@ -182,7 +182,7 @@ import {
   STYLING_CONFIG,
 } from '../injectionKeys.js'
 import BaseModal from './BaseModal.vue'
-import BaseButton from './BaseButton.vue'
+import BaseButton from '@shared/components/BaseButton.vue'
 import PreviewMap from './PreviewMap.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
 import { normalizeAnswer } from '../utils/normalizeAnswer.js'
