@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "riddle-config.json",
+  "description": "Format contract between the editor export and the viewer. Mirrors what the editor's buildRiddleConfig emits.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["svgFile", "mode", "startScreen", "completionMessage", "styles", "nodes"],
+  "properties": {
+    "svgFile": { "const": "background.svg" },
+    "mode": { "enum": ["Standard", "SymbolRiddle"] },
+    "startScreen": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "description"],
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "completionMessage": { "type": "string" },
+    "styles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["highlightColor", "highlightStrokeWidth", "shroudedOpacity"],
+      "properties": {
+        "highlightColor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "highlightStrokeWidth": { "type": "number", "minimum": 0.2, "maximum": 2 },
+        "shroudedOpacity": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "nodes": { "type": "object" },
+    "symbolPool": { "type": "array", "items": { "$ref": "#/$defs/fileName" } },
+    "finalRiddleId": { "type": "string", "minLength": 1 },
+    "finalRiddlePenalty": { "type": "number", "exclusiveMinimum": 0 }
+  },
+  "if": { "properties": { "mode": { "const": "Standard" } } },
+  "then": {
+    "properties": {
+      "nodes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/standardModeNode" } },
+      "symbolPool": false,
+      "finalRiddleId": false,
+      "finalRiddlePenalty": false
+    }
+  },
+  "else": {
+    "required": ["symbolPool", "finalRiddleId", "finalRiddlePenalty"],
+    "properties": {
+      "nodes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/symbolRiddleModeNode" } }
+    }
+  },
+  "$defs": {
+    "fileName": { "type": "string", "minLength": 1 },
+    "idList": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "styleValue": { "enum": ["hidden", "shrouded", "highlighted", "none"] },
+    "decorationStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locked", "accessible", "completed"],
+      "properties": {
+        "locked": { "$ref": "#/$defs/styleValue" },
+        "accessible": { "$ref": "#/$defs/styleValue" },
+        "completed": { "$ref": "#/$defs/styleValue" }
+      }
+    },
+    "riddleStyle": {
+      "description": "Like decorationStyle, but an accessible riddle cannot be hidden, players must be able to click it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locked", "accessible", "completed"],
+      "properties": {
+        "locked": { "$ref": "#/$defs/styleValue" },
+        "accessible": { "enum": ["shrouded", "highlighted", "none"] },
+        "completed": { "$ref": "#/$defs/styleValue" }
+      }
+    },
+    "decorationNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "linkedElements", "style"],
+      "properties": {
+        "type": { "const": "decoration" },
+        "linkedElements": { "$ref": "#/$defs/idList" },
+        "style": { "$ref": "#/$defs/decorationStyle" }
+      }
+    },
+    "riddleContent": {
+      "type": "object",
+      "required": ["question", "answers", "successText"],
+      "properties": {
+        "question": { "type": "string" },
+        "answers": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "successText": { "type": "string" }
+      }
+    },
+    "riddleNodeBase": {
+      "type": "object",
+      "required": ["type", "unlockAfterIds", "style", "riddle"],
+      "properties": {
+        "type": { "const": "riddle" },
+        "unlockAfterIds": { "$ref": "#/$defs/idList" },
+        "style": { "$ref": "#/$defs/riddleStyle" }
+      }
+    },
+    "standardRiddleNode": {
+      "$ref": "#/$defs/riddleNodeBase",
+      "type": "object",
+      "unevaluatedProperties": false,
+      "properties": {
+        "riddle": {
+          "$ref": "#/$defs/riddleContent",
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": { "icon": { "$ref": "#/$defs/fileName" } }
+        }
+      }
+    },
+    "symbolRiddleNode": {
+      "$ref": "#/$defs/riddleNodeBase",
+      "type": "object",
+      "unevaluatedProperties": false,
+      "properties": {
+        "riddle": { "$ref": "#/$defs/riddleContent", "type": "object", "unevaluatedProperties": false },
+        "symbolPicker": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["prompt", "successText"],
+          "properties": {
+            "prompt": { "type": "string" },
+            "successText": { "type": "string" }
+          }
+        }
+      }
+    },
+    "standardModeNode": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "enum": ["riddle", "decoration"] } },
+      "if": { "properties": { "type": { "const": "riddle" } } },
+      "then": { "$ref": "#/$defs/standardRiddleNode" },
+      "else": { "$ref": "#/$defs/decorationNode" }
+    },
+    "symbolRiddleModeNode": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "enum": ["riddle", "decoration"] } },
+      "if": { "properties": { "type": { "const": "riddle" } } },
+      "then": { "$ref": "#/$defs/symbolRiddleNode" },
+      "else": { "$ref": "#/$defs/decorationNode" }
+    }
+  }
+}
