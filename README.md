@@ -10,9 +10,14 @@ Es gibt kein Backend und keine Server-Komponente, beide Projekte laufen rein im 
   Ein Autor lädt ein Hintergrund-SVG hoch, markiert Elemente als Rätsel oder Dekoration und konfiguriert die Rätselinhalte.
 - `antike-viewer/`: lädt das vom Editor exportierte Zip Dateipaket (`background.svg` + `riddle-config.json` + Icon-/Symbol-Assets).
   Rendert die spielbare Karte und übernimmt Rätsel-Freischaltung sowie Antwortprüfung.
+- `shared/`: gemeinsamer Code beider Projekte, kein eigenes npm-Paket.
+  Enthält die Spiellogik (`gameLogic.js`), die Spielkarte (`SvgGameMap.vue`), den Spielbildschirm (`GameScreen.vue`), `BaseButton.vue` und die CSS-Klassen der Kartenzustände (`svgGameMap.css`).
+  Die Editor-Vorschau und der Viewer spielen das Rätsel über denselben `GameScreen`.
 
-Die beiden Projekte sind ausschließlich über das Zip-/Config-Format gekoppelt. Es gibt derzeit keinen gemeinsamen Code und keine gemeinsame Datenbank.
-Beide Anwendungen teilen sich dasselbe `elementsData`-Konfigurationsschema und denselben SVG-Rendering-Ansatz. `v-html`-Injection, DOM-Queries auf `svg [id]`-Elemente und CSS-Klassen in `style.css` für Highlight-/Preview-Zustände.
+Die beiden Projekte sind über das Zip-/Config-Format und den Ordner `shared/` gekoppelt.
+Es gibt keine gemeinsame Datenbank.
+Beide binden `shared/` über den Vite-Alias `@shared` ein und bauen weiterhin jeweils ein eigenes statisches `dist/`.
+Beide Anwendungen teilen sich dasselbe `elementsData`-Konfigurationsschema und denselben SVG-Rendering-Ansatz. `v-html`-Injection, DOM-Queries auf `svg [id]`-Elemente und CSS-Klassen für Highlight-/Preview-Zustände (die Preview-Zustände liegen in `shared/svgGameMap.css`).
 
 ## Setup
 
@@ -23,6 +28,13 @@ Beide Subprojekte werden separat installiert:
 ```bash
 cd antike-editor && npm install
 cd antike-viewer && npm install
+```
+
+`shared/` braucht nur für die Tests eine eigene Installation:
+
+```bash
+cd shared && npm install
+npm test
 ```
 
 ## Nutzung
@@ -86,12 +98,19 @@ antike-viewer/        Viewer-Subprojekt
 |   |-- utils/
 |         |-- ...
 |-- public/current/riddle.zip       aktuelles Rätselprojekt
+shared/               gemeinsamer Code beider Subprojekte
+|-- components/
+|   |-- BaseButton.vue
+|   |-- GameScreen.vue
+|   |-- SvgGameMap.vue
+|-- gameLogic.js
+|-- gameLogic.test.js
+|-- svgGameMap.css
 ```
 
 ## Bekannte Einschränkungen / Bereiche der Weiterentwicklung
 
 - Kein JSON-Schema
-- Kein geteilter Code --> Dopplungen in der Logik
-- Keine Testsuite
+- Tests nur für die Spiellogik in `shared/`, nicht für die Komponenten
 - Keine Zykluserkennung in Validierung
 - Keine DOM-Sanierung Keine DOM-Sanierung
