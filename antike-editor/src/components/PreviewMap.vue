@@ -5,6 +5,7 @@
 <script setup>
 import { ref, computed, inject, watch, nextTick, onMounted } from 'vue'
 import { PLAIN_SVG_TEXT } from '../injectionKeys.js'
+import { isAccessible, getRiddleState, getDecorationState } from '@shared/gameLogic.js'
 
 const svgText = inject(PLAIN_SVG_TEXT)
 
@@ -50,52 +51,6 @@ const PREVIEW_CLASSES = [
 ]
 
 /**
- * Whether a riddle has been solved.
- * @param {string} id - node id.
- * @returns {boolean}
- */
-function isCompleted(id) {
-  return props.completedRiddles[id] === true
-}
-
-/**
- * Whether riddle node is currently unlocked and not yet completed.
- * The final riddle unlocks only once every other riddle is done.
- * any other node unlocks when it has no prerequisites or
- * any one of them is completed.
- * @param {string} id - The node id.
- * @returns {boolean}
- */
-function isAccessible(id) {
-  if (isCompleted(id)) return false
-
-  const element = props.config.nodes[id]
-  if (!element) return false
-  if (element.type !== 'riddle') return false
-
-  if (props.config.ordering === 'unordered') {
-    return true
-  }
-
-  if (props.config.finalRiddleId && id === props.config.finalRiddleId) {
-    for (const [nodeId, node] of Object.entries(props.config.nodes)) {
-      if (nodeId !== id && node.type === 'riddle' && !isCompleted(nodeId)) {
-        return false
-      }
-    }
-    return true
-  }
-
-  if (!element.unlockAfterIds || element.unlockAfterIds.length === 0) {
-    return true
-  }
-
-  for (const parentId of element.unlockAfterIds) {
-    if (isCompleted(parentId)) return true
-  }
-  return false
-}
-/**
  * Strips every preview-state class from an element before the current one is
  * reapplied.
  * @param {SVGElement} svgElement - element to clear.
@@ -127,50 +82,19 @@ function updateRiddleVisual(id, svgElement) {
   const element = props.config.nodes[id]
   const style = element.style || { locked: 'shrouded', accessible: 'highlighted', completed: 'none' }
 
-  if (isCompleted(id)) {
-    svgElement.classList.add('preview-riddle-completed')
-    applyVisualClass(svgElement, style.completed)
-    return
-  }
-
-  if (isAccessible(id)) {
-    svgElement.classList.add('preview-riddle-accessible')
-    applyVisualClass(svgElement, style.accessible)
-    return
-  }
-
-  svgElement.classList.add('preview-riddle-locked')
-  applyVisualClass(svgElement, style.locked)
+  const state = getRiddleState(id, props.config, props.completedRiddles)
+  svgElement.classList.add('preview-riddle-' + state)
+  applyVisualClass(svgElement, style[state])
 }
 
-/**
- * Maps a linked riddle's state to a decoration level: 0 locked, 1 accessible,
- * 2 completed.
- * @param {string} linkedId - linked riddle's node id.
- * @returns {number}
-*/
-function decorationLevel(linkedId) {
-  if (isCompleted(linkedId)) return 2
-  if (isAccessible(linkedId)) return 1
-  return 0
-}
-
-const DECORATION_LEVEL_KEYS = ['locked', 'accessible', 'completed']
 /**
  * Styles a decoration by most advanced state among linked riddles.
  * @param{Object} element - decoration node config.
  *@param {SVGElement} svgElement - matching element.
  */
 function updateDecorationVisual(element, svgElement) {
-  const linked = element.linkedElements || []
-
-  let maxLevel = 0
-  for (const linkedId of linked) {
-    const level = decorationLevel(linkedId)
-    if (level > maxLevel) maxLevel = level
-  }
-
-  applyVisualClass(svgElement, element.style[DECORATION_LEVEL_KEYS[maxLevel]])
+  const state = getDecorationState(element, props.config, props.completedRiddles)
+  applyVisualClass(svgElement, element.style[state])
 }
 /**
  * reapplies the preview visuals for every node to match the
@@ -206,7 +130,7 @@ function setupListeners() {
     if (!svgElement) continue
 
     function onClick() {
-      if (!isAccessible(id)) return
+      if (!isAccessible(id, props.config, props.completedRiddles)) return
 
       emit('riddleClick', {
         id,
@@ -215,7 +139,7 @@ function setupListeners() {
     }
 
     function onEnter() {
-      if (!isAccessible(id)) return
+      if (!isAccessible(id, props.config, props.completedRiddles)) return
 
       svgElement.classList.add('preview-riddle-hover')
       svgElement.style.cursor = 'pointer'

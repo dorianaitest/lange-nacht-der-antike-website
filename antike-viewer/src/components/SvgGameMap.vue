@@ -4,6 +4,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { isAccessible, getRiddleState, getDecorationState } from '@shared/gameLogic.js'
 
 const props = defineProps({
   svgText: {
@@ -50,64 +51,6 @@ const ELEMENT_CLASSES = [
   'preview-deco-highlighted',
 ]
 
-/** 
-* Checks if a riddle has already been solved.
-* @param {string} id - the riddle id to check
-* @returns {boolean} True if riddle is completed
-*/
-function isCompleted(id) {
-  return props.completedRiddles[id] === true
-}
-
-/** 
-* Determines if a node is currently unlocked and not completed.
-* @param {string} id - the riddle id to check
-* @param {Object} config - the full riddle config
-* @param {Object} completedRiddles - map of riddle id to completion status
-* @returns {boolean} True if riddle is unlocked and not completed
-*/
-function isAccessible(id, config, completedRiddles) {
-  if (completedRiddles[id] === true) return false
-
-  const element = config.nodes[id]
-  if (!element) return false
-  if (element.type !== 'riddle') return false
-
-  if (config.ordering === 'unordered') {
-    return true
-  }
-
-  if (config.finalRiddleId && id === config.finalRiddleId) {
-    return isFinalRiddleFullyUnlocked(id, config, completedRiddles)
-  }
-
-  if (!element.unlockAfterIds || element.unlockAfterIds.length === 0) {
-    return true
-  }
-
-  for (const parentId of element.unlockAfterIds) {
-    if (completedRiddles[parentId] === true) return true
-  }
-  return false
-}
-
-/**
- * Checks if every other riddle has been completed, the unlock condition
- * for the final riddle.
- * @param {string} id - final riddle's id
- * @param {Object} config - The full riddle config
- * @param {Object} completedRiddles - map of riddle id to completed status
- * @returns {boolean} True if all other riddles are completed.
- */
-function isFinalRiddleFullyUnlocked(id, config, completedRiddles) {
-  for (const [nodeId, node] of Object.entries(config.nodes)) {
-    if (nodeId !== id && node.type === 'riddle' && completedRiddles[nodeId] !== true) {
-      return false
-    }
-  }
-  return true
-}
-
 /**
  * Strips all preview-state CSS classes from an SVG element before reapplying the current one.
  * @param {SVGElement} svgElement - The element to clean up.
@@ -139,34 +82,10 @@ function updateRiddleVisual(id, svgElement) {
   const element = props.config.nodes[id]
   const style = element.style || { locked: 'shrouded', accessible: 'highlighted', completed: 'none' }
 
-  if (isCompleted(id)) {
-    svgElement.classList.add('preview-riddle-completed')
-    applyVisualClass(svgElement, style.completed)
-    return
-  }
-
-  if (isAccessible(id, props.config, props.completedRiddles)) {
-    svgElement.classList.add('preview-riddle-accessible')
-    applyVisualClass(svgElement, style.accessible)
-    return
-  }
-
-  svgElement.classList.add('preview-riddle-locked')
-  applyVisualClass(svgElement, style.locked)
+  const state = getRiddleState(id, props.config, props.completedRiddles)
+  svgElement.classList.add('preview-riddle-' + state)
+  applyVisualClass(svgElement, style[state])
 }
-
-/**
- * Maps a linked riddle's state to a decoration level (0 = locked, 1 = accessible, 2 = completed).
- * @param {string} linkedId - linked riddle's node id.
- * @returns {number} decoration level.
- */
-function decorationLevel(linkedId) {
-  if (isCompleted(linkedId)) return 2
-  if (isAccessible(linkedId, props.config, props.completedRiddles)) return 1
-  return 0
-}
-
-const DECORATION_LEVEL_KEYS = ['locked', 'accessible', 'completed']
 
 /**
  * Applies a decoration's style based on the most advanced state among its linked riddles.
@@ -174,15 +93,8 @@ const DECORATION_LEVEL_KEYS = ['locked', 'accessible', 'completed']
  * @param {SVGElement} svgElement - corresponding SVG element.
  */
 function updateDecorationVisual(element, svgElement) {
-  const linked = element.linkedElements || []
-
-  let maxLevel = 0
-  for (const linkedId of linked) {
-    const level = decorationLevel(linkedId)
-    if (level > maxLevel) maxLevel = level
-  }
-
-  applyVisualClass(svgElement, element.style[DECORATION_LEVEL_KEYS[maxLevel]])
+  const state = getDecorationState(element, props.config, props.completedRiddles)
+  applyVisualClass(svgElement, element.style[state])
 }
 
 /**
@@ -273,53 +185,4 @@ onMounted(async function () {
 
 watch(props.completedRiddles, updateVisuals)
 
-/**
- * INSIDE DEV SERVER ONLY
- * Runs test for isAccessible against known scenarios
- * (final riddle unlocking, prerequisite-based unlocking) 
- */
-function checkIsAccessibleBehavior() {
-  const symbolRiddleFixtureConfig = {
-    finalRiddleId: 'Roma',
-    nodes: {
-      Alpen: { type: 'riddle', unlockAfterIds: [] },
-      Genua: { type: 'riddle', unlockAfterIds: ['Alpen'] },
-      Rubico: { type: 'riddle', unlockAfterIds: ['Alpen'] },
-      Roma: { type: 'riddle', unlockAfterIds: ['[last]'] },
-    },
-  }
-  console.assert(
-    isAccessible('Roma', symbolRiddleFixtureConfig, { Alpen: true, Genua: true, Rubico: false }) === false,
-    'isAccessible: final riddle should stay locked until every other riddle is completed',
-  )
-  console.assert(
-    isAccessible('Roma', symbolRiddleFixtureConfig, { Alpen: true, Genua: true, Rubico: true }) === true,
-    'isAccessible: final riddle should unlock once every other riddle is completed',
-  )
-
-  const standardFixtureConfig = {
-    nodes: {
-      Alpen: { type: 'riddle', unlockAfterIds: [] },
-      Genua: { type: 'riddle', unlockAfterIds: ['Alpen'] },
-      Rubico: { type: 'riddle', unlockAfterIds: ['Alpen'] },
-      Roma: { type: 'riddle', unlockAfterIds: ['Rubico', 'Genua'] },
-    },
-  }
-  console.assert(
-    isAccessible('Roma', standardFixtureConfig, { Alpen: true, Genua: false, Rubico: false }) === false,
-    'isAccessible: riddle should stay locked until at least one prerequisite is completed',
-  )
-  console.assert(
-    isAccessible('Roma', standardFixtureConfig, { Alpen: true, Genua: true, Rubico: false }) === true,
-    'isAccessible: riddle should unlock once any one of its prerequisites is completed',
-  )
-  console.assert(
-    isAccessible('Alpen', standardFixtureConfig, {}) === true,
-    'isAccessible: a riddle with no prerequisites should always be accessible',
-  )
-}
-
-if (import.meta.env.DEV) {
-  checkIsAccessibleBehavior()
-}
 </script>

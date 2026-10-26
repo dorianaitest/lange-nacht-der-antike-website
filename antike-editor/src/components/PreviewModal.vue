@@ -185,7 +185,13 @@ import BaseModal from './BaseModal.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
 import PreviewMap from './PreviewMap.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
-import { normalizeAnswer } from '../utils/normalizeAnswer.js'
+import {
+  isAnswerCorrect,
+  formatTime,
+  buildShuffledSymbolEntries,
+  drawRandomSymbol,
+  drawFinalRiddleSymbol,
+} from '@shared/gameLogic.js'
 
 const emit = defineEmits(['close', 'reset'])
 
@@ -257,18 +263,6 @@ watch(isAllComplete, function (done) {
 const elapsedSeconds = ref(0)
 let intervalId = null
 
-/**
- * Formats a duration as MM:SS.
- * @param {number} totalSeconds - Duration in seconds.
- * @returns {string} padded 'MM:SS'.
- */
-function formatTime(totalSeconds) {
-  const minutes = Math.floor(totalSeconds / 60)
-    .toString()
-    .padStart(2, '0')
-  const seconds = (totalSeconds % 60).toString().padStart(2, '0')
-  return minutes + ':' + seconds
-}
 /**
  * Resets the elapsed counter and starts ticking once per second.
 */
@@ -393,27 +387,12 @@ function onRiddleClick(riddleElement) {
 
     // assign symbol to the final riddle if not yet done (it's the correct answer in the grid)
     if (!assignedSymbols[riddleElement.id]) {
-      for (let i = 0; i < symbolPool.value.length; i++) {
-        if (!usedSymbolIndices[i]) {
-          usedSymbolIndices[i] = true
-          assignedSymbols[riddleElement.id] = symbolPool.value[i].preview
-          break
-        }
-      }
+      const symbol = drawFinalRiddleSymbol(symbolPool.value, usedSymbolIndices)
+      if (symbol) assignedSymbols[riddleElement.id] = symbol
     }
 
     // shuffle all assigned symbols (including the final riddle's) into the grid
-    const entries = []
-    for (const riddleId in assignedSymbols) {
-      entries.push({ riddleId: riddleId, preview: assignedSymbols[riddleId] })
-    }
-    for (let i = entries.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      const temp = entries[i]
-      entries[i] = entries[j]
-      entries[j] = temp
-    }
-    shuffledSymbolEntries.value = entries
+    shuffledSymbolEntries.value = buildShuffledSymbolEntries(assignedSymbols)
   }
 }
 /**
@@ -425,15 +404,7 @@ function submitAnswer() {
   if (!activeRiddle.value) return
   if (answerState.value === 'correct') return
 
-  const normalizedInput = normalizeAnswer(answerInput.value)
-
-  let isCorrect = false
-  for (const answer of activeRiddle.value.riddle.answers) {
-    if (normalizeAnswer(answer) === normalizedInput) {
-      isCorrect = true
-      break
-    }
-  }
+  const isCorrect = isAnswerCorrect(activeRiddle.value.riddle, answerInput.value)
 
   if (isCorrect) {
     answerState.value = 'correct'
@@ -448,17 +419,8 @@ function submitAnswer() {
       symbolPool.value.length > 0 &&
       solvedRiddleId !== finalRiddleId.value
     ) {
-      // collect pool indices that haven't been drawn yet
-      const available = []
-      for (let i = 0; i < symbolPool.value.length; i++) {
-        if (!usedSymbolIndices[i]) available.push(i)
-      }
-      if (available.length > 0) {
-        // pick one at random and mark it as used so it won't appear again
-        const pick = available[Math.floor(Math.random() * available.length)]
-        usedSymbolIndices[pick] = true
-        assignedSymbols[solvedRiddleId] = symbolPool.value[pick].preview
-      }
+      const symbol = drawRandomSymbol(symbolPool.value, usedSymbolIndices)
+      if (symbol) assignedSymbols[solvedRiddleId] = symbol
     }
   } else {
     answerState.value = 'wrong'

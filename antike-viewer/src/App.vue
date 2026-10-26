@@ -177,7 +177,13 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import SvgGameMap from './components/SvgGameMap.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
 import { loadRiddle } from './utils/loadRiddle.js'
-import { normalizeAnswer } from './utils/normalizeAnswer.js'
+import {
+  isAnswerCorrect,
+  formatTime,
+  buildShuffledSymbolEntries,
+  drawRandomSymbol,
+  drawFinalRiddleSymbol,
+} from '@shared/gameLogic.js'
 
 // base variables [should structure editor variables likes this too]
 const state = ref('loading')
@@ -292,17 +298,6 @@ const symbolPickerData = computed(function () {
   return config.value.nodes[activeRiddle.value.id]?.symbolPicker || null
 })
 
-/**
- * Formats a duration in seconds as MM:SS.
- * @param {number} totalSeconds - Duration in seconds.
- * @returns {string} Formatted time string.
- */
-function formatTime(totalSeconds) {
-  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0')
-  const seconds = (totalSeconds % 60).toString().padStart(2, '0')
-  return minutes + ':' + seconds
-}
-
 /** Starts the elapsed-time timer, resetting it to zero. */
 function startTimer() {
   clearInterval(intervalId)
@@ -367,33 +362,8 @@ function restart() {
 function assignFinalRiddleSymbol(riddleId) {
   if (assignedSymbols[riddleId]) return
 
-  for (let i = 0; i < symbolPool.value.length; i++) {
-    if (!usedSymbolIndices[i]) {
-      usedSymbolIndices[i] = true
-      assignedSymbols[riddleId] = symbolPool.value[i].preview
-      break
-    }
-  }
-}
-
-/**
- * Builds a shuffled list of all assigned symbols for the final riddle's picker.
- * @returns {Array<{riddleId: string, preview: string}>} Shuffled entries.
- */
-function buildShuffledSymbolEntries() {
-  const entries = []
-  for (const riddleId in assignedSymbols) {
-    entries.push({ riddleId: riddleId, preview: assignedSymbols[riddleId] })
-  }
-
-  for (let i = entries.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const temp = entries[i]
-    entries[i] = entries[j]
-    entries[j] = temp
-  }
-
-  return entries
+  const symbol = drawFinalRiddleSymbol(symbolPool.value, usedSymbolIndices)
+  if (symbol) assignedSymbols[riddleId] = symbol
 }
 
 /**
@@ -420,22 +390,7 @@ function onRiddleClick(riddleElement) {
 
   riddlePhase.value = 'symbol'
   assignFinalRiddleSymbol(riddleElement.id)
-  shuffledSymbolEntries.value = buildShuffledSymbolEntries()
-}
-
-/**
- * Checks a submitted answer against a riddle's accepted answers, ignoring case/punctuation/extra whitespace.
- * @param {Object} riddle - Riddle data with an answers array.
- * @param {string} input - submitted answer text.
- * @returns {boolean} True if input matches any accepted answer.
- */
-function isAnswerCorrect(riddle, input) {
-  const normalizedInput = normalizeAnswer(input)
-
-  for (const answer of riddle.answers) {
-    if (normalizeAnswer(answer) === normalizedInput) return true
-  }
-  return false
+  shuffledSymbolEntries.value = buildShuffledSymbolEntries(assignedSymbols)
 }
 
 /**
@@ -443,17 +398,8 @@ function isAnswerCorrect(riddle, input) {
  * @param {string} riddleId - riddle id to assign a symbol to.
  */
 function assignRandomSymbol(riddleId) {
-  const available = []
-  for (let i = 0; i < symbolPool.value.length; i++) {
-    if (!usedSymbolIndices[i]) {
-      available.push(i)
-    }
-  }
-  if (available.length === 0) return
-
-  const pick = available[Math.floor(Math.random() * available.length)]
-  usedSymbolIndices[pick] = true
-  assignedSymbols[riddleId] = symbolPool.value[pick].preview
+  const symbol = drawRandomSymbol(symbolPool.value, usedSymbolIndices)
+  if (symbol) assignedSymbols[riddleId] = symbol
 }
 
 /** Validates the current answer input and marks the riddle solved if correct. */
@@ -520,27 +466,4 @@ onMounted(async function () {
   }
 })
 
-/**
- * INSIDE DEV SERVER ONLY
- * Runs test for isAnswerCorrect: case/whitespace/punctuation
- * tolerance and rejection of wrong answers. 
- */
-function checkIsAnswerCorrectBehavior() {
-  console.assert(
-    isAnswerCorrect({ answers: ['Zeus, Sohn des Kronos'] }, ' zeus  sohn des   kroNOS.') === true,
-    'isAnswerCorrect: should match answer regardless of case/whitespace',
-  )
-  console.assert(
-    isAnswerCorrect({ answers: ['Zeus, Sohn des Kronos'] }, ' ze  us  sohn des   kroNOS.') === false,
-    'isAnswerCorrect: whitespace only trims only around words',
-  )
-  console.assert(
-    isAnswerCorrect({ answers: ['Zeus, Sohn des Kronos'] }, 'Hera') === false,
-    'isAnswerCorrect: should reject wrong answer',
-  )
-}
-
-if (import.meta.env.DEV) {
-  checkIsAnswerCorrectBehavior()
-}
 </script>
