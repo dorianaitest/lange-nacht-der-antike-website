@@ -30,11 +30,10 @@ cd antike-editor && npm install
 cd antike-viewer && npm install
 ```
 
-`shared/` braucht nur für die Tests eine eigene Installation:
+`shared/` braucht nur für die Tests eine eigene Installation (siehe [Tests](#tests)):
 
 ```bash
 cd shared && npm install
-npm test
 ```
 
 ## Nutzung
@@ -67,6 +66,24 @@ Vite serviert alles aus public/ unverändert unter der Root, npm run dev liest s
 Rätselkonfiguration auf dem Webserver laden:<br>
 Rätselpaket unter `dist/current/` als `riddle.zip` legen, relativ zum Ort, an dem die gebaute index.html liegt.
 Schritt-für-Schritt-Anleitung für Autorinnen und Autoren (Upload mit FileZilla): [`docs/autoren-anleitung/anleitung.pdf`](docs/autoren-anleitung/anleitung.pdf)
+
+## Tests
+
+Die Spiellogik in `shared/gameLogic.js` ist mit Vitest getestet, die Tests liegen in `shared/gameLogic.test.js`.
+Sie prüfen Antwortprüfung, Freischaltregeln, Karten- und Dekorationszustände, Zeitformat und Symbolvergabe.
+Die Vue-Komponenten und die Darstellung im Browser sind nicht abgedeckt.
+
+```bash
+cd shared
+npm install                              # einmalig
+npm test                                 # alle Tests einmal ausführen
+npx vitest run --reporter=verbose        # eine Zeile pro Test
+npx vitest                               # Watch-Modus, führt die Tests bei jeder Änderung neu aus
+```
+
+Jede Zeile der Ausgabe hat die Form `Datei > Funktion > erwartetes Verhalten`.
+`✓` bedeutet bestanden, `×` fehlgeschlagen.
+Bei einem Fehler zeigt Vitest den erwarteten Wert (`Expected`), den tatsächlichen Wert (`Received`) und die Zeile des fehlgeschlagenen `expect`.
 
 ## Tech-Stack
 
