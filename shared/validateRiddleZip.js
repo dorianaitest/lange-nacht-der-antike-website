@@ -1,15 +1,18 @@
 import { validateRiddleConfig, RiddleConfigError } from './validateRiddleConfig.js'
+import { sanitizeSvg } from './sanitizeSvg.js'
 
 /**
  * Checks the unzipped contents of a riddle zip: required files, readable JSON and SVG,
  * the config schema, and the icon and symbol files the config references.
+ * Removes active content and external references from the SVG.
  * @param {Object<string, Uint8Array>} files - unzipped entries keyed by path.
- * @returns {{svgText: string, config: Object}} the map SVG source and the parsed config.
+ * @returns {{svgText: string, removed: string[], config: Object}} the cleaned map SVG source,
+ *   German descriptions of what the cleaning removed, and the parsed config.
  * @throws {RiddleConfigError} with all German messages when anything is wrong.
  */
 export function assertValidRiddleZip(files) {
   const messages = []
-  const svgText = readSvg(files, messages)
+  const { svgText, removed } = readSvg(files, messages)
   const config = readConfig(files, messages)
 
   if (config !== undefined) {
@@ -22,25 +25,24 @@ export function assertValidRiddleZip(files) {
   }
 
   if (messages.length > 0) throw new RiddleConfigError(messages)
-  return { svgText, config }
+  return { svgText, removed, config }
 }
 
 /**
- * Reads background.svg and checks that it parses as an SVG document.
+ * Reads background.svg, checks that it parses as an SVG document and cleans it.
  * @param {Object<string, Uint8Array>} files - unzipped entries.
  * @param {string[]} messages - collects German messages.
- * @returns {string|undefined} the SVG source, undefined if it is missing.
+ * @returns {{svgText: string|undefined, removed: string[]}} the cleaned SVG source, undefined if it
+ *   is missing or invalid, and what the cleaning removed.
  */
 function readSvg(files, messages) {
   if (!files['background.svg']) {
     messages.push('„background.svg“ fehlt in der Zip-Datei.')
-    return undefined
+    return { svgText: undefined, removed: [] }
   }
-  const svgText = new TextDecoder().decode(files['background.svg'])
-  const document = new DOMParser().parseFromString(svgText, 'image/svg+xml')
-  const isSvg = document.documentElement.nodeName === 'svg' && !document.querySelector('parsererror')
-  if (!isSvg) messages.push('„background.svg“ ist keine gültige SVG-Datei.')
-  return svgText
+  const result = sanitizeSvg(new TextDecoder().decode(files['background.svg']))
+  if (result.svgText === undefined) messages.push('„background.svg“ ist keine gültige SVG-Datei.')
+  return result
 }
 
 /**

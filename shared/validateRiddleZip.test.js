@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { assertValidRiddleZip } from './validateRiddleZip.js'
 import { RiddleConfigError } from './validateRiddleConfig.js'
@@ -42,9 +42,18 @@ describe('assertValidRiddleZip', () => {
   beforeEach(() => vi.spyOn(console, 'error').mockImplementation(() => {}))
 
   it.each(['Standard', 'SymbolRiddle'])('accepts a valid %s zip and returns its contents', (mode) => {
-    const { svgText, config } = assertValidRiddleZip(makeFiles(mode))
+    const { svgText, removed, config } = assertValidRiddleZip(makeFiles(mode))
     expect(svgText).toBe(SVG)
+    expect(removed).toEqual([])
     expect(config).toEqual(makeConfig(mode))
+  })
+
+  it('returns the cleaned SVG and what was removed', () => {
+    const files = makeFiles('Standard')
+    files['background.svg'] = new TextEncoder().encode(SVG.replace('<path', '<script>alert(1)</script><path'))
+    const { svgText, removed } = assertValidRiddleZip(files)
+    expect(svgText).toBe(SVG)
+    expect(removed).toEqual(['1 Skript entfernt'])
   })
 
   it('ignores extra files', () => {

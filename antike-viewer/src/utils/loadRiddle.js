@@ -3,6 +3,7 @@ import { assertValidRiddleZip } from '@shared/validateRiddleZip.js'
 
 /**
  * Fetches a riddle zip from the given URL and extracts its contents.
+ * Logs a warning if the SVG cleaning removed anything.
  * @param {string} url - URL of the riddle zip file.
  * @returns {Promise<{svgText: string, config: Object, iconMap: Object, symbolPool: Array}>}
  *   The map SVG source, parsed config, and object URL maps for icons or symbols.
@@ -13,7 +14,8 @@ export async function loadRiddle(url) {
 
   const buffer = await response.arrayBuffer()
   const files = unzipSync(new Uint8Array(buffer))
-  const { svgText, config } = assertValidRiddleZip(files)
+  const { svgText, removed, config } = assertValidRiddleZip(files)
+  if (removed.length > 0) console.warn('background.svg was cleaned:', removed.join(', '))
 
   const iconMap = {}
   for (const path in files) {

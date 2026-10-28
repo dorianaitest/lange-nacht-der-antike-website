@@ -5,9 +5,10 @@ import { assertValidRiddleZip } from '@shared/validateRiddleZip.js'
 /**
  * Reads a previously exported project zip and extracts its contents.
  * @param {File} file - The riddle.zip file selected by the user.
- * @returns {Promise<{svgText: string, config: Object, iconFiles: Object, symbolFiles: Object}>}
- *   The map SVG source, the parsed riddle-config.json, and File maps (keyed by
- *   filename) for the icons/ and symbols/ folders.
+ * @returns {Promise<{svgText: string, removed: string[], config: Object, iconFiles: Object, symbolFiles: Object}>}
+ *   The cleaned map SVG source, German descriptions of what the cleaning removed,
+ *   the parsed riddle-config.json, and File maps (keyed by filename) for the
+ *   icons/ and symbols/ folders.
  */
 export async function loadProjectZip(file) {
   const buffer = await file.arrayBuffer()
@@ -17,12 +18,12 @@ export async function loadProjectZip(file) {
   } catch {
     throw new RiddleConfigError(['Die Datei ist keine gültige Zip-Datei.'])
   }
-  const { svgText, config } = assertValidRiddleZip(files)
+  const { svgText, removed, config } = assertValidRiddleZip(files)
 
   const iconFiles = extractFilesByPrefix(files, 'icons/')
   const symbolFiles = extractFilesByPrefix(files, 'symbols/')
 
-  return { svgText, config, iconFiles, symbolFiles }
+  return { svgText, removed, config, iconFiles, symbolFiles }
 }
 
 /**

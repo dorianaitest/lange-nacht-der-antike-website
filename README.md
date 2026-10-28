@@ -28,7 +28,7 @@ Beide Anwendungen teilen sich dasselbe `elementsData`-Konfigurationsschema und d
 Node-Version: `^20.19.0` oder `>=22.12.0`.
 
 `shared/` und beide Subprojekte werden separat installiert.
-`shared/` muss zuerst installiert sein, sonst schlagen `npm run dev` und `npm run build` beider Apps fehl, weil der Validator `ajv` aus `shared/node_modules` lädt:
+`shared/` muss zuerst installiert sein, sonst schlagen `npm run dev` und `npm run build` beider Apps fehl, weil der Validator `ajv` und der SVG-Bereiniger `dompurify` aus `shared/node_modules` geladen werden:
 
 ```bash
 cd shared && npm install
@@ -145,4 +145,4 @@ shared/               gemeinsamer Code beider Subprojekte
 
 - Tests nur für die Spiellogik in `shared/`, nicht für die Komponenten
 - Keine Zykluserkennung in Validierung
-- Keine DOM-Sanierung Keine DOM-Sanierung
+- Die Karten-SVG wird beim Laden mit DOMPurify bereinigt (keine Skripte, keine externen Verweise), es gibt aber keine Content Security Policy

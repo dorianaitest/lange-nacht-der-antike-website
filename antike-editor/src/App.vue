@@ -9,6 +9,22 @@
       @change="onProjectFileSelected"
     />
 
+    <!-- above the modals (z-50), since the mode picker opens right after an upload -->
+    <div
+      v-if="removedSvgParts.length"
+      role="status"
+      class="alert-warning fixed right-4 bottom-16 z-[60] flex w-96 items-start gap-3 shadow-lg"
+    >
+      <div class="flex-1">
+        <p class="font-semibold">Die SVG-Datei wurde bereinigt.</p>
+        <p class="mt-1">Diese Teile wurden entfernt, weil sie Code ausführen oder Inhalte von fremden Servern laden könnten:</p>
+        <ul class="mt-1 list-disc pl-5">
+          <li v-for="part in removedSvgParts" :key="part">{{ part }}</li>
+        </ul>
+      </div>
+      <button class="icon-btn" aria-label="Hinweis schließen" @click="removedSvgParts = []">✕</button>
+    </div>
+
     <template v-if="svgText">
       <div class="flex h-full w-full">
         <!-- toolbar + map + hover -->
@@ -98,6 +114,7 @@
 import { ref, reactive, computed, provide, watch, nextTick } from 'vue'
 import { validateConfig } from './utils/validateConfig.js'
 import { loadProjectZip } from './utils/loadProjectZip.js'
+import { sanitizeSvg } from '@shared/sanitizeSvg.js'
 import { applyProjectConfig } from './utils/applyProjectConfig.js'
 import ValidationModal from './components/ValidationModal.vue'
 import MilestoneBar from './components/MilestoneBar.vue'
@@ -134,6 +151,7 @@ const pendingElementOverrides = ref(null)
 const projectLoadError = ref(null)
 const projectLoadDetails = ref([])
 const svgText = ref(null)
+const removedSvgParts = ref([])
 const symbolPickerData = ref({ prompt: '', successText: '' })
 const completionMessage = ref('')
 const startScreenData = ref({ title: '', description: '' })
@@ -337,6 +355,7 @@ function openFilePicker() {
 function onModePickerClose() {
   isModePickerOpen.value = false
   svgText.value = null
+  removedSvgParts.value = []
   selectedMode.value = null
   elementsData.value = {}
   selectedElementId.value = null
@@ -360,7 +379,8 @@ function onModePicked(mode) {
 }
 
 /**
- * Reads the chosen SVG file as text and opens the mode picker.
+ * Reads the chosen SVG file as text, cleans it and opens the mode picker.
+ * Shows an error on the start screen if the file is no SVG.
  * @param {Event} event - Change event from the hidden SVG file input.
  */
 function onFileSelected(event) {
@@ -370,7 +390,15 @@ function onFileSelected(event) {
   const reader = new FileReader()
   reader.readAsText(file)
   reader.onload = (loadEvent) => {
-    svgText.value = loadEvent.target.result
+    const { svgText: cleanSvgText, removed } = sanitizeSvg(loadEvent.target.result)
+    projectLoadDetails.value = []
+    if (cleanSvgText === undefined) {
+      projectLoadError.value = 'Die gewählte Datei ist keine gültige SVG-Datei.'
+      return
+    }
+    projectLoadError.value = null
+    removedSvgParts.value = removed
+    svgText.value = cleanSvgText
     isModePickerOpen.value = true
   }
 }
@@ -392,7 +420,7 @@ async function onProjectFileSelected(event) {
   if (!file) return
 
   try {
-    const { svgText: loadedSvgText, config, iconFiles, symbolFiles } = await loadProjectZip(file)
+    const { svgText: loadedSvgText, removed, config, iconFiles, symbolFiles } = await loadProjectZip(file)
     const state = applyProjectConfig(config, iconFiles, symbolFiles)
 
     pendingElementOverrides.value = state.elementOverrides
@@ -407,6 +435,7 @@ async function onProjectFileSelected(event) {
 
     projectLoadError.value = null
     projectLoadDetails.value = []
+    removedSvgParts.value = removed
     svgText.value = loadedSvgText
   } catch (error) {
     console.error('Project load failed:', error)
