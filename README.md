@@ -16,6 +16,7 @@ Es gibt kein Backend und keine Server-Komponente, beide Projekte laufen rein im 
   Außerdem liegt hier das JSON-Schema des Config-Formats (`riddle-config.schema.json`) mit seinem Validator (`validateRiddleConfig.js`).
   Der Viewer prüft damit jede geladene `riddle-config.json`, der Editor jede importierte und jede exportierte.
   Bei einem Fehler zeigen beide auf Deutsch, was genau falsch ist, z. B. welches Feld bei welchem Rätsel fehlt oder einen unerlaubten Wert hat.
+  Beim Laden eines Zips prüft `validateRiddleZip.js` außerdem, ob `background.svg` und `riddle-config.json` vorhanden und lesbar sind und ob alle in der Config genannten Icons und Symbole im Zip liegen.
 
 Die beiden Projekte sind über das Zip-/Config-Format und den Ordner `shared/` gekoppelt.
 Es gibt keine gemeinsame Datenbank.
@@ -73,6 +74,7 @@ Sie prüfen Antwortprüfung, Freischaltregeln, Karten- und Dekorationszustände,
 Das JSON-Schema ist in `shared/validateRiddleConfig.test.js` getestet.
 Diese Tests prüfen gültige und ungültige Configs beider Modi und erzeugen außerdem Configs mit dem `buildRiddleConfig` des Editors, damit Schema und Export nicht auseinanderlaufen.
 Außerdem prüfen sie den genauen Wortlaut der deutschen Fehlermeldungen für jede Fehlerart.
+Die Zip-Prüfung ist in `shared/validateRiddleZip.test.js` getestet, mit `happy-dom` als Browser-Umgebung für den SVG-Parser.
 Die Vue-Komponenten und die Darstellung im Browser sind nicht abgedeckt.
 
 ```bash
@@ -125,10 +127,13 @@ shared/               gemeinsamer Code beider Subprojekte
 |   |-- SvgGameMap.vue
 |-- gameLogic.js
 |-- gameLogic.test.js
+|-- makeTestConfig.js
 |-- riddle-config.schema.json
 |-- svgGameMap.css
 |-- validateRiddleConfig.js
 |-- validateRiddleConfig.test.js
+|-- validateRiddleZip.js
+|-- validateRiddleZip.test.js
 ```
 
 ## Bekannte Einschränkungen / Bereiche der Weiterentwicklung
