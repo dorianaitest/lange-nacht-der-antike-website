@@ -72,6 +72,8 @@ Vorgaben für die Gestaltung der SVG-Karte (für externe Designerinnen und Desig
 
 Die Spiellogik in `shared/gameLogic.js` ist mit Vitest getestet, die Tests liegen in `shared/gameLogic.test.js`.
 Sie prüfen Antwortprüfung, Freischaltregeln, Karten- und Dekorationszustände, Zeitformat und Symbolvergabe.
+Außerdem prüfen sie `checkUnlockGraph`, das Rätsel findet, die nie freigeschaltet werden können, weil keine ihrer Voraussetzungen von einem Start-Rätsel aus erreichbar ist.
+Der Editor zeigt solche Rätsel als Fehler und blockiert den Export, die zugehörigen Meldungen sind in `shared/editorValidateConfig.test.js` getestet.
 Das JSON-Schema ist in `shared/validateRiddleConfig.test.js` getestet.
 Diese Tests prüfen gültige und ungültige Configs beider Modi und erzeugen außerdem Configs mit dem `buildRiddleConfig` des Editors, damit Schema und Export nicht auseinanderlaufen.
 Außerdem prüfen sie den genauen Wortlaut der deutschen Fehlermeldungen für jede Fehlerart.
@@ -126,6 +128,7 @@ shared/               gemeinsamer Code beider Subprojekte
 |   |-- BaseButton.vue
 |   |-- GameScreen.vue
 |   |-- SvgGameMap.vue
+|-- editorValidateConfig.test.js
 |-- gameLogic.js
 |-- gameLogic.test.js
 |-- makeTestConfig.js
@@ -135,6 +138,7 @@ shared/               gemeinsamer Code beider Subprojekte
 |-- validateRiddleConfig.test.js
 |-- validateRiddleZip.js
 |-- validateRiddleZip.test.js
+|-- vitest.config.js
 ```
 
 ## Bekannte Einschränkungen / Bereiche der Weiterentwicklung
