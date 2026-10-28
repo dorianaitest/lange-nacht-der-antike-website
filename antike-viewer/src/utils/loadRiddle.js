@@ -1,5 +1,5 @@
 import { unzipSync } from 'fflate'
-import { assertValidRiddleConfig } from '@shared/validateRiddleConfig.js'
+import { assertValidRiddleZip } from '@shared/validateRiddleZip.js'
 
 /**
  * Fetches a riddle zip from the given URL and extracts its contents.
@@ -13,11 +13,7 @@ export async function loadRiddle(url) {
 
   const buffer = await response.arrayBuffer()
   const files = unzipSync(new Uint8Array(buffer))
-  const decoder = new TextDecoder()
-
-  const svgText = decoder.decode(files['background.svg'])
-  const config = JSON.parse(decoder.decode(files['riddle-config.json']))
-  assertValidRiddleConfig(config)
+  const { svgText, config } = assertValidRiddleZip(files)
 
   const iconMap = {}
   for (const path in files) {
