@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vorgaben: Spielkarte als SVG</title>
+<style>
+  /* Page layout and colors shared with docs/autoren-anleitung/anleitung.html */
+  :root {
+    --navy: #003064;
+    --navy-dark: #011e4a;
+    --accent: #d4004b;
+    --light: #f0f2f4;
+    --text: #333333;
+    --muted: #5c6670;
+    --good: #2e7d32;
+  }
+
+  @page { size: A4; margin: 0; }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: #8a939c;
+    color: var(--text);
+    font: 11pt/1.45 Arial, Helvetica, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    margin: 10mm auto;
+    padding: 0 18mm;
+    background: #ffffff;
+    box-shadow: 0 2mm 6mm rgba(0, 0, 0, 0.35);
+    break-after: page;
+  }
+
+  .page:last-child { break-after: auto; }
+
+  @media print {
+    body { background: #ffffff; }
+    .page { margin: 0; box-shadow: none; }
+  }
+
+  .page-header {
+    margin: 0 -18mm 8mm;
+    padding: 6mm 18mm 5mm;
+    background: var(--navy);
+    color: #ffffff;
+    border-bottom: 2mm solid var(--accent);
+  }
+
+  .page-header .kicker {
+    font-size: 9pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .page-header h2 {
+    margin: 1mm 0 0;
+    font-size: 19pt;
+  }
+
+  .page-footer {
+    position: absolute;
+    left: 18mm;
+    right: 18mm;
+    bottom: 9mm;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 2mm;
+    border-top: 0.3mm solid var(--light);
+    color: var(--muted);
+    font-size: 8.5pt;
+  }
+
+  h3 {
+    margin: 6mm 0 2mm;
+    color: var(--navy);
+    font-size: 13pt;
+  }
+
+  p { margin: 0 0 3mm; }
+
+  ol, ul { margin: 0 0 3mm; padding-left: 6mm; }
+
+  li { margin-bottom: 1.5mm; }
+
+  code, .file-name {
+    padding: 0 1mm;
+    background: var(--light);
+    border-radius: 1mm;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 10pt;
+  }
+
+  .ui { font-weight: bold; color: var(--navy-dark); }
+
+  /* Values filled in before the guide is sent */
+  .fill-in {
+    padding: 0 1mm;
+    border: 0.3mm dashed var(--accent);
+    border-radius: 1mm;
+    color: var(--accent);
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 10pt;
+    font-weight: bold;
+  }
+
+  .box {
+    margin: 4mm 0;
+    padding: 3mm 4mm;
+    background: var(--light);
+    border-left: 1.5mm solid var(--navy);
+  }
+
+  .box.warning { border-left-color: var(--accent); }
+
+  .box strong:first-child { color: var(--navy); }
+
+  .box.warning strong:first-child { color: var(--accent); }
+
+  .box p:last-child, .box ul:last-child, .box ol:last-child { margin-bottom: 0; }
+
+  table {
+    width: 100%;
+    margin: 0 0 3mm;
+    border-collapse: collapse;
+    font-size: 10.5pt;
+  }
+
+  th, td {
+    padding: 1.5mm 2mm;
+    border-bottom: 0.3mm solid #d3d8dd;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th { color: var(--navy); }
+
+  figure { margin: 3mm 0 4mm; }
+
+  figure img, figure svg {
+    display: block;
+    max-width: 100%;
+    max-height: var(--height);
+    margin: 0 auto;
+    border: 0.3mm solid #d3d8dd;
+  }
+
+  figcaption {
+    margin-top: 1mm;
+    color: var(--muted);
+    font-size: 9pt;
+  }
+
+  .cover-title {
+    margin: 20mm 0 4mm;
+    color: var(--navy);
+    font-size: 28pt;
+    line-height: 1.15;
+  }
+
+  .cover-subtitle {
+    margin-bottom: 12mm;
+    color: var(--accent);
+    font-size: 14pt;
+    font-weight: bold;
+  }
+
+  /* Side-by-side right and wrong examples */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5mm;
+    margin: 3mm 0 4mm;
+  }
+
+  .compare > div {
+    padding: 3mm 4mm;
+    background: var(--light);
+    border-top: 1.5mm solid var(--good);
+  }
+
+  .compare > div.wrong { border-top-color: var(--accent); }
+
+  .compare .label { font-weight: bold; color: var(--good); }
+
+  .compare .wrong .label { color: var(--accent); }
+
+  .compare p:last-child, .compare ul:last-child { margin-bottom: 0; }
+
+  /* Element structure as an indented tree */
+  .tree { margin: 2mm 0 3mm; padding: 0; list-style: none; font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  .tree ul { margin: 0; padding-left: 5mm; list-style: none; }
+  .tree li { margin: 0.5mm 0; }
+
+  .checklist { padding: 0; list-style: none; }
+  .checklist li { position: relative; margin-bottom: 2.5mm; padding-left: 8mm; }
+  .checklist li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.4mm;
+    width: 4mm;
+    height: 4mm;
+    border: 0.4mm solid var(--navy);
+    border-radius: 0.6mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page 1: Cover -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Lange Nacht der Antike</div>
+    <h2>Vorgaben für die Gestaltung der Karte</h2>
+  </header>
+
+  <h1 class="cover-title">Die Spielkarte als SVG-Datei</h1>
+  <p class="cover-subtitle">Für jedes Zeichenprogramm, das SVG speichern kann</p>
+
+  <p>Aus Ihrer Karte wird ein Rätselspiel, das Schülerinnen und Schüler im Browser spielen.
+  Damit Ihre Datei ohne Nacharbeit funktioniert, beschreiben diese Vorgaben, was in der SVG-Datei stehen muss.</p>
+  <p>Welches Programm Sie verwenden, ist egal.
+  Die Vorgaben beschreiben nur das Ergebnis in der Datei, nicht die Bedienung eines bestimmten Programms.
+  Ob Ihre Namen ankommen und am richtigen Element sitzen, prüfen Sie am Ende selbst im Editor (Abschnitt 7).</p>
+
+  <h3>Was Sie von uns bekommen</h3>
+  <ul>
+    <li>Das Thema der Karte und welche Elemente Rätsel werden, z.&nbsp;B. Orte, Gegenstände oder Figuren.</li>
+    <li>Welche Dekorationen auf den Spielstand reagieren sollen, z.&nbsp;B. Straßen oder Seewege.</li>
+    <li>Ob Elemente im Spiel farbig hervorgehoben werden sollen (Abschnitt 4).</li>
+    <li>In welcher Sprache und Schreibweise die Elemente benannt werden.</li>
+  </ul>
+
+  <div class="box">
+    <p><strong>Das Wichtigste in Kürze</strong></p>
+    <ol>
+      <li>Jedes Rätsel und jede Dekoration ist ein eigenes Element mit einem eindeutigen Namen, und dieser Name steht in der Datei als <code>id</code>.</li>
+      <li>Rätsel haben eine Füllung.
+      Rätsel und Dekorationen haben keine eigenen Angaben zu Sichtbarkeit oder Deckkraft, und wenn sie hervorgehoben werden, auch keine eigene Kontur.</li>
+      <li>Vor dem Versand laden Sie die Datei einmal in den Editor und prüfen die Namen.</li>
+    </ol>
+  </div>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 1 von 9</span></footer>
+</section>
+
+<!-- Page 2: Purpose -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Überblick</div>
+    <h2>1. Wozu die Datei dient</h2>
+  </header>
+
+  <p>Die Autorin oder der Autor des Rätsels lädt Ihre Datei in einen Editor im Browser.
+  Dort bekommt jedes benannte Element eine Rolle:</p>
+  <table>
+    <tr><th style="width: 30%">Rätsel</th><td>Wird im Spiel angeklickt und stellt eine Frage, z.&nbsp;B. eine Stadt, ein Schwert oder eine Münze.</td></tr>
+    <tr><th>Dynamische Dekoration</th><td>Reagiert auf den Stand verknüpfter Rätsel, z.&nbsp;B. eine Straße, die erst erscheint, wenn eine Stadt gelöst ist.</td></tr>
+    <tr><th>Inaktiv</th><td>Gehört zum Hintergrund und bleibt immer gleich.</td></tr>
+  </table>
+
+  <figure>
+    <img src="bilder/01-editor.png" alt="Editor mit einer geladenen Karte" style="--height: 78mm">
+    <figcaption>Der Editor: Hier werden Elemente zu Rätseln und Dekorationen.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="bilder/02-spiel.png" alt="Die gleiche Karte als Spiel im Browser" style="--height: 78mm">
+    <figcaption>Das Spiel: Die Karte füllt den Bildschirm, auch auf Tablets.</figcaption>
+  </figure>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 2 von 9</span></footer>
+</section>
+
+<!-- Page 3: Game states -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Überblick</div>
+    <h2>2. Wie die Karte im Spiel lebt</h2>
+  </header>
+
+  <p>Jedes Rätsel ist im Spiel in einem von drei Zuständen: <strong>gesperrt</strong>, <strong>zugänglich</strong> oder <strong>gelöst</strong>.
+  Für jeden Zustand wählt die Autorin oder der Autor eine dieser Darstellungen:</p>
+  <table>
+    <tr><th style="width: 30%">Darstellung</th><th>Wirkung</th></tr>
+    <tr><td>Versteckt</td><td>Das Element ist nicht zu sehen.</td></tr>
+    <tr><td>Verschleiert</td><td>Das Element ist blass.</td></tr>
+    <tr><td>Hervorgehoben</td><td>Das Element bekommt eine farbige Umrandung.</td></tr>
+    <tr><td>Normal</td><td>Das Element sieht aus, wie Sie es gezeichnet haben.</td></tr>
+  </table>
+  <p>Welche Darstellungen ein Projekt nutzt, ist verschieden.
+  Manche Projekte verzichten z.&nbsp;B. ganz auf die Hervorhebung.</p>
+  <p>Dekorationen folgen den Rätseln, mit denen sie verknüpft sind.
+  Eine Straße zwischen zwei Städten kann z.&nbsp;B. versteckt sein, bis eine der Städte gelöst ist.</p>
+
+  <figure>
+    <svg viewBox="0 0 520 170" style="--height: 62mm" role="img" aria-label="Zwei Spielstände: am Anfang und nachdem Roma gelöst ist">
+      <rect width="520" height="170" fill="#ffffff" />
+      <g font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#5c6670">
+        <text x="130" y="20" text-anchor="middle">Am Anfang</text>
+        <text x="390" y="20" text-anchor="middle">Nachdem Roma gelöst ist</text>
+      </g>
+      <line x1="260" y1="30" x2="260" y2="160" stroke="#d3d8dd" />
+      <!-- left: Roma accessible, Cannae locked, road hidden -->
+      <rect x="10" y="30" width="240" height="130" fill="#e8dcb5" />
+      <g stroke="#d4004b" stroke-width="3">
+        <rect x="40" y="80" width="40" height="34" fill="#b5523b" />
+        <polygon points="40,80 60,64 80,80" fill="#8e3b2a" />
+      </g>
+      <g opacity="0.25">
+        <rect x="180" y="90" width="36" height="30" fill="#b5523b" />
+        <polygon points="180,90 198,76 216,90" fill="#8e3b2a" />
+      </g>
+      <!-- right: Roma solved, Cannae accessible, road visible -->
+      <rect x="270" y="30" width="240" height="130" fill="#e8dcb5" />
+      <path d="M 340,100 L 380,104 L 410,100 L 440,106 L 440,112 L 410,106 L 380,110 L 340,106 Z" fill="#8a6d3b" />
+      <rect x="300" y="80" width="40" height="34" fill="#b5523b" />
+      <polygon points="300,80 320,64 340,80" fill="#8e3b2a" />
+      <g stroke="#d4004b" stroke-width="3">
+        <rect x="440" y="90" width="36" height="30" fill="#b5523b" />
+        <polygon points="440,90 458,76 476,90" fill="#8e3b2a" />
+      </g>
+      <g font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#333333">
+        <text x="60" y="132" text-anchor="middle">Roma</text>
+        <text x="198" y="138" text-anchor="middle" opacity="0.4">Cannae</text>
+        <text x="320" y="132" text-anchor="middle">Roma</text>
+        <text x="458" y="138" text-anchor="middle">Cannae</text>
+        <text x="390" y="95" text-anchor="middle">Straße</text>
+      </g>
+    </svg>
+    <figcaption>Ein Beispiel: Roma ist zugänglich (hervorgehoben), Cannae gesperrt (verschleiert) und die Straße versteckt. Ist Roma gelöst, erscheint die Straße und Cannae wird zugänglich.</figcaption>
+  </figure>
+
+  <div class="box warning">
+    <p><strong>Folge für Ihre Zeichnung:</strong>
+    Die Karte muss auch dann vollständig wirken, wenn Rätsel oder Dekorationen blass oder ganz versteckt sind.
+    Unter einer Straße, die später erscheint, braucht der Hintergrund keine Lücke und kein Loch, er wird einfach von der Straße überdeckt.</p>
+  </div>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 3 von 9</span></footer>
+</section>
+
+<!-- Page 4: Structure -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Regeln</div>
+    <h2>3. Rätsel und Dekorationen anlegen</h2>
+  </header>
+
+  <ul>
+    <li>Jedes Rätsel und jede Dekoration ist <strong>genau ein Element oder genau eine Gruppe</strong>.
+    Eine Gruppe darf beliebig viele Teile enthalten, z.&nbsp;B. Haus, Dach und Fenster einer Stadt.</li>
+    <li>Der Name gehört an die Gruppe, nicht an ihre Teile.</li>
+    <li><strong>Kein Rätsel und keine Dekoration liegt in einem anderen Rätsel oder einer anderen Dekoration.</strong>
+    Ebenen oder Ordner, die nur zum Sortieren dienen, sind erlaubt.</li>
+  </ul>
+
+  <div class="compare">
+    <div>
+      <p class="label">Richtig</p>
+      <ul class="tree">
+        <li>Ebene „Städte“
+          <ul>
+            <li><strong>Roma</strong> (Gruppe)
+              <ul><li>Haus</li><li>Dach</li></ul>
+            </li>
+            <li><strong>Cannae</strong> (Gruppe)</li>
+          </ul>
+        </li>
+        <li>Ebene „Wege“
+          <ul><li><strong>Strasse_Roma-Cannae</strong></li></ul>
+        </li>
+      </ul>
+      <p>Stadt und Straße liegen nebeneinander.
+      Jedes Element reagiert für sich.</p>
+    </div>
+    <div class="wrong">
+      <p class="label">Falsch</p>
+      <ul class="tree">
+        <li><strong>Roma</strong> (Gruppe)
+          <ul>
+            <li>Haus</li>
+            <li><strong>Strasse_Roma-Cannae</strong></li>
+            <li><strong>Schwert</strong></li>
+          </ul>
+        </li>
+      </ul>
+      <p>Ein Klick auf die Straße oder das Schwert öffnet das Rätsel „Roma“.
+      Das Rätsel „Schwert“ lässt sich nie öffnen.</p>
+    </div>
+  </div>
+
+  <div class="box">
+    <p><strong>Tipp:</strong>
+    Gruppieren Sie alles, was zu einem Rätsel gehört, und geben Sie der Gruppe den Namen.
+    So wird beim Klick und beim Hervorheben das ganze Rätsel erfasst.</p>
+  </div>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 4 von 9</span></footer>
+</section>
+
+<!-- Page 5: Fill, stroke, visibility -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Regeln</div>
+    <h2>4. Klickflächen und Darstellung</h2>
+  </header>
+
+  <h3>Für alle Rätsel und Dekorationen</h3>
+  <ul>
+    <li><strong>Rätsel haben eine Füllung.</strong>
+    Angeklickt wird die bemalte Fläche.
+    Ohne Füllung reagiert nur die dünne Linie.
+    Zeichnen Sie Rätsel so groß, dass man sie auf dem Tablet gut mit dem Finger trifft.</li>
+    <li><strong>Keine eigenen Angaben zu Sichtbarkeit oder Deckkraft</strong> (in der Datei <code>display</code>, <code>visibility</code>, <code>opacity</code>).
+    Das Spiel versteckt Elemente und macht sie blass.
+    Eine eigene Angabe kann das übersteuern, auch eine scheinbar harmlose wie „sichtbar“ oder „100&nbsp;% Deckkraft“.
+    Lassen Sie diese Einstellungen bei Rätseln und Dekorationen auf dem Standard.</li>
+  </ul>
+
+  <h3>Wenn Elemente hervorgehoben werden</h3>
+  <p>Ob hervorgehoben wird, sagen wir Ihnen.
+  Die Hervorhebung ist eine farbige Umrandung, die das Spiel um das Element zeichnet.
+  Elemente, die hervorgehoben werden sollen, haben <strong>keine eigene Kontur</strong>, auch nicht in einzelnen Teilen einer Gruppe, denn eine eigene Kontur kann die Umrandung verdecken.
+  Ist es noch offen, zeichnen Sie Rätsel ohne eigene Kontur, dann bleibt die Hervorhebung möglich.</p>
+
+  <figure>
+    <img src="bilder/03-haeuser.png" alt="Drei Häuser im Spiel, hervorgehoben" style="--height: 38mm">
+    <figcaption>Alle drei Häuser sind hervorgehoben.
+    Links richtig: gefüllt, ohne Kontur, die rote Umrandung ist sichtbar.
+    Mitte falsch: Die eigene Kontur verdeckt die Umrandung.
+    Rechts falsch: ohne Füllung, keine Umrandung, und nur die Linie ist anklickbar.</figcaption>
+  </figure>
+
+  <p>Eine Linie, z.&nbsp;B. eine Straße, besteht nur aus Kontur, und die Umrandung des Spiels kommt dort nicht zuverlässig an.
+  Zeichnen Sie Linien, die hervorgehoben werden sollen, als gefüllte Fläche.
+  Die meisten Programme haben dafür einen Befehl, der eine Kontur in eine Fläche umwandelt.
+  Linien, die nur versteckt oder blass werden, dürfen Linien bleiben.</p>
+
+  <figure>
+    <img src="bilder/04-strassen.png" alt="Zwei Straßen im Spiel, hervorgehoben" style="--height: 20mm">
+    <figcaption>Beide Straßen sind hervorgehoben. Oben als Fläche: Umrandung sichtbar. Unten als Linie: keine Umrandung.</figcaption>
+  </figure>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 5 von 9</span></footer>
+</section>
+
+<!-- Page 6: File basics -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Regeln</div>
+    <h2>5. Grundlagen der Datei</h2>
+  </header>
+
+  <table>
+    <tr><th style="width: 36%">Vorgabe</th><th>Warum</th></tr>
+    <tr>
+      <td>Eine einzige SVG-Datei</td>
+      <td>Der Editor lädt genau eine SVG-Datei als Karte.</td>
+    </tr>
+    <tr>
+      <td>Eine <code>viewBox</code> am Wurzelelement, die die ganze Karte umfasst</td>
+      <td>Damit passt sich die Karte an jede Bildschirmgröße an.
+      Fehlt sie oder umfasst sie nicht die ganze Karte, wird die Karte abgeschnitten oder falsch skaliert.
+      Die meisten Programme setzen sie beim SVG-Export automatisch.</td>
+    </tr>
+    <tr>
+      <td>Text in Pfade umgewandelt</td>
+      <td>Schriften fehlen auf den Geräten der Spielenden.
+      Text als Text wird dort in einer Ersatzschrift gezeigt.</td>
+    </tr>
+    <tr>
+      <td>Beschriftungen liegen außerhalb von Rätseln und Dekorationen</td>
+      <td>Eine Hervorhebung würde auch die Buchstaben umranden und sie unleserlich machen.
+      Beschriftungen gehören zum Hintergrund.</td>
+    </tr>
+    <tr>
+      <td>Reine Vektorgrafik ohne Bilder</td>
+      <td>Verlinkte Bilder sind nicht Teil der Datei und fehlen im Spiel.
+      Eingebettete Bilder machen die Datei groß.</td>
+    </tr>
+    <tr>
+      <td>Keine eingebetteten Schriften, keine Skripte oder anderen aktiven Inhalte</td>
+      <td>Schriften sind nach der Umwandlung in Pfade überflüssig.
+      Die Karte ist reine Grafik, aktive Inhalte werden nicht unterstützt.</td>
+    </tr>
+    <tr>
+      <td>Empfohlen: etwa 1&nbsp;MB oder kleiner</td>
+      <td>Die Karte wird auf Tablets und über Schul-WLAN geladen.
+      Eine detailreiche Karte mit 9 Rätseln hatte 250&nbsp;KB.</td>
+    </tr>
+  </table>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 6 von 9</span></footer>
+</section>
+
+<!-- Page 7: Naming -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Regeln</div>
+    <h2>6. Benennung</h2>
+  </header>
+
+  <p>Der Editor erkennt Elemente nur an ihrer <code>id</code>, einem Namen, der in der SVG-Datei am Element steht.
+  Erst im Editor bekommen sie dann ihre Rolle als Rätsel oder Dekoration:</p>
+  <p><code>&lt;g id="Roma"&gt; … &lt;/g&gt;</code></p>
+
+  <div class="box warning">
+    <p><strong>Der Name muss als <code>id</code> in der Datei stehen.</strong>
+    Je nach Programm steht der Ebenen- oder Objektname als <code>id</code> in der Datei oder nur als Beschriftung, die der Editor nicht sieht.
+    Dann steht im Editor statt „Roma“ z.&nbsp;B. „rect479“.
+    Ob Ihre Namen ankommen, zeigt der Selbsttest in Abschnitt 7.</p>
+  </div>
+
+  <h3>Schema</h3>
+  <table>
+    <tr><th style="width: 34%">Element</th><th style="width: 30%">Schema</th><th>Beispiele</th></tr>
+    <tr><td>Rätsel</td><td>Name dessen, was es zeigt</td><td><code>Roma</code>, <code>Schwert</code>, <code>Muenze</code></td></tr>
+    <tr><td>Dekoration zwischen zwei Rätseln</td><td><code>Typ_RaetselA-RaetselB</code></td><td><code>Strasse_Roma-Cannae</code>, <code>Seeweg_Sardinia-Genua</code></td></tr>
+    <tr><td>Dekoration an einem Rätsel</td><td><code>Typ_Raetsel</code></td><td><code>Hafen_Ostia</code>, <code>Glanz_Schwert</code></td></tr>
+  </table>
+  <p>Die Beispiele sind nur Beispiele.
+  Sprache und Schreibweise der Namen bekommen Sie von uns, passend zum Thema des Rätsels.</p>
+
+  <h3>Regeln</h3>
+  <ul>
+    <li>Unsere Konvention, damit Namen überall sicher funktionieren: nur Buchstaben, Ziffern, <code>-</code> und <code>_</code>.
+    Keine Leerzeichen.
+    Umlaute und <code>ß</code> umschreiben: <code>ae</code>, <code>oe</code>, <code>ue</code>, <code>ss</code>.</li>
+    <li>Jeder Name kommt nur einmal vor.
+    Bei zwei gleichen Namen funktioniert nur eines der Elemente, ohne Warnung.
+    Manche Programme benennen kopierte Elemente auch selbst um, prüfen Sie die Namen also nach dem Kopieren.</li>
+    <li>Groß- und Kleinschreibung zählt: <code>Roma</code> und <code>roma</code> sind zwei verschiedene Namen.</li>
+    <li>Innerhalb einer Karte einheitlich bleiben, also nicht <code>Syracusa</code> und <code>Syracusae</code> gemischt.</li>
+    <li>Alle anderen Elemente dürfen automatische Namen behalten, z.&nbsp;B. <code>rect16</code> oder <code>path42</code>.
+    Der Editor zeigt sie zwar an, sie bleiben aber inaktiv.</li>
+  </ul>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 7 von 9</span></footer>
+</section>
+
+<!-- Page 8: Self-test -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Prüfen</div>
+    <h2>7. Selbsttest im Editor</h2>
+  </header>
+
+  <ol>
+    <li>Öffnen Sie <span class="fill-in">&lt;EDITOR-ADRESSE&gt;</span> in Chrome, Edge oder Firefox.</li>
+    <li>Klicken Sie auf <span class="ui">Wähle eine SVG Datei</span> und wählen Sie Ihre Datei.</li>
+    <li>Wählen Sie im Fenster <span class="ui">Rätselmodus wählen</span> die Option <span class="ui">Standard</span>.
+    Die Liste <span class="ui">Ebenen</span> öffnet sich (sonst oben auf <span class="ui">Ebenen</span> klicken).</li>
+    <li>Prüfen Sie: Jedes Rätsel und jede Dekoration steht mit genau Ihrem Namen in der Liste.</li>
+    <li>Fahren Sie mit der Maus über jeden Ihrer Namen.
+    Rechts auf der Karte wird das Element dann umrandet: Es muss das ganze Rätsel oder die ganze Dekoration sein, nicht nur ein Teil.</li>
+    <li>Schließen Sie die Liste und prüfen Sie, ob die ganze Karte zu sehen ist.</li>
+  </ol>
+  <p>Der Editor lädt Ihre Datei nicht hoch, er öffnet sie nur in Ihrem Browser.</p>
+
+  <figure>
+    <img src="bilder/05-elementliste.png" alt="Liste „Ebenen“ im Editor, die Maus steht über „Roma“, auf der Karte ist Roma umrandet" style="--height: 70mm">
+    <figcaption>So soll es aussehen: Rätsel und Dekorationen mit ihren Namen, dazwischen automatische Namen wie <code>rect1</code>. Die Maus steht über <code>Roma</code>, auf der Karte ist Roma umrandet.</figcaption>
+  </figure>
+
+  <table>
+    <tr><th style="width: 40%">Problem</th><th>Ursache und Lösung</th></tr>
+    <tr>
+      <td>Statt Ihres Namens steht ein automatischer Name wie <code>rect479</code> in der Liste.</td>
+      <td>Ihr Programm hat den Namen nicht als <code>id</code> gespeichert.
+      Suchen Sie in der Hilfe Ihres Programms nach „SVG id“ oder „Objekt-ID“.</td>
+    </tr>
+    <tr>
+      <td>Beim Überfahren wird nur ein Teil umrandet.</td>
+      <td>Der Name sitzt an einem Teil statt an der Gruppe (Abschnitt 3).</td>
+    </tr>
+    <tr>
+      <td>Beim Überfahren erscheint keine Umrandung.</td>
+      <td>Das Element hat eine eigene Kontur.
+      Wichtig nur, wenn es hervorgehoben werden soll (Abschnitt 4).</td>
+    </tr>
+    <tr>
+      <td>Die Karte ist abgeschnitten oder zu klein.</td>
+      <td>Die <code>viewBox</code> fehlt oder umfasst nicht die ganze Karte (Abschnitt 5).</td>
+    </tr>
+  </table>
+
+  <p>Ohne Zugang zum Editor schicken Sie die Datei an <span class="fill-in">&lt;KONTAKT&gt;</span>, wir machen den Test dann für Sie.</p>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 8 von 9</span></footer>
+</section>
+
+<!-- Page 9: Checklist -->
+<section class="page">
+  <header class="page-header">
+    <div class="kicker">Prüfen</div>
+    <h2>8. Checkliste vor dem Versand</h2>
+  </header>
+
+  <h3>Aufbau (Abschnitt 3)</h3>
+  <ul class="checklist">
+    <li>Jedes Rätsel und jede Dekoration ist genau ein Element oder eine Gruppe.</li>
+    <li>Kein Rätsel und keine Dekoration liegt in einem anderen Rätsel oder einer anderen Dekoration.</li>
+  </ul>
+
+  <h3>Darstellung (Abschnitt 4)</h3>
+  <ul class="checklist">
+    <li>Alle Rätsel haben eine Füllung und sind groß genug zum Antippen.</li>
+    <li>Rätsel und Dekorationen haben keine eigenen Angaben zu Sichtbarkeit oder Deckkraft.</li>
+    <li>Falls hervorgehoben wird: Diese Elemente haben keine eigene Kontur, auch nicht in Teilen, und Linien unter ihnen sind als Fläche gezeichnet.</li>
+    <li>Die Karte wirkt auch vollständig, wenn Rätsel oder Dekorationen blass oder versteckt sind.</li>
+  </ul>
+
+  <h3>Datei (Abschnitt 5)</h3>
+  <ul class="checklist">
+    <li>Eine einzige SVG-Datei mit einer <code>viewBox</code>, die die ganze Karte umfasst.</li>
+    <li>Text ist in Pfade umgewandelt, Beschriftungen liegen außerhalb von Rätseln und Dekorationen.</li>
+    <li>Reine Vektorgrafik: keine Bilder, Schriften oder Skripte.</li>
+    <li>Empfohlen: Die Datei ist etwa 1&nbsp;MB oder kleiner.</li>
+  </ul>
+
+  <h3>Namen (Abschnitte 6 und 7)</h3>
+  <ul class="checklist">
+    <li>Alle Namen folgen dem Schema und der vereinbarten Sprache.</li>
+    <li>Nur Buchstaben, Ziffern, <code>-</code> und <code>_</code>, jeder Name nur einmal.</li>
+    <li>Im Selbsttest stehen alle Rätsel und Dekorationen mit ihrem Namen in der Liste.</li>
+    <li>Beim Überfahren jedes Namens wird das ganze zugehörige Element umrandet.</li>
+  </ul>
+
+  <div class="box">
+    <p><strong>Versand:</strong>
+    Schicken Sie die SVG-Datei an <span class="fill-in">&lt;KONTAKT&gt;</span>.
+    Legen Sie eine Liste der Namen bei, mit einer Zeile pro Rätsel und Dekoration.</p>
+  </div>
+
+  <footer class="page-footer"><span>Vorgaben: Spielkarte als SVG</span><span>Seite 9 von 9</span></footer>
+</section>
+
+</body>
+</html>

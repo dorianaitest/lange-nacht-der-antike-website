@@ -66,6 +66,7 @@ Vite serviert alles aus public/ unverändert unter der Root, npm run dev liest s
 Rätselkonfiguration auf dem Webserver laden:<br>
 Rätselpaket unter `dist/current/` als `riddle.zip` legen, relativ zum Ort, an dem die gebaute index.html liegt.
 Schritt-für-Schritt-Anleitung für Autorinnen und Autoren (Upload mit FileZilla): [`docs/autoren-anleitung/anleitung.pdf`](docs/autoren-anleitung/anleitung.pdf)
+Vorgaben für die Gestaltung der SVG-Karte (für externe Designerinnen und Designer): [`docs/designer-vorgaben/vorgaben.pdf`](docs/designer-vorgaben/vorgaben.pdf)
 
 ## Tests
 
