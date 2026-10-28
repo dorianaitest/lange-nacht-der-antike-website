@@ -1,5 +1,6 @@
 import { strToU8, unzipSync, zipSync } from 'fflate'
-import { assertValidRiddleConfig } from '@shared/validateRiddleConfig.js'
+import { RiddleConfigError } from '@shared/validateRiddleConfig.js'
+import { assertValidRiddleZip } from '@shared/validateRiddleZip.js'
 
 /**
  * Reads a previously exported project zip and extracts its contents.
@@ -10,16 +11,13 @@ import { assertValidRiddleConfig } from '@shared/validateRiddleConfig.js'
  */
 export async function loadProjectZip(file) {
   const buffer = await file.arrayBuffer()
-  const files = unzipSync(new Uint8Array(buffer))
-
-  if (!files['background.svg'] || !files['riddle-config.json']) {
-    throw new Error('Zip is missing background.svg or riddle-config.json')
+  let files
+  try {
+    files = unzipSync(new Uint8Array(buffer))
+  } catch {
+    throw new RiddleConfigError(['Die Datei ist keine gültige Zip-Datei.'])
   }
-
-  const decoder = new TextDecoder()
-  const svgText = decoder.decode(files['background.svg'])
-  const config = JSON.parse(decoder.decode(files['riddle-config.json']))
-  assertValidRiddleConfig(config)
+  const { svgText, config } = assertValidRiddleZip(files)
 
   const iconFiles = extractFilesByPrefix(files, 'icons/')
   const symbolFiles = extractFilesByPrefix(files, 'symbols/')

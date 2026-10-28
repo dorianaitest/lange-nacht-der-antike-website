@@ -411,7 +411,7 @@ async function onProjectFileSelected(event) {
   } catch (error) {
     console.error('Project load failed:', error)
     if (error instanceof RiddleConfigError) {
-      projectLoadError.value = 'Das Projekt konnte nicht geladen werden, die riddle-config.json ist fehlerhaft:'
+      projectLoadError.value = 'Das Projekt konnte nicht geladen werden, die Zip-Datei ist fehlerhaft:'
       projectLoadDetails.value = summarizeMessages(error.messages)
     } else {
       projectLoadError.value = 'Das Projekt konnte nicht geladen werden. Bitte prüfe die Datei und versuche es erneut.'
