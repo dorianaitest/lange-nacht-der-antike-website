@@ -150,8 +150,12 @@ const FINAL_RIDDLE_PLACEHOLDER = '[last]'
  * the newly chosen final riddle is switched to the placeholder
  * unlock and it is stripped out of every other riddle's
  * own unlockAfterIds so it can't also be used as normal prerequisite.
+ * The previous final riddle drops the placeholder and becomes a start riddle.
  */
-watch(finalRiddleId, function (newId) {
+watch(finalRiddleId, function (newId, oldId) {
+  if (oldId && elementsData.value[oldId]) {
+    elementsData.value[oldId].riddle.unlockAfterIds = []
+  }
   if (!newId) return
 
   if (elementsData.value[newId]) {
