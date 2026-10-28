@@ -4,6 +4,7 @@ import {
   isAccessible,
   getRiddleState,
   getDecorationState,
+  checkUnlockGraph,
   formatTime,
   buildShuffledSymbolEntries,
   drawRandomSymbol,
@@ -106,6 +107,57 @@ describe('getDecorationState', () => {
 
   it('is locked without linked riddles', () => {
     expect(getDecorationState({ type: 'decoration' }, standardConfig, {})).toBe('locked')
+  })
+})
+
+describe('checkUnlockGraph', () => {
+  const riddle = (...unlockAfterIds) => ({ type: 'riddle', unlockAfterIds })
+  const empty = { unreachableIds: [], deadUnlockRefs: [], deadDecorationLinks: [] }
+
+  it('accepts a cycle that a start riddle leads into, like the real exports', () => {
+    const nodes = { Alpen: riddle(), Genua: riddle('Alpen', 'Rubico'), Rubico: riddle('Genua', 'Alpen'), Roma: riddle() }
+    expect(checkUnlockGraph({ nodes })).toEqual(empty)
+    expect(checkUnlockGraph({ finalRiddleId: 'Roma', nodes: { ...nodes, Roma: riddle('[last]') } })).toEqual(empty)
+  })
+
+  it('accepts the test configs', () => {
+    expect(checkUnlockGraph(standardConfig)).toEqual(empty)
+    expect(checkUnlockGraph(symbolRiddleConfig)).toEqual(empty)
+  })
+
+  it('reports an isolated cycle', () => {
+    const nodes = { Alpen: riddle(), Genua: riddle('Rubico'), Rubico: riddle('Genua') }
+    expect(checkUnlockGraph({ nodes }).unreachableIds).toEqual(['Genua', 'Rubico'])
+  })
+
+  it('reports a riddle whose only prerequisite is not a riddle', () => {
+    const nodes = { Alpen: riddle(), Genua: riddle('Alt'), Alt: { type: 'decoration', linkedElements: [] } }
+    expect(checkUnlockGraph({ nodes })).toEqual({ ...empty, unreachableIds: ['Genua'], deadUnlockRefs: [{ id: 'Genua', targetId: 'Alt' }] })
+  })
+
+  it('only warns about a dead prerequisite next to a valid one', () => {
+    const nodes = { Alpen: riddle(), Genua: riddle('Alpen', 'Alt') }
+    expect(checkUnlockGraph({ nodes })).toEqual({ ...empty, deadUnlockRefs: [{ id: 'Genua', targetId: 'Alt' }] })
+  })
+
+  it('reports a leftover [last] on a riddle that is not the final one', () => {
+    const nodes = { Alpen: riddle(), Roma: riddle('[last]') }
+    expect(checkUnlockGraph({ nodes })).toEqual({ ...empty, unreachableIds: ['Roma'], deadUnlockRefs: [{ id: 'Roma', targetId: '[last]' }] })
+  })
+
+  it('reports the final riddle when another riddle is unreachable', () => {
+    const nodes = { Alpen: riddle(), Genua: riddle('Rubico'), Rubico: riddle('Genua'), Roma: riddle('[last]') }
+    expect(checkUnlockGraph({ finalRiddleId: 'Roma', nodes }).unreachableIds).toEqual(['Genua', 'Rubico', 'Roma'])
+  })
+
+  it('reports nothing as unreachable without a start riddle', () => {
+    const nodes = { Genua: riddle('Rubico'), Rubico: riddle('Genua') }
+    expect(checkUnlockGraph({ nodes }).unreachableIds).toEqual([])
+  })
+
+  it('reports decoration links to non-riddles', () => {
+    const nodes = { Alpen: riddle(), Road: { type: 'decoration', linkedElements: ['Alpen', 'Alt'] } }
+    expect(checkUnlockGraph({ nodes })).toEqual({ ...empty, deadDecorationLinks: [{ id: 'Road', targetId: 'Alt' }] })
   })
 })
 

@@ -115,6 +115,57 @@ export function getDecorationState(decoration, config, completedRiddles) {
 }
 
 /**
+ * Finds riddles that can never be unlocked, and references to ids that are not riddles.
+ * Follows isAccessible: a riddle is reachable once any of its prerequisites is,
+ * the final riddle once every other riddle is. Without a start riddle nothing is reported
+ * as unreachable, the editor shows its own error for that.
+ * @param {Object} config - riddle config, only `nodes` and `finalRiddleId` are read.
+ * @returns {{unreachableIds: string[], deadUnlockRefs: Array<{id: string, targetId: string}>,
+ *   deadDecorationLinks: Array<{id: string, targetId: string}>}} unreachable riddles and dead references.
+ */
+export function checkUnlockGraph(config) {
+  const finalId = config.finalRiddleId
+  const isRiddle = (id) => config.nodes[id]?.type === 'riddle'
+  const riddleIds = Object.keys(config.nodes).filter(isRiddle)
+  const normalIds = riddleIds.filter((id) => id !== finalId)
+
+  const deadUnlockRefs = []
+  for (const id of normalIds) {
+    for (const targetId of config.nodes[id].unlockAfterIds) {
+      if (!isRiddle(targetId)) deadUnlockRefs.push({ id, targetId })
+    }
+  }
+  const deadDecorationLinks = []
+  for (const [id, node] of Object.entries(config.nodes)) {
+    if (node.type !== 'decoration') continue
+    for (const targetId of node.linkedElements) {
+      if (!isRiddle(targetId)) deadDecorationLinks.push({ id, targetId })
+    }
+  }
+
+  const hasStartRiddle = normalIds.some((id) => config.nodes[id].unlockAfterIds.length === 0)
+  if (!hasStartRiddle) return { unreachableIds: [], deadUnlockRefs, deadDecorationLinks }
+
+  const reachable = new Set()
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const id of normalIds) {
+      if (reachable.has(id)) continue
+      const parents = config.nodes[id].unlockAfterIds
+      if (parents.length === 0 || parents.some((parentId) => reachable.has(parentId))) {
+        reachable.add(id)
+        changed = true
+      }
+    }
+  }
+  if (isRiddle(finalId) && reachable.size === normalIds.length) reachable.add(finalId)
+
+  const unreachableIds = riddleIds.filter((id) => !reachable.has(id))
+  return { unreachableIds, deadUnlockRefs, deadDecorationLinks }
+}
+
+/**
  * Formats a duration in seconds as MM:SS.
  * @param {number} totalSeconds - Duration in seconds.
  * @returns {string} Formatted time string.
