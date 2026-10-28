@@ -27,7 +27,8 @@
                 type="radio"
                 :name="id"
                 :value="option"
-                v-model="entry.elementArt"
+                :checked="entry.elementArt === option"
+                @change="setElementArt(id, option)"
                 class="cursor-pointer"
               />
               {{ option }}
@@ -63,6 +64,23 @@ const HIGHLIGHT_CLASS = {
 }
 
 const svgMap = ref(null)
+
+/**
+ * Changes an element's role. When it stops being a riddle, its id is removed from
+ * every unlock condition and decoration link, so no riddle waits on it forever.
+ * @param {string} id - SVG element id.
+ * @param {string} elementArt - new role.
+ */
+function setElementArt(id, elementArt) {
+  const wasRiddle = elementsData.value[id].elementArt === 'Rätsel'
+  elementsData.value[id].elementArt = elementArt
+  if (!wasRiddle || elementArt === 'Rätsel') return
+
+  for (const entry of Object.values(elementsData.value)) {
+    entry.riddle.unlockAfterIds = entry.riddle.unlockAfterIds.filter((otherId) => otherId !== id)
+    entry.deco.linkedElements = entry.deco.linkedElements.filter((otherId) => otherId !== id)
+  }
+}
 
 /**
  * Highlights the hovered row's element on the map, using the class for whichever
