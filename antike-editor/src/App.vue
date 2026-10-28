@@ -86,6 +86,9 @@
           <BaseButton variant="secondary" @click="openProjectFilePicker">Bestehendes Projekt laden</BaseButton>
         </div>
         <p v-if="projectLoadError" class="text-sm text-danger-600">{{ projectLoadError }}</p>
+        <ul v-if="projectLoadDetails.length" class="max-w-2xl list-disc pl-5 text-sm text-danger-600">
+          <li v-for="message in projectLoadDetails" :key="message">{{ message }}</li>
+        </ul>
       </div>
     </template>
   </div>
@@ -108,6 +111,7 @@ import ModePickerModal from './components/ModePickerModal.vue'
 import SymbolsModal from './components/SymbolsModal.vue'
 import StylingModal from './components/StylingModal.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
+import { RiddleConfigError, summarizeMessages } from '@shared/validateRiddleConfig.js'
 import {
   PLAIN_SVG_TEXT,
   ELEMENTS_DATA,
@@ -128,6 +132,7 @@ const fileInput = ref(null)
 const projectFileInput = ref(null)
 const pendingElementOverrides = ref(null)
 const projectLoadError = ref(null)
+const projectLoadDetails = ref([])
 const svgText = ref(null)
 const symbolPickerData = ref({ prompt: '', successText: '' })
 const completionMessage = ref('')
@@ -401,10 +406,17 @@ async function onProjectFileSelected(event) {
     Object.assign(stylingConfig, state.stylingConfig)
 
     projectLoadError.value = null
+    projectLoadDetails.value = []
     svgText.value = loadedSvgText
   } catch (error) {
     console.error('Project load failed:', error)
-    projectLoadError.value = 'Das Projekt konnte nicht geladen werden. Bitte prüfe die Datei und versuche es erneut.'
+    if (error instanceof RiddleConfigError) {
+      projectLoadError.value = 'Das Projekt konnte nicht geladen werden, die riddle-config.json ist fehlerhaft:'
+      projectLoadDetails.value = summarizeMessages(error.messages)
+    } else {
+      projectLoadError.value = 'Das Projekt konnte nicht geladen werden. Bitte prüfe die Datei und versuche es erneut.'
+      projectLoadDetails.value = []
+    }
   }
 }
 </script>

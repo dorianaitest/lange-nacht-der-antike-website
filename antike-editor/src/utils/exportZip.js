@@ -1,6 +1,6 @@
 import { strToU8, zipSync } from 'fflate'
 import { buildRiddleConfig } from './buildRiddleConfig.js'
-import { validateRiddleConfig } from '@shared/validateRiddleConfig.js'
+import { assertValidRiddleConfig } from '@shared/validateRiddleConfig.js'
 
 /**
  * Builds the project zip and triggers a browser download of `riddle.zip`.
@@ -21,11 +21,7 @@ import { validateRiddleConfig } from '@shared/validateRiddleConfig.js'
  */
 export async function exportZip(plainSvgText, elementsData, mode, symbolPool, finalRiddleId, finalRiddlePenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig) {
   const config = buildRiddleConfig(elementsData, mode, symbolPool, finalRiddleId, finalRiddlePenalty, symbolPickerData, completionMessage, startScreenData, stylingConfig)
-  const { valid, errors } = validateRiddleConfig(config)
-  if (!valid) {
-    console.error('riddle-config.json does not match the schema:', errors)
-    throw new Error('Invalid riddle-config.json')
-  }
+  assertValidRiddleConfig(config)
 
   // the zip file needs raw bytes so we need to convert the strings
   const files = {

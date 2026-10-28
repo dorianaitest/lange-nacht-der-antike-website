@@ -4,6 +4,13 @@
       <p class="text-ink-muted text-sm">Laden…</p>
     </div>
 
+    <div v-else-if="state === 'error' && configErrors.length" class="overlay-center flex-col gap-3">
+      <p class="text-ink text-base font-semibold">Das Rätsel ist fehlerhaft. Ein Admin muss ein korrigiertes Rätsel hochladen!</p>
+      <ul class="max-w-2xl list-disc pl-5 text-left text-sm text-danger-600">
+        <li v-for="message in configErrors" :key="message">{{ message }}</li>
+      </ul>
+    </div>
+
     <div v-else-if="state === 'error'" class="overlay-center">
       <p class="text-ink text-base font-semibold">Kein Rätsel gefunden. Es muss ein valides Rätsel von einem Admin hochgeladen werden!</p>
     </div>
@@ -28,8 +35,10 @@ import { ref, computed, onMounted } from 'vue'
 import GameScreen from '@shared/components/GameScreen.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
 import { loadRiddle } from './utils/loadRiddle.js'
+import { RiddleConfigError, summarizeMessages } from '@shared/validateRiddleConfig.js'
 
 const state = ref('loading')
+const configErrors = ref([])
 const svgText = ref('')
 const config = ref(null)
 const iconMap = ref({})
@@ -67,6 +76,7 @@ onMounted(async function () {
     state.value = 'ready'
   } catch (err) {
     console.error(err)
+    if (err instanceof RiddleConfigError) configErrors.value = summarizeMessages(err.messages)
     state.value = 'error'
   }
 })

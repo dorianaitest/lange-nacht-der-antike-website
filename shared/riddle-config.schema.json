@@ -33,21 +33,29 @@
     "finalRiddleId": { "type": "string", "minLength": 1 },
     "finalRiddlePenalty": { "type": "number", "exclusiveMinimum": 0 }
   },
-  "if": { "properties": { "mode": { "const": "Standard" } } },
-  "then": {
-    "properties": {
-      "nodes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/standardModeNode" } },
-      "symbolPool": false,
-      "finalRiddleId": false,
-      "finalRiddlePenalty": false
+  "$comment": "One if/then per mode, so an unknown or missing mode only reports the mode instead of the other mode's rules.",
+  "allOf": [
+    {
+      "if": { "required": ["mode"], "properties": { "mode": { "const": "Standard" } } },
+      "then": {
+        "properties": {
+          "nodes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/standardModeNode" } },
+          "symbolPool": false,
+          "finalRiddleId": false,
+          "finalRiddlePenalty": false
+        }
+      }
+    },
+    {
+      "if": { "required": ["mode"], "properties": { "mode": { "const": "SymbolRiddle" } } },
+      "then": {
+        "required": ["symbolPool", "finalRiddleId", "finalRiddlePenalty"],
+        "properties": {
+          "nodes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/symbolRiddleModeNode" } }
+        }
+      }
     }
-  },
-  "else": {
-    "required": ["symbolPool", "finalRiddleId", "finalRiddlePenalty"],
-    "properties": {
-      "nodes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/symbolRiddleModeNode" } }
-    }
-  },
+  ],
   "$defs": {
     "fileName": { "type": "string", "minLength": 1 },
     "idList": { "type": "array", "items": { "type": "string", "minLength": 1 } },

@@ -11,7 +11,12 @@
         {{ copyLabel }}
       </BaseButton>
     </div>
-    <p v-if="exportError" role="alert" class="shrink-0 border-b border-border-subtle px-5 py-2 text-sm text-danger-600">{{ exportError }}</p>
+    <div v-if="exportError" role="alert" class="shrink-0 border-b border-border-subtle px-5 py-2 text-sm text-danger-600">
+      <p>{{ exportError }}</p>
+      <ul v-if="exportDetails.length" class="mt-1 list-disc pl-5">
+        <li v-for="message in exportDetails" :key="message">{{ message }}</li>
+      </ul>
+    </div>
 
     <div class="flex-1 overflow-auto px-5 py-4">
       <pre class="code-preview">{{ jsonString }}</pre>
@@ -26,6 +31,7 @@ import BaseModal from './BaseModal.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
 import { buildRiddleConfig } from '../utils/buildRiddleConfig.js'
 import { exportZip } from '../utils/exportZip.js'
+import { RiddleConfigError, summarizeMessages } from '@shared/validateRiddleConfig.js'
 
 const emit = defineEmits(['close'])
 
@@ -43,6 +49,7 @@ const stylingConfig = inject(STYLING_CONFIG)
 
 const copyState = ref(null)
 const exportError = ref(null)
+const exportDetails = ref([])
 
 /**
  * Button label for copy. Used mostly for DEV work
@@ -102,9 +109,12 @@ async function downloadZip() {
   try {
     await exportZip(plainSvgText.value, elementsData.value, selectedMode.value, symbolPool.value, finalRiddleId.value, finalRiddlePenalty.value, symbolPickerData.value, completionMessage.value, startScreenData.value, stylingConfig)
     exportError.value = null
+    exportDetails.value = []
   } catch (error) {
     console.error('Export failed:', error)
-    exportError.value = 'Die Konfiguration ist fehlerhaft und konnte nicht exportiert werden. Details stehen in der Browser-Konsole.'
+    // validateConfig already blocks author mistakes, so a failure here means the editor built a broken config
+    exportError.value = 'Der Export wurde abgebrochen, weil der Editor eine fehlerhafte Konfiguration erzeugt hat. Das ist ein Fehler im Editor, bitte melde ihn mit diesen Angaben:'
+    exportDetails.value = error instanceof RiddleConfigError ? summarizeMessages(error.messages) : [error.message]
   }
 }
 
