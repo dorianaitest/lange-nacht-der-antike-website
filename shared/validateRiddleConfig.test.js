@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { validateRiddleConfig, assertValidRiddleConfig, summarizeMessages, RiddleConfigError } from './validateRiddleConfig.js'
 import { buildRiddleConfig } from '../antike-editor/src/utils/buildRiddleConfig.js'
-import { makeConfig } from './makeTestConfig.js'
+import { makeConfig, makeEntry } from './makeTestConfig.js'
 
 describe('validateRiddleConfig', () => {
   it('accepts a valid Standard config', () => {
@@ -78,30 +78,6 @@ describe('validateRiddleConfig', () => {
     expect(validateRiddleConfig(config).valid).toBe(false)
   })
 })
-
-/**
- * Builds an elementsData entry the way the editor's App.vue does, with a riddle and a deco part.
- * @param {string} elementArt - 'Rätsel', 'dynamische Dekoration' or 'Inaktiv'.
- * @param {Object} riddle - overrides for the riddle part.
- * @param {Object} deco - overrides for the deco part.
- * @returns {Object} elementsData entry.
- */
-function makeEntry(elementArt, riddle = {}, deco = {}) {
-  return {
-    elementArt,
-    riddle: {
-      question: '',
-      answers: [''],
-      successText: '',
-      iconFile: null,
-      iconPreview: null,
-      unlockAfterIds: [],
-      style: { locked: 'shrouded', accessible: 'highlighted', completed: 'none' },
-      ...riddle,
-    },
-    deco: { linkedElements: [], style: { locked: 'hidden', accessible: 'shrouded', completed: 'none' }, ...deco },
-  }
-}
 
 const elementsData = {
   Alpen: makeEntry('Rätsel', { question: 'Welches Gebirge?', answers: ['Alpen', ' '], iconFile: { name: 'alpen.png' } }),

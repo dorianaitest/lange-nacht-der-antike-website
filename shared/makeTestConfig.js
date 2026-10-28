@@ -41,3 +41,27 @@ export function makeConfig(mode) {
   }
   return config
 }
+
+/**
+ * Builds an elementsData entry the way the editor's App.vue does, with a riddle and a deco part.
+ * @param {string} elementArt - 'Rätsel', 'dynamische Dekoration' or 'Inaktiv'.
+ * @param {Object} riddle - overrides for the riddle part.
+ * @param {Object} deco - overrides for the deco part.
+ * @returns {Object} elementsData entry.
+ */
+export function makeEntry(elementArt, riddle = {}, deco = {}) {
+  return {
+    elementArt,
+    riddle: {
+      question: '',
+      answers: [''],
+      successText: '',
+      iconFile: null,
+      iconPreview: null,
+      unlockAfterIds: [],
+      style: { locked: 'shrouded', accessible: 'highlighted', completed: 'none' },
+      ...riddle,
+    },
+    deco: { linkedElements: [], style: { locked: 'hidden', accessible: 'shrouded', completed: 'none' }, ...deco },
+  }
+}

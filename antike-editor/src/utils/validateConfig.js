@@ -1,3 +1,5 @@
+import { checkUnlockGraph } from '@shared/gameLogic.js'
+
 /**
  * Checks the current editor state for errors and warnings,
  * and what those issues are.
@@ -29,9 +31,11 @@ export function validateConfig(
   const incompleteIds = []
   const noAnswerIds = []
   const unlinkedDecoIds = []
+  const nodes = {} // minimal config shape for checkUnlockGraph
   for (const id in elementsData) {
     const entry = elementsData[id]
     if (entry.elementArt === 'Rätsel') {
+      nodes[id] = { type: 'riddle', unlockAfterIds: entry.riddle.unlockAfterIds }
       riddleCount++
       if (entry.riddle.unlockAfterIds.length === 0) {
         hasStartRiddle = true
@@ -49,8 +53,9 @@ export function validateConfig(
       if (!entry.riddle.question || !entry.riddle.successText) {
         incompleteIds.push(id)
       }
-    } else if (entry.elementArt === 'dynamische Dekoration' && entry.deco.linkedElements.length === 0) {
-      unlinkedDecoIds.push(id)
+    } else if (entry.elementArt === 'dynamische Dekoration') {
+      nodes[id] = { type: 'decoration', linkedElements: entry.deco.linkedElements }
+      if (entry.deco.linkedElements.length === 0) unlinkedDecoIds.push(id)
     }
   }
 
@@ -87,6 +92,34 @@ export function validateConfig(
     )
   }
 
+  const unlockGraph = checkUnlockGraph({ nodes, finalRiddleId: mode === 'SymbolRiddle' ? finalRiddleId : null })
+  if (unlockGraph.unreachableIds.length > 0) {
+    errors.push(
+      unlockGraph.unreachableIds.length +
+        ' Rätsel können nie freigeschaltet werden, weil keine ihrer Voraussetzungen von einem Start-Rätsel aus erreichbar ist: ' +
+        unlockGraph.unreachableIds.join(', ') +
+        '.',
+    )
+  }
+
+  if (unlockGraph.deadUnlockRefs.length > 0) {
+    warnings.push(
+      unlockGraph.deadUnlockRefs.length +
+        ' Freischalt-Bedingung(en) verweisen auf Elemente, die keine Rätsel sind: ' +
+        formatReferences(unlockGraph.deadUnlockRefs) +
+        '.',
+    )
+  }
+
+  if (unlockGraph.deadDecorationLinks.length > 0) {
+    warnings.push(
+      unlockGraph.deadDecorationLinks.length +
+        ' Verknüpfung(en) dynamischer Dekorationen verweisen auf Elemente, die keine Rätsel sind: ' +
+        formatReferences(unlockGraph.deadDecorationLinks) +
+        '.',
+    )
+  }
+
   if (mode === 'SymbolRiddle' && !finalRiddleId) {
     errors.push('Es wurde kein Abschluss-Rätsel festgelegt.')
   }
@@ -114,4 +147,13 @@ export function validateConfig(
   }
 
   return { errors, warnings, hasStartRiddle, riddleCount, incompleteIds, noAnswerIds, unlinkedDecoIds }
+}
+
+/**
+ * Formats references for a message.
+ * @param {Array<{id: string, targetId: string}>} references - element and the id it points to.
+ * @returns {string} e.g. `Genua → Alt, Roma → [last]`.
+ */
+function formatReferences(references) {
+  return references.map((reference) => reference.id + ' → ' + reference.targetId).join(', ')
 }
