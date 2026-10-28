@@ -15,6 +15,7 @@ Es gibt kein Backend und keine Server-Komponente, beide Projekte laufen rein im 
   Die Editor-Vorschau und der Viewer spielen das Rätsel über denselben `GameScreen`.
   Außerdem liegt hier das JSON-Schema des Config-Formats (`riddle-config.schema.json`) mit seinem Validator (`validateRiddleConfig.js`).
   Der Viewer prüft damit jede geladene `riddle-config.json`, der Editor jede importierte und jede exportierte.
+  Bei einem Fehler zeigen beide auf Deutsch, was genau falsch ist, z. B. welches Feld bei welchem Rätsel fehlt oder einen unerlaubten Wert hat.
 
 Die beiden Projekte sind über das Zip-/Config-Format und den Ordner `shared/` gekoppelt.
 Es gibt keine gemeinsame Datenbank.
@@ -71,6 +72,7 @@ Die Spiellogik in `shared/gameLogic.js` ist mit Vitest getestet, die Tests liege
 Sie prüfen Antwortprüfung, Freischaltregeln, Karten- und Dekorationszustände, Zeitformat und Symbolvergabe.
 Das JSON-Schema ist in `shared/validateRiddleConfig.test.js` getestet.
 Diese Tests prüfen gültige und ungültige Configs beider Modi und erzeugen außerdem Configs mit dem `buildRiddleConfig` des Editors, damit Schema und Export nicht auseinanderlaufen.
+Außerdem prüfen sie den genauen Wortlaut der deutschen Fehlermeldungen für jede Fehlerart.
 Die Vue-Komponenten und die Darstellung im Browser sind nicht abgedeckt.
 
 ```bash
