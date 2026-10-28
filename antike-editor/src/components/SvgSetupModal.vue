@@ -48,11 +48,12 @@
 import { ref, provide, inject } from 'vue'
 import BaseModal from './BaseModal.vue'
 import SvgMap from './SvgMap.vue'
-import { ELEMENTS_DATA, EXTRACT_ELEMENTS } from '../injectionKeys.js'
+import { ELEMENTS_DATA, EXTRACT_ELEMENTS, FINAL_RIDDLE_ID } from '../injectionKeys.js'
 
 defineEmits(['close'])
 
 const elementsData = inject(ELEMENTS_DATA)
+const finalRiddleId = inject(FINAL_RIDDLE_ID)
 provide(EXTRACT_ELEMENTS, () => {}) // prevent EXTRACT_ELEMENTS from resetting elementsData; cleanup later
 
 const options = ['Inaktiv', 'Rätsel', 'dynamische Dekoration']
@@ -68,6 +69,7 @@ const svgMap = ref(null)
 /**
  * Changes an element's role. When it stops being a riddle, its id is removed from
  * every unlock condition and decoration link, so no riddle waits on it forever.
+ * A reclassified final riddle is unset, so the editor asks for a new one.
  * @param {string} id - SVG element id.
  * @param {string} elementArt - new role.
  */
@@ -75,6 +77,7 @@ function setElementArt(id, elementArt) {
   const wasRiddle = elementsData.value[id].elementArt === 'Rätsel'
   elementsData.value[id].elementArt = elementArt
   if (!wasRiddle || elementArt === 'Rätsel') return
+  if (finalRiddleId.value === id) finalRiddleId.value = null
 
   for (const entry of Object.values(elementsData.value)) {
     entry.riddle.unlockAfterIds = entry.riddle.unlockAfterIds.filter((otherId) => otherId !== id)
