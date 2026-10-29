@@ -201,7 +201,7 @@ export function buildShuffledSymbolEntries(assignedSymbols) {
  * Draws a random unused pool symbol and marks it as used.
  * @param {Array<{preview: string}>} symbolPool - all pool symbols.
  * @param {Object<number, boolean>} usedSymbolIndices - pool indices already drawn, updated in place.
- * @returns {string|null} preview url of the drawn symbol, or null if the pool is used up.
+ * @returns {number|null} pool index of the drawn symbol, or null if the pool is used up.
  */
 export function drawRandomSymbol(symbolPool, usedSymbolIndices) {
   const available = []
@@ -214,20 +214,20 @@ export function drawRandomSymbol(symbolPool, usedSymbolIndices) {
 
   const pick = available[Math.floor(Math.random() * available.length)]
   usedSymbolIndices[pick] = true
-  return symbolPool[pick].preview
+  return pick
 }
 
 /**
  * Takes the first unused pool symbol and marks it as used, for the final riddle's own symbol.
  * @param {Array<{preview: string}>} symbolPool - all pool symbols.
  * @param {Object<number, boolean>} usedSymbolIndices - pool indices already drawn, updated in place.
- * @returns {string|null} preview url of the symbol, or null if the pool is used up.
+ * @returns {number|null} pool index of the symbol, or null if the pool is used up.
  */
 export function drawFinalRiddleSymbol(symbolPool, usedSymbolIndices) {
   for (let i = 0; i < symbolPool.length; i++) {
     if (!usedSymbolIndices[i]) {
       usedSymbolIndices[i] = true
-      return symbolPool[i].preview
+      return i
     }
   }
   return null

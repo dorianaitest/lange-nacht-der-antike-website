@@ -179,7 +179,7 @@ describe('symbol drawing', () => {
   it('draws every pool symbol exactly once, then null', () => {
     const used = {}
     const drawn = [drawRandomSymbol(pool, used), drawRandomSymbol(pool, used), drawRandomSymbol(pool, used)]
-    expect([...drawn].sort()).toEqual(['a', 'b', 'c'])
+    expect([...drawn].sort()).toEqual([0, 1, 2])
     expect(drawRandomSymbol(pool, used)).toBe(null)
   })
 
@@ -189,7 +189,7 @@ describe('symbol drawing', () => {
   })
 
   it('gives the final riddle the first symbol not yet drawn', () => {
-    expect(drawFinalRiddleSymbol(pool, { 0: true, 2: true })).toBe('b')
+    expect(drawFinalRiddleSymbol(pool, { 0: true, 2: true })).toBe(1)
   })
 
   it('shuffles all assigned symbols without losing or duplicating any', () => {

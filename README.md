@@ -59,6 +59,15 @@ npm run dev
 
 Das exportierte Zip im Viewer laden, danach ist die Karte inklusive Rätsel-Freischaltung und Antwortprüfung spielbar.
 
+Spielfortschritt im Viewer:<br>
+Ein gestartetes Spiel wird im Browser (localStorage) gespeichert.
+Wer die Seite neu lädt oder später wieder öffnet, spielt ohne Startbildschirm direkt auf der Karte weiter.
+Gelöste Rätsel, erhaltene Symbole, die Zeit und eine laufende Strafzeit bleiben dabei erhalten; die Zeit läuft auch weiter, während die Seite geschlossen ist.
+Ein beendetes Spiel zeigt nach dem Neuladen wieder den Abschlussbildschirm mit der Endzeit.
+Der gespeicherte Fortschritt wird gelöscht durch "Neu starten" auf dem Abschlussbildschirm, 12 Stunden nach Spielbeginn und sobald ein anderes Rätsel (geänderte `riddle-config.json`) hochgeladen wird.
+Ein laufendes Spiel lässt sich für das Personal nur zurücksetzen, indem die Websitedaten im Browser gelöscht werden.
+Die Vorschau im Editor speichert nie einen Fortschritt.
+
 Rätselkonfiguration während der Entwicklung laden:<br>
 Datei unter antike-viewer/public/current/riddle.zip ablegen.
 Vite serviert alles aus public/ unverändert unter der Root, npm run dev liest sie dann von dort.
@@ -131,6 +140,8 @@ shared/               gemeinsamer Code beider Subprojekte
 |-- editorValidateConfig.test.js
 |-- gameLogic.js
 |-- gameLogic.test.js
+|-- gameProgress.js
+|-- gameProgress.test.js
 |-- makeTestConfig.js
 |-- riddle-config.schema.json
 |-- svgGameMap.css

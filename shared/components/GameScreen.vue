@@ -174,6 +174,7 @@ import {
   drawRandomSymbol,
   drawFinalRiddleSymbol,
 } from '../gameLogic.js'
+import { saveProgress, loadProgress } from '../gameProgress.js'
 
 const props = defineProps({
   svgText: {
@@ -195,32 +196,80 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  // save progress in localStorage and continue it after a reload (viewer only)
+  persistProgress: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const DEFAULT_PENALTY_SECONDS = 30
 
-// game progress
+// game progress, kept in a saveable form: pool indices instead of object urls, timestamps instead of counters
 const completedRiddles = reactive({})
 const assignedSymbols = reactive({})
-const usedSymbolIndices = {}
 const symbolSelectionPassed = reactive({})
+const startedAt = ref(null)
+const finishedAt = ref(null)
+const penaltyEndsAt = ref(null)
 
 // flow control
-const isGameStarted = ref(false)
 const activeRiddle = ref(null)
 const answerInput = ref('')
 const answerState = ref('idle')
 const riddlePhase = ref('riddle')
 const shuffledSymbolEntries = ref([])
 
-// timer
-const elapsedSeconds = ref(0)
-let intervalId = null
+// clock that drives the timer and the penalty countdown
+const now = ref(Date.now())
+let tickIntervalId = null
 
-// penalty
-const isPenaltyActive = ref(false)
-const penaltySecondsLeft = ref(0)
-let penaltyIntervalId = null
+/**
+ * Checks if the player has confirmed the start screen.
+ * @returns {boolean} True once the game has started.
+ */
+const isGameStarted = computed(function () {
+  return startedAt.value !== null
+})
+
+/**
+ * Computes the elapsed game time, frozen once the game is finished.
+ * @returns {number} Whole seconds since the start.
+ */
+const elapsedSeconds = computed(function () {
+  if (startedAt.value === null) return 0
+  const endedAt = finishedAt.value ?? now.value
+  return Math.floor((endedAt - startedAt.value) / 1000)
+})
+
+/**
+ * Checks if the final-riddle penalty countdown is running.
+ * @returns {boolean} True while the penalty is active.
+ */
+const isPenaltyActive = computed(function () {
+  return penaltyEndsAt.value !== null
+})
+
+/**
+ * Computes the remaining penalty time.
+ * @returns {number} Whole seconds left, rounded up.
+ */
+const penaltySecondsLeft = computed(function () {
+  if (penaltyEndsAt.value === null) return 0
+  return Math.max(0, Math.ceil((penaltyEndsAt.value - now.value) / 1000))
+})
+
+/**
+ * Maps each assigned pool index to its preview url.
+ * @returns {Object<string, string>} Map of riddle id to symbol preview url.
+ */
+const assignedSymbolPreviews = computed(function () {
+  const previews = {}
+  for (const riddleId in assignedSymbols) {
+    previews[riddleId] = props.symbolPool[assignedSymbols[riddleId]].preview
+  }
+  return previews
+})
 
 /**
  * Counts riddle elements in the config
@@ -289,7 +338,7 @@ const activeRiddleIconPreview = computed(function () {
   if (isSymbolRiddleMode.value) {
     // final riddle Phase 2 has no symbol reward
     if (isFinalRiddle.value) return null
-    return assignedSymbols[activeRiddle.value.id] || null
+    return assignedSymbolPreviews.value[activeRiddle.value.id] || null
   }
 
   return props.riddleIcons[activeRiddle.value.id] || null
@@ -304,19 +353,25 @@ const symbolPickerData = computed(function () {
   return props.config.nodes[activeRiddle.value.id]?.symbolPicker || null
 })
 
-/** Starts the elapsed-time timer, resetting it to zero. */
-function startTimer() {
-  clearInterval(intervalId)
-  elapsedSeconds.value = 0
-  intervalId = setInterval(function () {
-    elapsedSeconds.value++
-  }, 1000)
+/** Starts updating the clock every second. */
+function startClock() {
+  clearInterval(tickIntervalId)
+  now.value = Date.now()
+  tickIntervalId = setInterval(tick, 1000)
 }
 
-/** Stops the elapsed-time timer. */
-function stopTimer() {
-  clearInterval(intervalId)
-  intervalId = null
+/** Stops updating the clock. */
+function stopClock() {
+  clearInterval(tickIntervalId)
+  tickIntervalId = null
+}
+
+/** Updates the clock and ends the penalty once its time is up. */
+function tick() {
+  now.value = Date.now()
+  if (isPenaltyActive.value && now.value >= penaltyEndsAt.value) {
+    endPenalty()
+  }
 }
 
 /** Closes the active riddle dialog and resets its input state. */
@@ -330,30 +385,39 @@ function closeDialog() {
 /** Closes the dialog and starts the final-riddle wrong-answer penalty countdown. */
 function startPenalty() {
   closeDialog()
-  penaltySecondsLeft.value = props.config.finalRiddlePenalty || DEFAULT_PENALTY_SECONDS
-  isPenaltyActive.value = true
-
-  penaltyIntervalId = setInterval(function () {
-    penaltySecondsLeft.value--
-
-    if (penaltySecondsLeft.value <= 0) {
-      clearInterval(penaltyIntervalId)
-      penaltyIntervalId = null
-      isPenaltyActive.value = false
-
-      // reopen the riddle dialog automatically since that's all that's left
-      onRiddleClick({
-        id: props.config.finalRiddleId,
-        riddle: props.config.nodes[props.config.finalRiddleId].riddle,
-      })
-    }
-  }, 1000)
+  const penaltySeconds = props.config.finalRiddlePenalty || DEFAULT_PENALTY_SECONDS
+  // restart the clock so its ticks line up with the penalty and it ends on time
+  startClock()
+  penaltyEndsAt.value = now.value + penaltySeconds * 1000
 }
 
-/** Marks the game as started and starts the timer. */
+/** Ends the penalty and reopens the final riddle. */
+function endPenalty() {
+  penaltyEndsAt.value = null
+
+  // reopen the riddle dialog automatically since that's all that's left
+  onRiddleClick({
+    id: props.config.finalRiddleId,
+    riddle: props.config.nodes[props.config.finalRiddleId].riddle,
+  })
+}
+
+/** Marks the game as started and starts the clock. */
 function startGame() {
-  isGameStarted.value = true
-  startTimer()
+  startedAt.value = Date.now()
+  startClock()
+}
+
+/**
+ * Collects the pool indices already assigned to a riddle.
+ * @returns {Object<number, boolean>} Map of used pool index to true.
+ */
+function getUsedSymbolIndices() {
+  const used = {}
+  for (const riddleId in assignedSymbols) {
+    used[assignedSymbols[riddleId]] = true
+  }
+  return used
 }
 
 /**
@@ -361,10 +425,10 @@ function startGame() {
  * @param {string} riddleId - Riddle id to assign a symbol to.
  */
 function assignFinalRiddleSymbol(riddleId) {
-  if (assignedSymbols[riddleId]) return
+  if (riddleId in assignedSymbols) return
 
-  const symbol = drawFinalRiddleSymbol(props.symbolPool, usedSymbolIndices)
-  if (symbol) assignedSymbols[riddleId] = symbol
+  const poolIndex = drawFinalRiddleSymbol(props.symbolPool, getUsedSymbolIndices())
+  if (poolIndex !== null) assignedSymbols[riddleId] = poolIndex
 }
 
 /**
@@ -391,7 +455,7 @@ function onRiddleClick(riddleElement) {
 
   riddlePhase.value = 'symbol'
   assignFinalRiddleSymbol(riddleElement.id)
-  shuffledSymbolEntries.value = buildShuffledSymbolEntries(assignedSymbols)
+  shuffledSymbolEntries.value = buildShuffledSymbolEntries(assignedSymbolPreviews.value)
 }
 
 /**
@@ -399,8 +463,8 @@ function onRiddleClick(riddleElement) {
  * @param {string} riddleId - riddle id to assign a symbol to.
  */
 function assignRandomSymbol(riddleId) {
-  const symbol = drawRandomSymbol(props.symbolPool, usedSymbolIndices)
-  if (symbol) assignedSymbols[riddleId] = symbol
+  const poolIndex = drawRandomSymbol(props.symbolPool, getUsedSymbolIndices())
+  if (poolIndex !== null) assignedSymbols[riddleId] = poolIndex
 }
 
 /** Validates the current answer input and marks the riddle solved if correct. */
@@ -443,15 +507,63 @@ function proceedToRiddle() {
   answerState.value = 'idle'
 }
 
-/** Watches for the game to finish so that the timer is stopped */
+/** Watches for the game to finish so that the timer is frozen */
 watch(isAllComplete, function (done) {
-  if (done) {
-    stopTimer()
+  // a restored finished game keeps its saved finish time
+  if (done && finishedAt.value === null) {
+    finishedAt.value = Date.now()
+    stopClock()
   }
 })
 
+/**
+ * Collects the saveable game progress.
+ * @returns {Object} progress in the shape gameProgress.js stores.
+ */
+function getProgress() {
+  return {
+    startedAt: startedAt.value,
+    finishedAt: finishedAt.value,
+    penaltyEndsAt: penaltyEndsAt.value,
+    completedRiddles: completedRiddles,
+    assignedSymbols: assignedSymbols,
+    symbolSelectionPassed: symbolSelectionPassed,
+  }
+}
+
+/** Continues a saved game, if there is one for this config. */
+function restoreProgress() {
+  const saved = loadProgress(props.config, Date.now())
+  if (saved === null) return
+
+  Object.assign(completedRiddles, saved.completedRiddles)
+  Object.assign(assignedSymbols, saved.assignedSymbols)
+  Object.assign(symbolSelectionPassed, saved.symbolSelectionPassed)
+  startedAt.value = saved.startedAt
+  finishedAt.value = saved.finishedAt
+
+  // a penalty that ran out while the page was closed just ends, the player is back on the map
+  if (saved.penaltyEndsAt !== null && saved.penaltyEndsAt > Date.now()) {
+    penaltyEndsAt.value = saved.penaltyEndsAt
+  }
+
+  // shortcut: a restored penalty may end up to 1s late since ticks are not aligned to it, fine for a countdown
+  if (finishedAt.value === null) startClock()
+}
+
+if (props.persistProgress) {
+  restoreProgress()
+
+  watch(
+    getProgress,
+    function (progress) {
+      if (progress.startedAt !== null) saveProgress(props.config, progress)
+    },
+    { deep: true },
+  )
+}
+
 onUnmounted(function () {
-  stopTimer()
-  clearInterval(penaltyIntervalId)
+  stopClock()
 })
 </script>

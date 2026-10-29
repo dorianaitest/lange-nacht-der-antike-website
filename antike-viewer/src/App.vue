@@ -22,6 +22,7 @@
       :config="config"
       :symbolPool="symbolPool"
       :riddleIcons="riddleIcons"
+      persistProgress
     >
       <template #completion-actions>
         <BaseButton variant="secondary" @click="restart">Neu starten</BaseButton>
@@ -36,6 +37,7 @@ import GameScreen from '@shared/components/GameScreen.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
 import { loadRiddle } from './utils/loadRiddle.js'
 import { RiddleConfigError, summarizeMessages } from '@shared/validateRiddleConfig.js'
+import { clearProgress } from '@shared/gameProgress.js'
 
 const state = ref('loading')
 const configErrors = ref([])
@@ -59,8 +61,9 @@ const riddleIcons = computed(function () {
 })
 
 // consider if needed / wanted. Maybe guard click.
-/** Reloads the page to restart the game. */
+/** Clears the saved progress and reloads the page to restart the game. */
 function restart() {
+  clearProgress()
   window.location.reload()
 }
 
