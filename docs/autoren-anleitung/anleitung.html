@@ -212,12 +212,15 @@
     <tr><th>Port</th><td><span class="fill-in">&lt;PORT&gt;</span></td></tr>
     <tr><th>Benutzername</th><td><span class="fill-in">&lt;BENUTZERNAME&gt;</span></td></tr>
     <tr><th>Passwort</th><td><span class="fill-in">&lt;PASSWORT&gt;</span></td></tr>
-    <tr><th>Zielordner</th><td><code>/httpdocs/viewer-vorschau/current</code></td></tr>
+    <tr><th>Zielordner</th><td><code>/httpdocs/current</code></td></tr>
+    <tr><th>Editor</th><td><code>porta.lernnetz.de/editor</code></td></tr>
+    <tr><th>Editor-Login</th><td><span class="fill-in">&lt;EDITOR-BENUTZERNAME&gt;</span> / <span class="fill-in">&lt;EDITOR-PASSWORT&gt;</span></td></tr>
   </table>
   <p>Die rot umrandeten Werte stehen in deinen Zugangsdaten.
   Gib dein Passwort nie an andere weiter.</p>
   <p>Außerdem brauchst du die neue Datei <span class="file-name">riddle.zip</span>.
-  Du bekommst sie im Editor über <span class="ui">Exportieren</span>.</p>
+  Du bekommst sie im Editor über <span class="ui">Exportieren</span>.
+  Der Editor fragt beim Öffnen nach dem Editor-Login, nicht nach den FileZilla-Zugangsdaten.</p>
 
   <div class="box warning">
     <p><strong>Wichtig: Bewahre die letzte funktionierende Version auf.</strong>
@@ -318,7 +321,7 @@
   <ol start="4">
     <li>Wechsle in den Reiter <span class="ui">Erweitert</span>.</li>
     <li>Trage bei <span class="ui">Standard-Verzeichnis auf Server</span> genau das ein:<br>
-    <code>/httpdocs/viewer-vorschau/current</code><br>
+    <code>/httpdocs/current</code><br>
     Dann öffnet FileZilla immer direkt den richtigen Ordner.</li>
   </ol>
 
@@ -358,7 +361,7 @@
   Links ist dein Computer (<span class="ui">Lokal</span>), rechts der Server (<span class="ui">Server</span>).</p>
 
   <ol>
-    <li>Prüfe das Feld <span class="ui">Server</span> über der rechten Hälfte (nicht die Leiste ganz oben): Dort muss <code>/httpdocs/viewer-vorschau/current</code> stehen.</li>
+    <li>Prüfe das Feld <span class="ui">Server</span> über der rechten Hälfte (nicht die Leiste ganz oben): Dort muss <code>/httpdocs/current</code> stehen.</li>
     <li>Prüfe unten rechts in der Dateiliste: Dort muss die bisherige <span class="file-name">riddle.zip</span> zu sehen sein.</li>
   </ol>
 
@@ -375,9 +378,9 @@
 
   <div class="box warning">
     <p><strong>Ändere nichts außerhalb von <code>current</code>.</strong>
-    Auf dem Server liegen auch andere Teile der Webseite.
-    Verschiebe, lösche oder überschreibe dort nichts.
-    Wenn oben rechts ein anderer Pfad steht, tippe <code>/httpdocs/viewer-vorschau/current</code> in das Feld und drücke Enter.</p>
+    Direkt neben <code>current</code> liegen die Webseite selbst (<span class="file-name">index.html</span>, <code>assets</code>), der Editor (<code>editor</code>) und die Spiele der Vorjahre (<code>archive_…</code>).
+    Verschiebe, lösche oder überschreibe dort nichts, sonst ist die Webseite kaputt.
+    Wenn oben rechts ein anderer Pfad steht, tippe <code>/httpdocs/current</code> in das Feld und drücke Enter.</p>
   </div>
 
   <footer class="page-footer"><span>Anleitung: Rätsel hochladen</span><span>Seite 5 von 8</span></footer>
@@ -468,7 +471,7 @@
   </header>
 
   <ol>
-    <li>Öffne im Browser <span class="fill-in">&lt;WEBSEITE&gt;</span><code>/viewer-vorschau/</code>.
+    <li>Öffne im Browser <code>porta.lernnetz.de</code>.
     Ist die Seite schon offen, lade sie neu (Taste F5, am Mac Cmd&nbsp;+&nbsp;R).</li>
     <li>Prüfe an etwas, das du geändert hast, z.&nbsp;B. am Titel des Startbildschirms, ob dein neues Rätsel zu sehen ist.</li>
     <li>Siehst du noch das alte Rätsel, öffne die Seite in einem privaten Fenster.
