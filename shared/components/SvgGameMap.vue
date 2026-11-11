@@ -142,7 +142,6 @@ function setupListeners() {
       if (!isAccessible(id, props.config, props.completedRiddles)) return
 
       svgElement.classList.add('preview-riddle-hover')
-      svgElement.style.cursor = 'pointer'
     }
 
     function onLeave() {
