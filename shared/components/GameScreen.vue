@@ -25,10 +25,20 @@
           </p>
         </div>
         <div class="mt-5">
-          <BaseButton @click="startGame">Spiel starten</BaseButton>
+          <BaseButton @click="isStartConfirmOpen = true">Spiel starten</BaseButton>
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      v-if="isStartConfirmOpen"
+      title="Bereit?"
+      message="Starte erst, wenn die Betreuung das Startsignal gibt. Ab dann läuft die Zeit."
+      confirmLabel="Ja, starten"
+      cancelLabel="Noch nicht"
+      @confirm="startGame"
+      @cancel="isStartConfirmOpen = false"
+    />
 
     <div v-if="isAllComplete && !activeRiddle" class="modal-overlay">
       <div class="modal-card">
@@ -167,6 +177,7 @@
 import { ref, reactive, computed, watch, onUnmounted } from 'vue'
 import SvgGameMap from './SvgGameMap.vue'
 import BaseButton from './BaseButton.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
 import {
   isAnswerCorrect,
   formatTime,
@@ -219,6 +230,7 @@ const answerInput = ref('')
 const answerState = ref('idle')
 const riddlePhase = ref('riddle')
 const shuffledSymbolEntries = ref([])
+const isStartConfirmOpen = ref(false)
 
 // clock that drives the timer and the penalty countdown
 const now = ref(Date.now())
@@ -404,6 +416,7 @@ function endPenalty() {
 
 /** Marks the game as started and starts the clock. */
 function startGame() {
+  isStartConfirmOpen.value = false
   startedAt.value = Date.now()
   startClock()
 }

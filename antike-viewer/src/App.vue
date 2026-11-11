@@ -25,9 +25,18 @@
       persistProgress
     >
       <template #completion-actions>
-        <BaseButton variant="secondary" @click="restart">Neu starten</BaseButton>
+        <BaseButton variant="secondary" @click="isRestartConfirmOpen = true">Neu starten</BaseButton>
       </template>
     </GameScreen>
+
+    <ConfirmDialog
+      v-if="isRestartConfirmOpen"
+      title="Spiel wirklich neu starten?"
+      message="Deine Zeit und dein Fortschritt werden gelöscht."
+      confirmLabel="Ja, neu starten"
+      @confirm="restart"
+      @cancel="isRestartConfirmOpen = false"
+    />
   </div>
 </template>
 
@@ -35,6 +44,7 @@
 import { ref, computed, onMounted } from 'vue'
 import GameScreen from '@shared/components/GameScreen.vue'
 import BaseButton from '@shared/components/BaseButton.vue'
+import ConfirmDialog from '@shared/components/ConfirmDialog.vue'
 import { loadRiddle } from './utils/loadRiddle.js'
 import { RiddleConfigError, summarizeMessages } from '@shared/validateRiddleConfig.js'
 import { clearProgress } from '@shared/gameProgress.js'
@@ -45,6 +55,7 @@ const svgText = ref('')
 const config = ref(null)
 const iconMap = ref({})
 const symbolPool = ref([])
+const isRestartConfirmOpen = ref(false)
 
 /**
  * Maps each riddle id to its Standard mode reward icon url.
